@@ -436,6 +436,19 @@ changequote([,])dnl
 	fi
         using_cgen=yes
         ;;
+
+      esp32ulp)
+        echo ${extra_objects} | grep -s "esp32ulp-parse.o"
+        if test $? -ne 0 ; then
+          extra_objects="$extra_objects esp32ulp-parse.o"
+        fi
+
+        echo ${extra_objects} | grep -s "esp32ulp-lex-wrapper.o"
+        if test $? -ne 0 ; then
+          extra_objects="$extra_objects esp32ulp-lex-wrapper.o"
+        fi
+        ;;
+
       epiphany | fr30 | ip2k | iq2000 | lm32 | m32r | or1k)
 	using_cgen=yes
 	;;

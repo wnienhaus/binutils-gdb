@@ -3,6 +3,7 @@
 #include "libbfd.h"
 #include "elf-bfd.h"
 #include "elf/esp32ulp.h"
+#include "elf32-esp32ulp.h"
 #include "dwarf2.h"
 #include "hashtab.h"
 
