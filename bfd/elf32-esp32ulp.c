@@ -161,6 +161,11 @@ static bfd_reloc_status_type esp32ulp_jumprelr_reloc(bfd *abfd, arelent *reloc_e
 	//DEBUG_TRACE("dya_pass esp32ulp_jumprelr_reloc: relocation=%08x, ddd=%08x\n", (unsigned int)relocation, ddd);
 	ddd &= ~(0x000000ff < 17);
 	int reloc = (int)relocation;
+	//printf("relock=%i \n",reloc);
+	if ((reloc > 0x7f) || (reloc < -0x7f))
+	{
+		return bfd_reloc_outofrange;
+	}
 	if (reloc >= 0)
 	{
 		ddd |= ((reloc & 0x7f) << 17);
@@ -319,10 +324,10 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	HOWTO(R_ESP32ULP_RIMM16,		/* type.  */
 	0,								/* rightshift.  */
 	2,								/* size (0 = byte, 1 = short, 2 = long).  */
-	16,								/* bitsize.  */
+	11,								/* bitsize.  */
 	FALSE,							/* pc_relative.  */
 	2,								/* bitpos.  */
-	complain_overflow_signed,		/* complain_on_overflow.  */
+	complain_overflow_unsigned,		/* complain_on_overflow.  */
 	esp32ulp_imm16_reloc,			/* special_function.  */
 	"R_ESP32ULP_RIMM16",			/* name.  */
 	FALSE,							/* partial_inplace.  */
@@ -347,10 +352,10 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	HOWTO(R_ESP32ULP_LOAD16,		/* type.  */
 	0,								/* rightshift.  */
 	2,								/* size (0 = byte, 1 = short, 2 = long).  */
-	16,								/* bitsize.  */
+	11,								/* bitsize.  */
 	FALSE,							/* pc_relative.  */
 	2,								/* bitpos.  */
-	complain_overflow_signed,		/* complain_on_overflow.  */
+	complain_overflow_unsigned,		/* complain_on_overflow.  */
 	esp32ulp_imm16_reloc,			/* special_function.  */
 	"R_ESP32ULP_RIMM16",			/* name.  */
 	FALSE,							/* partial_inplace.  */
@@ -361,10 +366,10 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	HOWTO(R_ESP32ULP_WR_MEM,		/* type.  */
 	0,			/* rightshift.  */
 	2,			/* size (0 = byte, 1 = short, 2 = long).  */
-	16,			/* bitsize.  */
+	11,			/* bitsize.  */
 	FALSE,			/* pc_relative.  */
 	10,			/* bitpos.  */
-	complain_overflow_signed, /* complain_on_overflow.  */
+	complain_overflow_unsigned, /* complain_on_overflow.  */
 	NULL,		/* special_function.  */
 	"R_ESP32ULP_WR_MEM",	/* name.  */
 	FALSE,			/* partial_inplace.  */
@@ -392,7 +397,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	16,			/* bitsize.  */
 	FALSE,			/* pc_relative.  */
 	0,			/* bitpos.  */
-	complain_overflow_signed, /* complain_on_overflow.  */
+	complain_overflow_unsigned, /* complain_on_overflow.  */
 	NULL,		/* special_function.  */
 	"R_ESP32ULP_WAIT",	/* name.  */
 	FALSE,			/* partial_inplace.  */
@@ -403,10 +408,10 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	HOWTO(R_ESP32ULP_TSENS_CYCLE,		/* type.  */
 	0,			/* rightshift.  */
 	2,			/* size (0 = byte, 1 = short, 2 = long).  */
-	16,			/* bitsize.  */
+	12,			/* bitsize.  */
 	FALSE,			/* pc_relative.  */
 	16,			/* bitpos.  */
-	complain_overflow_signed, /* complain_on_overflow.  */
+	complain_overflow_unsigned, /* complain_on_overflow.  */
 	NULL,		/* special_function.  */
 	"R_ESP32ULP_TSENS_CYCLE",	/* name.  */
 	FALSE,			/* partial_inplace.  */
@@ -417,10 +422,10 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	HOWTO(R_ESP32ULP_TSENS_DELAY,		/* type.  */
 	0,			/* rightshift.  */
 	2,			/* size (0 = byte, 1 = short, 2 = long).  */
-	16,			/* bitsize.  */
+	14,			/* bitsize.  */
 	FALSE,			/* pc_relative.  */
 	2,			/* bitpos.  */
-	complain_overflow_signed, /* complain_on_overflow.  */
+	complain_overflow_unsigned, /* complain_on_overflow.  */
 	NULL,		/* special_function.  */
 	"R_ESP32ULP_TSENS_DELAY",	/* name.  */
 	FALSE,			/* partial_inplace.  */
@@ -435,7 +440,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	16,			/* bitsize.  */
 	FALSE,			/* pc_relative.  */
 	8,			/* bitpos.  */
-	complain_overflow_signed, /* complain_on_overflow.  */
+	complain_overflow_unsigned, /* complain_on_overflow.  */
 	NULL,		/* special_function.  */
 	"R_ESP32ULP_ADC_CYCLE",	/* name.  */
 	FALSE,			/* partial_inplace.  */
@@ -447,10 +452,10 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	HOWTO(R_ESP32ULP_ADC_SEL,		/* type.  */
 	0,			/* rightshift.  */
 	2,			/* size (0 = byte, 1 = short, 2 = long).  */
-	16,			/* bitsize.  */
+	1,			/* bitsize.  */
 	FALSE,			/* pc_relative.  */
 	6,			/* bitpos.  */
-	complain_overflow_signed, /* complain_on_overflow.  */
+	complain_overflow_unsigned, /* complain_on_overflow.  */
 	NULL,		/* special_function.  */
 	"R_ESP32ULP_ADC_SEL",	/* name.  */
 	FALSE,			/* partial_inplace.  */
@@ -462,10 +467,10 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	HOWTO(R_ESP32ULP_ADC_MUX,		/* type.  */
 	0,			/* rightshift.  */
 	2,			/* size (0 = byte, 1 = short, 2 = long).  */
-	16,			/* bitsize.  */
+	4,			/* bitsize.  */
 	FALSE,			/* pc_relative.  */
 	2,			/* bitpos.  */
-	complain_overflow_signed, /* complain_on_overflow.  */
+	complain_overflow_unsigned, /* complain_on_overflow.  */
 	NULL,		/* special_function.  */
 	"R_ESP32ULP_ADC_MUX",	/* name.  */
 	FALSE,			/* partial_inplace.  */
@@ -477,10 +482,10 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	HOWTO(R_ESP32ULP_WAKE,		/* type.  */
 	0,							/* rightshift.  */
 	2,							/* size (0 = byte, 1 = short, 2 = long).  */
-	16,							/* bitsize.  */
+	1,							/* bitsize.  */
 	FALSE,						/* pc_relative.  */
 	0,							/* bitpos.  */
-	complain_overflow_signed,	/* complain_on_overflow.  */
+	complain_overflow_unsigned,	/* complain_on_overflow.  */
 	NULL,						/* special_function.  */
 	"R_ESP32ULP_WAKE",			/* name.  */
 	FALSE,						/* partial_inplace.  */
@@ -492,10 +497,10 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	HOWTO(R_ESP32ULP_SLEEP,		/* type.  */
 	0,			/* rightshift.  */
 	2,			/* size (0 = byte, 1 = short, 2 = long).  */
-	16,			/* bitsize.  */
+	4,			/* bitsize.  */
 	FALSE,			/* pc_relative.  */
 	0,			/* bitpos.  */
-	complain_overflow_signed, /* complain_on_overflow.  */
+	complain_overflow_unsigned, /* complain_on_overflow.  */
 	NULL,		/* special_function.  */
 	"R_ESP32ULP_SLEEP",	/* name.  */
 	FALSE,			/* partial_inplace.  */
@@ -550,7 +555,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	HOWTO(R_ESP32ULP_JUMPS_THRESH,		/* type.  */
 	0,									/* rightshift.  */
 	2,									/* size (0 = byte, 1 = short, 2 = long).  */
-	16,									/* bitsize.  */
+	8,									/* bitsize.  */
 	FALSE,								/* pc_relative.  */
 	0,									/* bitpos.  */
 	complain_overflow_signed,			/* complain_on_overflow.  */
@@ -564,10 +569,10 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	HOWTO(R_ESP32ULP_REG_RW_HIGH,	/* type.  */
 	0,							/* rightshift.  */
 	2,							/* size (0 = byte, 1 = short, 2 = long).  */
-	16,							/* bitsize.  */
+	5,							/* bitsize.  */
 	FALSE,						/* pc_relative.  */
 	23,							/* bitpos.  */
-	complain_overflow_signed,	/* complain_on_overflow.  */
+	complain_overflow_unsigned,	/* complain_on_overflow.  */
 	NULL,						/* special_function.  */
 	"R_ESP32ULP_REG_RW_HIGH",		/* name.  */
 	FALSE,						/* partial_inplace.  */
@@ -578,10 +583,10 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	HOWTO(R_ESP32ULP_REG_RW_LOW,	/* type.  */
 	0,							/* rightshift.  */
 	2,							/* size (0 = byte, 1 = short, 2 = long).  */
-	16,							/* bitsize.  */
+	5,							/* bitsize.  */
 	FALSE,						/* pc_relative.  */
 	18,							/* bitpos.  */
-	complain_overflow_signed,	/* complain_on_overflow.  */
+	complain_overflow_unsigned,	/* complain_on_overflow.  */
 	NULL,						/* special_function.  */
 	"R_ESP32ULP_REG_RW_LOW",		/* name.  */
 	FALSE,						/* partial_inplace.  */
@@ -592,10 +597,10 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	HOWTO(R_ESP32ULP_REG_RW_ADDR,	/* type.  */
 	0,							/* rightshift.  */
 	2,							/* size (0 = byte, 1 = short, 2 = long).  */
-	16,							/* bitsize.  */
+	10,							/* bitsize.  */
 	FALSE,						/* pc_relative.  */
 	0,							/* bitpos.  */
-	complain_overflow_signed,	/* complain_on_overflow.  */
+	complain_overflow_unsigned,	/* complain_on_overflow.  */
 	NULL,						/* special_function.  */
 	"R_ESP32ULP_REG_RW_ADDR",		/* name.  */
 	FALSE,						/* partial_inplace.  */
@@ -606,10 +611,10 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	HOWTO(R_ESP32ULP_REG_RW_DATA,	/* type.  */
 	0,							/* rightshift.  */
 	2,							/* size (0 = byte, 1 = short, 2 = long).  */
-	16,							/* bitsize.  */
+	8,							/* bitsize.  */
 	FALSE,						/* pc_relative.  */
 	10,							/* bitpos.  */
-	complain_overflow_signed,	/* complain_on_overflow.  */
+	complain_overflow_unsigned,	/* complain_on_overflow.  */
 	NULL,						/* special_function.  */
 	"R_ESP32ULP_REG_RW_DATA",		/* name.  */
 	FALSE,						/* partial_inplace.  */
@@ -1085,6 +1090,7 @@ bfd_vma value, bfd_vma addend)
 		if (address > bfd_get_section_limit(input_bfd, input_section))
 			return bfd_reloc_outofrange;
 
+
 		value += addend;
 
 		/* Perform usual pc-relative correction.  */
@@ -1095,6 +1101,12 @@ bfd_vma value, bfd_vma addend)
 		memcpy(&ddd, contents + address, 4);
 		ddd &= ~(0xff << 17);
 		int compare = (int)value;
+		//printf("final reloc, compare=%i\n", compare);
+		if ((compare > 127) || (compare < -128))
+		{
+			return bfd_reloc_outofrange;
+		}
+
 		if ((compare) >= 0)
 		{
 			ddd |= ((compare & 0x0000007f) << 17);
