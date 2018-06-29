@@ -17,6 +17,7 @@
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
+#include "stopcode.h"
 #include "defs.h"
 #include "inferior.h"
 #include "infrun.h"
@@ -71,6 +72,10 @@
 #include "gdbsupport/gdb-sigmask.h"
 #include "gdbsupport/common-debug.h"
 #include <unordered_map>
+
+#ifndef __SIGRTMIN
+#define __SIGRTMIN SIGRTMIN
+#endif
 
 /* This comment documents high-level logic of this file.
 
