@@ -87,7 +87,10 @@ if test -z "$host" ; then
 fi
 
 AC_PROG_YACC
+save_LIBS=$LIBS
 AM_PROG_LEX
+LIBS=$save_LIBS
+LEXLIB=
 
 ALL_LINGUAS="bg da es fi fr id it ja ro ru rw sk sv tr uk vi zh_CN zh_TW hr ca pt"
 ZW_GNU_GETTEXT_SISTER_DIR
