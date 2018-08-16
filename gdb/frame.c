@@ -59,6 +59,8 @@ set_backtrace_options user_set_backtrace_options;
 static struct frame_info *get_prev_frame_raw (struct frame_info *this_frame);
 static const char *frame_stop_reason_symbol_string (enum unwind_stop_reason reason);
 
+static int frame_id_inline_p (struct frame_id l);
+
 /* Status of some values cached in the frame_info object.  */
 
 enum cached_copy_status
@@ -548,7 +550,10 @@ compute_frame_id (struct frame_info *fi)
   /* Default to outermost if no ID is found.  */
   fi->this_id.value = outer_frame_id;
   fi->unwind->this_id (fi, &fi->prologue_cache, &fi->this_id.value);
-  gdb_assert (frame_id_p (fi->this_id.value));
+  if (get_frame_type (fi) == INLINE_FRAME)
+    gdb_assert (frame_id_inline_p (fi->this_id.value));
+  else
+    gdb_assert (frame_id_p (fi->this_id.value));
   fi->this_id.p = 1;
   if (frame_debug)
     {
@@ -706,6 +711,35 @@ frame_id_p (struct frame_id l)
   return p;
 }
 
+static int
+frame_id_inline_p (struct frame_id l)
+{
+  int p;
+
+  /* The frame is valid iff it has a valid stack address.  */
+  p = l.stack_status != FID_STACK_INVALID;
+  /* inline outer_frame_id is also valid. */
+  if (!p) {
+    /* Check for inline frame next to the outmost one.
+      The difference between them is in two modified fields initialized in inline_frame_this_id(),
+      so zero them for comparison.
+      Other inline frames should have stack_status != FID_STACK_INVALID, so should not get here for them. */
+    struct frame_id tmp = l;
+    tmp.artificial_depth = 0;
+    tmp.code_addr = 0;
+    if (memcmp (&tmp, &outer_frame_id, sizeof (tmp)) == 0) {
+      p = 1;
+    }
+  }
+  if (frame_debug)
+    {
+      fprintf_unfiltered (gdb_stdlog, "{ frame_id_inline_p (l=");
+      fprint_frame_id (gdb_stdlog, l);
+      fprintf_unfiltered (gdb_stdlog, ") -> %d }\n", p);
+    }
+  return p;
+}
+
 int
 frame_id_artificial_p (struct frame_id l)
 {
@@ -721,13 +755,22 @@ frame_id_eq (struct frame_id l, struct frame_id r)
   int eq;
 
   if (l.stack_status == FID_STACK_INVALID && l.special_addr_p
-      && r.stack_status == FID_STACK_INVALID && r.special_addr_p)
-    /* The outermost frame marker is equal to itself.  This is the
-       dodgy thing about outer_frame_id, since between execution steps
-       we might step into another function - from which we can't
-       unwind either.  More thought required to get rid of
-       outer_frame_id.  */
-    eq = 1;
+      && r.stack_status == FID_STACK_INVALID && r.special_addr_p
+      && l.code_addr == r.code_addr)
+    if (l.code_addr == 0 && l.artificial_depth == 0 && r.artificial_depth == 0)
+      /* The outermost frame marker is equal to itself.  This is the
+         dodgy thing about outer_frame_id, since between execution steps
+         we might step into another function - from which we can't
+         unwind either.  More thought required to get rid of
+         outer_frame_id.  */
+      eq = 1;
+    /* inline frame next to the outmost one */
+    else if (l.artificial_depth != r.artificial_depth)
+      /* If artifical depths are different, the frames must be different.  */
+      eq = 0;
+    else
+      /* Frames are equal.  */
+      eq = 1;
   else if (l.stack_status == FID_STACK_INVALID
 	   || r.stack_status == FID_STACK_INVALID)
     /* Like a NaN, if either ID is invalid, the result is false.
