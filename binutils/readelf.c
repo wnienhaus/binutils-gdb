@@ -97,6 +97,7 @@
 #include "elf/avr.h"
 #include "elf/bfin.h"
 #include "elf/esp32ulp.h"
+#include "elf/esp32s2ulp.h"
 #include "elf/cr16.h"
 #include "elf/cris.h"
 #include "elf/crx.h"
@@ -1567,6 +1568,10 @@ dump_relocations (Filedata *          filedata,
 
 	case EM_ESP32ULP:
 		rtype = elf_esp32ulp_reloc_type(type);
+		break;
+
+	case EM_ESP32S2ULP:
+		rtype = elf_esp32s2ulp_reloc_type(type);
 		break;
 
 	case EM_CYGNUS_MEP:
@@ -3196,6 +3201,15 @@ get_machine_flags (Filedata * filedata, unsigned e_flags, unsigned e_machine)
 			strcat(buf, ", PIC");
 
 		if (e_flags & EF_ESP32ULP_FDPIC)
+			strcat(buf, ", FDPIC");
+
+		break;
+
+	case EM_ESP32S2ULP:
+		if (e_flags & EF_ESP32S2ULP_PIC)
+			strcat(buf, ", PIC");
+
+		if (e_flags & EF_ESP32S2ULP_FDPIC)
 			strcat(buf, ", FDPIC");
 
 		break;

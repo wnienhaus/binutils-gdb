@@ -218,6 +218,9 @@ bfin-*-linux-uclibc*)	targ_emul=elf32bfinfd;
 			;;
 
 esp32ulp-*-elf)		targ_emul=elf32esp32ulp;
+			;;
+esp32s2ulp-*-elf)	targ_emul=elf32esp32s2ulp;
+			;;
 
 bpf-*-*)		targ_emul=elf64bpf
 			;;
