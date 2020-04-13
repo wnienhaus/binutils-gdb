@@ -156,6 +156,7 @@ am__objects_1 = app.$(OBJEXT) as.$(OBJEXT) atof-generic.$(OBJEXT) \
 	listing.$(OBJEXT) literal.$(OBJEXT) macro.$(OBJEXT) \
 	messages.$(OBJEXT) output-file.$(OBJEXT) read.$(OBJEXT) \
 	remap.$(OBJEXT) sb.$(OBJEXT) stabs.$(OBJEXT) subsegs.$(OBJEXT) \
+	tc-esp32ulp_esp32.$(OBJEXT) tc-esp32ulp_esp32s2.$(OBJEXT) \
 	symbols.$(OBJEXT) write.$(OBJEXT)
 am_as_new_OBJECTS = $(am__objects_1)
 am__dirstamp = $(am__leading_dot)dirstamp
@@ -533,6 +534,8 @@ TARGET_CPU_CFILES = \
 	config/tc-bpf.c \
 	config/tc-esp32ulp.c \
 	config/tc-esp32s2ulp.c \
+	config/tc-esp32ulp_esp32.c \
+	config/tc-esp32ulp_esp32s2.c \
 	config/tc-cr16.c \
 	config/tc-cris.c \
 	config/tc-crx.c \
@@ -1113,6 +1116,8 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/app.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/as.Po@am__quote@
+#@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/comfig/tc-esp32ulp_esp32.Po@am__quote@
+#@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/comfig/tc-esp32ulp_esp32s2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/atof-generic.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/esp32ulp-parse.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/esp32s2ulp-parse.Po@am__quote@
