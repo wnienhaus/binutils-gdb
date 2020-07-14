@@ -3092,6 +3092,7 @@ xtensa_derive_tdep (struct gdbarch_tdep *tdep)
 {
   xtensa_register_t* rmap;
   int n, max_size = 4;
+  char *esp_priv_regs_fix = getenv("ESP_XTENSA_GDB_PRIV_REGS_FIX");
 
   tdep->num_regs = 0;
   tdep->num_nopriv_regs = 0;
@@ -3144,6 +3145,7 @@ xtensa_derive_tdep (struct gdbarch_tdep *tdep)
 
       if (rmap->byte_size > max_size)
 	max_size = rmap->byte_size;
+      /* stop real registers counting at the first occurence of pseudo reg */
       if (rmap->mask != 0 && tdep->num_regs == 0)
 	tdep->num_regs = n;
       /* Find out out how to deal with priveleged registers.
@@ -3152,9 +3154,25 @@ xtensa_derive_tdep (struct gdbarch_tdep *tdep)
               && tdep->num_nopriv_regs == 0)
            tdep->num_nopriv_regs = n;
       */
-      if ((rmap->flags & XTENSA_REGISTER_FLAGS_PRIVILEGED) != 0
-	  && tdep->num_regs == 0)
-	tdep->num_regs = n;
+     if (esp_priv_regs_fix == NULL) {
+        /* stop real registers counting at the first occurence of privileged reg */
+         if ((rmap->flags & XTENSA_REGISTER_FLAGS_PRIVILEGED) != 0
+	           && tdep->num_regs == 0)
+	        tdep->num_regs = n;
+     } else {
+       /* this code implies that auto-generated xtensa regs mapping has the following struct
+          1) General registers
+          2) Privileged registers
+          3) Windowed register file a0-a15
+          4) Pseudo registers representing bitfileds of real ones
+          We count real registers only (general + privileged ones).
+          Windowed and pseudo registers are calculated by GDB form the real ones.
+        */
+        /* stop real registers counting at the first occurence of windowed reg */
+        if (rmap->type == xtRegisterTypeWindow
+            && tdep->num_regs == 0)
+	        tdep->num_regs = n;
+     }
     }
 
   if (tdep->ar_base == -1)
