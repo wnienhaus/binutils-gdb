@@ -837,13 +837,16 @@ xtensa_supply_gregset (const struct regset *regset,
   if (regnum == gdbarch_tdep (gdbarch)->ws_regnum || regnum == -1)
     rc->raw_supply (gdbarch_tdep (gdbarch)->ws_regnum,
 		    (char *) &regs->windowstart);
-  if (regnum == gdbarch_tdep (gdbarch)->lbeg_regnum || regnum == -1)
+  if (gdbarch_tdep (gdbarch)->lbeg_regnum != -1 &&
+      (regnum == gdbarch_tdep (gdbarch)->lbeg_regnum || regnum == -1))
     rc->raw_supply (gdbarch_tdep (gdbarch)->lbeg_regnum,
 		    (char *) &regs->lbeg);
-  if (regnum == gdbarch_tdep (gdbarch)->lend_regnum || regnum == -1)
+  if (gdbarch_tdep (gdbarch)->lend_regnum != -1 &&
+      (regnum == gdbarch_tdep (gdbarch)->lend_regnum || regnum == -1))
     rc->raw_supply (gdbarch_tdep (gdbarch)->lend_regnum,
 		    (char *) &regs->lend);
-  if (regnum == gdbarch_tdep (gdbarch)->lcount_regnum || regnum == -1)
+  if (gdbarch_tdep (gdbarch)->lcount_regnum != -1 &&
+      (regnum == gdbarch_tdep (gdbarch)->lcount_regnum || regnum == -1))
     rc->raw_supply (gdbarch_tdep (gdbarch)->lcount_regnum,
 		    (char *) &regs->lcount);
   if (regnum == gdbarch_tdep (gdbarch)->sar_regnum || regnum == -1)
