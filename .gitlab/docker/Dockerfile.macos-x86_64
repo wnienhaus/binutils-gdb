@@ -1,0 +1,40 @@
+# syntax = edrevo/dockerfile-plus
+
+ARG DOCKER_REGISTRY
+ARG TOOLCHAIN_TAG
+
+ARG GMP_VERSION=6.2.1
+ARG MPFR_VERSION=4.1.0
+ARG MPC_VERSION=1.2.0
+ARG EXPAT_VERSION=2.4.1
+ARG NCURSES_VERSION=6.2
+ARG NCURSES_SHA256=30306e0c76e0f9f1f0de987cf1c82a5c21e1ce6568b9227f7da5b71cbea86c9d
+
+FROM ${DOCKER_REGISTRY}/esp32-toolchain-macos-cross:${TOOLCHAIN_TAG}
+
+# Download built python versions for linking when cross-compile
+ARG PYTHON_DOWNLOAD_LINKS="https://www.python.org/ftp/python/3.6.0/python-3.6.0-macosx10.6.pkg \
+    https://www.python.org/ftp/python/3.7.0/python-3.7.0-macosx10.6.pkg \
+    https://www.python.org/ftp/python/3.8.0/python-3.8.0-macosx10.9.pkg \
+    https://www.python.org/ftp/python/3.9.0/python-3.9.0-macosx10.9.pkg \
+    https://www.python.org/ftp/python/3.10.0/python-3.10.0-macos11.pkg"
+
+ARG TARGET_HOST="x86_64-apple-darwin14"
+
+INCLUDE+ ./common/Dockerfile.gdb-deps
+
+RUN for LINK in $PYTHON_DOWNLOAD_LINKS; do \
+        export TEMP_DIR="python_unpack_dir"; \
+        export FILE_NAME=$(basename $LINK); \
+        export PYTHON_VERSION=$(basename $(dirname $LINK)); \
+        export PYTHON_VERSION_MINOR=${PYTHON_VERSION%.*}; \
+        export DEST_DIR=/opt/python-$TARGET_HOST-$PYTHON_VERSION; \
+        wget --no-verbose $LINK; \
+        mkdir $TEMP_DIR && cd $TEMP_DIR; \
+        xar -xf ../$FILE_NAME; \
+        cd Python_Framework.pkg && cat Payload | gzip -d | cpio -id; \
+        mkdir -p $DEST_DIR/lib; \
+        cp Versions/$PYTHON_VERSION_MINOR/lib/libpython*.dylib $DEST_DIR/lib; \
+        cp -r Versions/$PYTHON_VERSION_MINOR/include $DEST_DIR/; \
+        cd ../../ && rm -fr $TEMP_DIR; \
+    done;
