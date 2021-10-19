@@ -167,6 +167,14 @@ BFD = $(BFD_DIR)/libbfd.a
 BFD_SRC = $(srcdir)/$(BFD_DIR)
 BFD_CFLAGS = -I$(BFD_DIR) -I$(BFD_SRC)
 
+WITH_XTENSACONFIG = @WITH_XTENSACONFIG@
+ifdef WITH_XTENSACONFIG
+# Where is the xtensaconfig library?  Typically in ../xtensaconfig.
+XTENSACONFIG_DIR=$(srcdir)/../xtensaconfig
+XTENSACONFIG = $(XTENSACONFIG_DIR)/libxtensaconfig-gdb.a $(XTENSACONFIG_DIR)/libxtensaconfig-default.a
+XTENSACONFIG_CFLAGS = -I$(XTENSACONFIG_DIR)/include
+endif
+
 # This is where we get zlib from.  zlibdir is -L../zlib and zlibinc is
 # -I../zlib, unless we were configured with --with-system-zlib, in which
 # case both are empty.
@@ -615,6 +623,9 @@ INTERNAL_CFLAGS_BASE = \
 	$(INTL_CFLAGS) $(INCGNU) $(INCSUPPORT) $(ENABLE_CFLAGS) \
 	$(INTERNAL_CPPFLAGS) $(SRCHIGH_CFLAGS) $(TOP_CFLAGS) $(PTHREAD_CFLAGS) \
 	$(DEBUGINFOD_CFLAGS)
+ifdef WITH_XTENSACONFIG
+INTERNAL_CFLAGS_BASE += $(XTENSACONFIG_CFLAGS)
+endif
 INTERNAL_WARN_CFLAGS = $(INTERNAL_CFLAGS_BASE) $(GDB_WARN_CFLAGS)
 INTERNAL_CFLAGS = $(INTERNAL_WARN_CFLAGS) $(GDB_WERROR_CFLAGS)
 
@@ -644,6 +655,11 @@ CLIBS = $(SIM) $(READLINE) $(OPCODES) $(LIBCTF) $(BFD) $(ZLIB) \
 CDEPS = $(NAT_CDEPS) $(SIM) $(BFD) $(READLINE_DEPS) $(CTF_DEPS) \
 	$(OPCODES) $(INTL_DEPS) $(LIBIBERTY) $(CONFIG_DEPS) $(LIBGNU) \
 	$(LIBSUPPORT)
+
+ifdef WITH_XTENSACONFIG
+CLIBS += $(XTENSACONFIG)
+CDEPS += $(XTENSACONFIG)
+endif
 
 DIST = gdb
 

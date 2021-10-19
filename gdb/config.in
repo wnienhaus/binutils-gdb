@@ -769,6 +769,9 @@
 /* Define if the simulator is being linked in. */
 #undef WITH_SIM
 
+/* Define xtensa dynamic configuration. */
+#undef WITH_XTENSACONFIG
+
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
 #if defined AC_APPLE_UNIVERSAL_BUILD
