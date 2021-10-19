@@ -2249,6 +2249,20 @@ fi
 AC_MSG_CHECKING([whether to use xxhash])
 AC_MSG_RESULT([$with_xxhash])
 
+
+# Check for xtensaconfig
+AC_ARG_WITH(xtensaconfig,
+  AS_HELP_STRING([--with-xtensaconfig], [use xtensaconfig for having xtensa dynamic config]),
+  [WITH_XTENSACONFIG="yes"], [WITH_XTENSACONFIG=])
+
+if test "x$WITH_XTENSACONFIG" == "xyes"; then
+  AC_DEFINE_UNQUOTED(WITH_XTENSACONFIG, 1, [Define xtensa dynamic configuration.])
+fi
+AC_SUBST(WITH_XTENSACONFIG)
+
+AC_MSG_CHECKING([whether to use xtensaconfig])
+AC_MSG_RESULT([$with_xtensaconfig])
+
 NM_H=
 rm -f nm.h
 if test "${nativefile}" != ""; then
