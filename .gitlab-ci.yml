@@ -1,0 +1,115 @@
+include: '.gitlab/ci/jobs.yml'
+
+stages:
+  - build
+  - pack
+  - private_deploy
+  - test
+
+image: $CI_DOCKER_REGISTRY/esp32-toolchain
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  TOOLCHAIN_IMAGE_TAG: 3
+  DEJAGNU_IMAGE_TAG: 20210826-3
+  GDB_DIST_DIR: ${CI_PROJECT_DIR}/dist
+
+.use_ci_tools: &use_ci_tools |
+  curl -sSL ${CIT_LOADER_URL} -o cit_loader.sh && sh cit_loader.sh
+  source citools/import_functions
+
+# Common template for all builds
+.build_template: &build_template
+  stage: build
+  tags: [ "build", "amd64" ]
+  artifacts:
+    paths:
+      - ${GDB_DIST_DIR}
+    when: always
+    expire_in: 6 hours
+  script:
+    - ./build_xtensa_gdb.sh ${CI_JOB_NAME%-*} ${CI_JOB_NAME##*-} ${GDB_DIST_DIR}
+
+# Template for tests with qemu
+.test_qemu_template: &test_qemu_template
+  stage: test
+  script:
+    - cd gdb/testsuite
+    - cp -R ${GDB_DIST_DIR}/share/gdb/* ../data-directory/
+    - ./configure --target=xtensa-${ESP_CHIP}-elf --host=xtensa-${ESP_CHIP}-elf
+    - make site.exp
+    - XTENSA_TARGET=${ESP_CHIP} make -C esp_bin_generator
+    - test "${CI_JOB_NAME##*-}" != "without_python" && pyenv local ${PYTHON_VERSION}
+    - test "${CI_JOB_NAME##*-}" != "without_python" && export LD_LIBRARY_PATH="`python-config --prefix`/lib:$LD_LIBRARY_PATH"
+    - test "${CI_JOB_NAME##*-}" == "without_python" && export ESPTOOL_PATH="/opt/pyenv/pyenv-2.2.2/versions/3.6.0/bin/esptool.py"
+    - test "${CI_JOB_NAME##*-}" == "without_python" && export GDB_PYTHON_TESTS=""
+    - export TESTS_FOR_RUN="${GDB_BASE_TESTS} ${GDB_BASE_TESTS_FOR_TARGET} ${GDB_PYTHON_TESTS}"
+    - echo "TESTS_FOR_RUN $TESTS_FOR_RUN"
+    - runtest --tool gdb --status --target xtensa-${ESP_CHIP}-elf --target_board=simesp GDB=${GDB_DIST_DIR}/bin/xtensa-${ESP_CHIP}-elf-gdb $TESTS_FOR_RUN
+
+# Template for others tests without qemu
+.test_no_qemu_template: &test_no_qemu_template
+  stage: test
+  script:
+    - cd gdb/testsuite
+    - cp -R ${GDB_DIST_DIR}/share/gdb/* ../data-directory/
+    - ./configure --target=xtensa-${ESP_CHIP}-elf --host=xtensa-${ESP_CHIP}-elf 
+    - make site.exp
+    - echo "GDB_BASE_TESTS $GDB_BASE_TESTS"
+    - test "${CI_JOB_NAME##*-}" != "without_python" && pyenv local ${PYTHON_VERSION}
+    - test "${CI_JOB_NAME##*-}" != "without_python" && export LD_LIBRARY_PATH="`python-config --prefix`/lib:$LD_LIBRARY_PATH"
+    - runtest --tool gdb --status --target xtensa-${ESP_CHIP}-elf GDB=${GDB_DIST_DIR}/bin/xtensa-${ESP_CHIP}-elf-gdb ${GDB_BASE_TESTS}
+
+# Pack build output
+.pack_template: &pack_template
+  stage: pack
+  tags: [ "build", "amd64" ]
+  variables:
+    GIT_STRATEGY: none
+  artifacts:
+    paths:
+      - ${GDB_DIST_DIR}/*.tar.bz2
+    when: always
+    expire_in: 1 day
+  script:
+    - export ARCHIVE_NAME=${ARCHIVE_PREFIX}-binutils-gdb-${CI_COMMIT_TAG:-${CI_COMMIT_SHA}}.tar.bz2
+    - mv ${GDB_DIST_DIR} binutils-gdb
+    - tar cjvf ${ARCHIVE_NAME} binutils-gdb
+    - mkdir ${GDB_DIST_DIR}
+    - mv ${ARCHIVE_NAME} ${GDB_DIST_DIR}/
+
+.private_deploy_template: &private_deploy_template
+  stage: private_deploy
+  tags:
+    - deploy
+    - shiny
+  when: manual
+  allow_failure: true
+  variables:
+    GIT_STRATEGY: none
+  artifacts:
+    reports:
+      dotenv: ${GDB_DIST_DIR}/build.env
+  before_script:
+    - *use_ci_tools
+  script:
+    - cit_add_ssh_key "${HTTP_UPLOAD_KEY}" "$(cit_parse_url_host ${HTTP_UPLOAD_DIR})"
+    # List of archives in dist/
+    - cd ${GDB_DIST_DIR}
+    - FILES=$(find . -name "*.tar.bz2")
+    - scp ${FILES} ${HTTP_UPLOAD_DIR}/
+    # Show info
+    - /bin/ls -l ${FILES}
+    - sha256sum ${FILES}
+    - echo -e "\nArchives were published there:\n\n$(for n in ${FILES}; do echo "${HTTP_PUBLIC_DIR}/${n}"; done)\n"
+    - echo "NEW_GDB_ARMHF_DISTRO_URL=${HTTP_PUBLIC_DIR}/linux_armhf-binutils-gdb-${CI_COMMIT_TAG:-${CI_COMMIT_SHA}}.tar.bz2" >> ${GDB_DIST_DIR}/build.env
+
+test_with_openocd:
+  stage: test
+  when: manual
+  allow_failure: true
+  variables:
+    GDB_ARMHF_DISTRO_URL: ${NEW_GDB_ARMHF_DISTRO_URL}
+  needs: [ upload_to_http ]
+  trigger:
+    project: idf/openocd-esp32
+    strategy: depend
