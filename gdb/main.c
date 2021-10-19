@@ -56,6 +56,11 @@
 #include "observable.h"
 #include "serial.h"
 
+#include "gdb/xtensa-tdep.h"
+#include "xtensa-isa.h"
+#include "xtensa-isa-internal.h"
+#include "xtensaconfig/dynconfig.h"
+
 /* The selected interpreter.  This will be used as a set command
    variable, so it should always be malloc'ed - since
    do_setshow_command will free it.  */
@@ -763,7 +768,8 @@ captured_main_1 (struct captured_main_args *context)
       OPT_EIX,
       OPT_EIEX,
       OPT_READNOW,
-      OPT_READNEVER
+      OPT_READNEVER,
+      OPT_XTENSACONFIG
     };
     /* This struct requires int* in the struct, but write_files is a bool.
        So use this temporary int that we write back after argument parsing.  */
@@ -840,6 +846,7 @@ captured_main_1 (struct captured_main_args *context)
       {"args", no_argument, &set_args, 1},
       {"l", required_argument, 0, 'l'},
       {"return-child-result", no_argument, &return_child_result, 1},
+      {"mcpu", required_argument, 0, OPT_XTENSACONFIG},
       {0, no_argument, 0, 0}
     };
 
@@ -1003,6 +1010,32 @@ captured_main_1 (struct captured_main_args *context)
 	    }
 	    break;
 
+	  case OPT_XTENSACONFIG:
+	    {
+              extern char *xtensaconfig_string;
+              xfree (xtensaconfig_string);
+              xtensaconfig_string = xstrdup (optarg);
+              xtensa_reset_config(); // Need for reread dynconfig after change
+
+              // Override xtensa_modules
+              // WARNING: structures in xtensa-isa-internal.h from libs and binutils sources MUST be the same
+              extern xtensa_isa_internal xtensa_modules;
+              const void *xtensa_modules_new = xtensa_load_config ("xtensa_modules", &xtensa_modules);
+              if (xtensa_modules_new != &xtensa_modules)
+              {
+                memcpy(&xtensa_modules, xtensa_modules_new, sizeof(xtensa_modules));
+              }
+
+              // Override xtensa_tdep
+              // WARNING: structures in xtensa-tdep.h from libs and binutils sources MUST be the same
+              extern struct gdbarch_tdep xtensa_tdep;
+              const void *xtensa_tdep_new = xtensa_load_config ("xtensa_tdep", &xtensa_tdep);
+              if (xtensa_tdep_new != &xtensa_tdep)
+              {
+                memcpy(&xtensa_tdep, xtensa_tdep_new, sizeof(struct gdbarch_tdep));
+              }
+	    }
+	    break;
 	  case OPT_READNOW:
 	    {
 	      readnow_symbol_files = 1;
@@ -1463,6 +1496,9 @@ Other options:\n\n\
   --cd=DIR           Change current directory to DIR.\n\
   --data-directory=DIR, -D\n\
 		     Set GDB's data-directory to DIR.\n\
+  --mcpu=ESPCHIP     Specify the name of the Xtensa configuration\n\
+		     ('esp8266', 'esp32', 'esp32s2', 'esp32s3' etc)\n\
+		     Default is xtensa from the original GDB.\n\
 "), stream);
   fputs_unfiltered (_("\n\
 At startup, GDB reads the following early init files and executes their\n\

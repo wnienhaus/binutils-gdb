@@ -1,0 +1,4 @@
+[submodule "xtensaconfig"]
+	path = xtensaconfig
+	url = ../esp-xtensaconfig-lib.git
+	branch = based_on_gdb-11
