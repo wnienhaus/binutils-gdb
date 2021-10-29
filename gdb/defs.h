@@ -126,9 +126,11 @@ extern char *gdb_sysroot;
 /* * GDB datadir, used to store data files.  */
 extern std::string gdb_datadir;
 
+#ifdef WITH_PYTHON_LIBDIR
 /* * If not empty, the possibly relocated path to python's "lib" directory
    specified with --with-python.  */
 extern std::string python_libdir;
+#endif
 
 /* * Search path for separate debug files.  */
 extern char *debug_file_directory;
