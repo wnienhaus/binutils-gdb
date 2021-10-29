@@ -1719,7 +1719,7 @@ init__gdb_module (void)
 static bool
 do_start_initialization ()
 {
-#ifdef WITH_PYTHON_PATH
+#ifdef WITH_PYTHON_LIBDIR
   /* Work around problem where python gets confused about where it is,
      and then can't find its libraries, etc.
      NOTE: Python assumes the following layout:
@@ -1755,12 +1755,14 @@ do_start_initialization ()
      remain alive for the duration of the program's execution, so
      it is not freed after this call.  */
   Py_SetProgramName (progname_copy);
-
-  /* Define _gdb as a built-in module.  */
-  PyImport_AppendInittab ("_gdb", init__gdb_module);
 #else
   Py_SetProgramName (progname.release ());
-#endif
+#endif // IS_PY3K
+#endif // WITH_PYTHON_LIBDIR
+
+#ifdef IS_PY3K
+  /* Define _gdb as a built-in module.  */
+  PyImport_AppendInittab ("_gdb", init__gdb_module);
 #endif
 
   Py_Initialize ();

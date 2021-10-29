@@ -80,9 +80,11 @@ std::string gdb_datadir;
    command line, but we don't reread system.gdbinit when that happens.  */
 static int gdb_datadir_provided = 0;
 
+#ifdef WITH_PYTHON_LIBDIR
 /* If gdb was configured with --with-python=/path,
    the possibly relocated path to python's lib directory.  */
 std::string python_libdir;
+#endif
 
 /* Target IO streams.  */
 struct ui_file *gdb_stdtargin;
