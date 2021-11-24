@@ -527,6 +527,7 @@ gdb_test "print \$cvar3" "= void" \
 # "show commands".
 gdb_test "python gdb.execute(\"show commands\")" "$decimal  print \\\$cvar3.*"
 
+if { ![use_gdb_stub]} { # Not supported for remote
 # Test that the from_tty argument to gdb.execute is effective. If
 # False, the user is not prompted for decisions such as restarting the
 # program, and "yes" is assumed. If True, the user is prompted.
@@ -538,4 +539,5 @@ gdb_test_multiple "python gdb.execute('starti', from_tty=True)" \
     -re {The program being debugged has been started already\.\r\nStart it from the beginning\? \(y or n\) $} {
 	gdb_test "y" "Starting program:.*" "starti via interactive input"
     }
+}
 }

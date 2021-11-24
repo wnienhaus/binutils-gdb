@@ -641,8 +641,10 @@ proc runto { function args } {
     gdb_run_cmd
     
     # the "at foo.c:36" output we get with -g.
-    # the "in func" output we get without -g.
-    gdb_expect 30 {
+    # the "in func" output we get without -g
+    #
+    # we have timing issues on ci runners. So use get_largest_timeout
+    gdb_expect {
 	-re "Break.* at .*:$decimal.*$gdb_prompt $" {
 	    if { $print_pass } {
 		pass $test_name
