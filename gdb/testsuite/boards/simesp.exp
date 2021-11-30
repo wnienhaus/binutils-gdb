@@ -1,0 +1,199 @@
+set simesp_spawn_id ""
+
+if { [info exists ::env(ESP_BIN_GEN_PATH)] } {
+    set esp_bin_gen_path $::env(ESP_BIN_GEN_PATH)
+} else {
+    set esp_bin_gen_path "$::env(PWD)/esp_bin_generator"
+}
+
+if { [info exists ::env(SIMESP_PATH)] } {
+    set simesp_path $::env(SIMESP_PATH)
+} else {
+    set simesp_path "qemu-system-xtensa"
+}
+
+if { [info exists ::env(SIMESP_CPU)] } {
+    set simesp_cpu $::env(SIMESP_CPU)
+} else {
+    set simesp_cpu "esp32"
+}
+
+if { [info exists ::env(ESPTOOL_PATH)] } {
+    set esp_tool_bin $::env(ESPTOOL_PATH)
+} else {
+    set esp_tool_bin "esptool.py"
+}
+
+set_board_info compiler "xtensa-${simesp_cpu}-elf-gcc"
+set_board_info c++compiler "xtensa-${simesp_cpu}-elf-g++"
+
+set_board_info cflags  "-mlongcalls -Wno-main -mtext-section-literals"
+set_board_info ldflags "-mlongcalls -g -lc ${esp_bin_gen_path}/lib${simesp_cpu}.a --specs=nano.specs --specs=nosys.specs -T${esp_bin_gen_path}/${simesp_cpu}.rom.api.ld -T${esp_bin_gen_path}/${simesp_cpu}.rom.libgcc.ld -T${esp_bin_gen_path}/${simesp_cpu}.ld -T${esp_bin_gen_path}/elf32xtensa.ld -Wl,--undefine=include_syscalls -Wl,--undefine=entry -Wl,--entry=entry"
+
+set_board_info use_gdb_stub 1
+set_board_info gdb_protocol "remote"
+#set_board_info gdb,do_reload_on_run 0
+set_board_info noargs 1
+set_board_info gdb,noinferiorio 1
+set_board_info gdb,nofileio 1
+set_board_info gdb,no_long_long 1
+set_board_info gdb,noresults 1
+set_board_info gdb,nosignals 1
+set_board_info gdb,skip_huge_test 1
+set_board_info gdb,start_symbol entry
+set_board_info gdb,timeout 300
+
+proc gdb_load_error { log_msg } {
+    global simesp_spawn_id
+
+    verbose -log "simesp: $log_msg"
+    if { $simesp_spawn_id != "" } {
+        verbose -log "simesp: closing simesp spawn id"
+        close -i $simesp_spawn_id
+        verbose -log "simesp: waiting for simesp process exit"
+        wait -i $simesp_spawn_id
+        set simesp_spawn_id ""
+    }
+    error "$log_msg"
+}
+
+proc gdb_download { dest prog args } {
+    # already running with our executable.
+}
+
+proc gdb_load { args } {
+    global simesp_spawn_id
+    global simesp_cpu
+    global simesp_path
+    global gdb_prompt
+    global last_gdb_load_args
+    global esp_tool_bin
+    
+    if { $args != "" } {
+	if [gdb_file_cmd $args] then { return -1 }
+    }
+
+    if { $args == "{}"} {
+        # Only the remote protocol is used with the QEMU's gdbserver support
+        # Connect to simesp.
+        send_gdb "target remote :1234\n"
+        gdb_expect {
+	    -re ".*Remote debugging using :1234.*\[\r\n\]+$gdb_prompt $" {}
+	    timeout {
+	        gdb_load_error "unable to connect to simesp"
+	    }
+        }
+        # Symbols already loaded
+        return 0
+    }
+    
+    # Close any previous simesp instance.
+    if { $simesp_spawn_id != "" } {
+	verbose -log "simesp: closing previous spawn id $simesp_spawn_id"
+	if [catch { close -i $simesp_spawn_id } != 0] {
+	    warning "simesp: failed to close connection to previous simesp instance"
+	}
+
+	wait -i $simesp_spawn_id
+	set simesp_spawn_id ""
+    }
+
+    exec ${esp_tool_bin} --chip=${simesp_cpu} elf2image -o ${args}.tmp ${args}
+    exec ${esp_tool_bin} --chip=${simesp_cpu} merge_bin --fill-flash-size 4MB -o ${args}.bin 0x1000 ${args}.tmp
+
+    # Run simesp.
+    set cmd "spawn -noecho ${simesp_path} -nographic -monitor null -cpu ${simesp_cpu} -M ${simesp_cpu} -m 4M -S -s -drive file=${args}.bin,if=mtd,format=raw -d trace:gdbstub_op_start"
+    verbose -log "Spawning simesp: $cmd"
+    eval $cmd
+    set simesp_spawn_id $spawn_id
+
+    expect {
+	-i $simesp_spawn_id -re ".*Starting gdbstub using device.*1234" {}
+	timeout {
+	    verbose -log "simesp: timeout, closing simesp spawn id"
+	    close -i $simesp_spawn_id
+	    verbose -log "simesp: timeout, waiting for simesp process exit"
+	    wait -i $simesp_spawn_id
+	    set simesp_spawn_id ""
+	    error "unable to start simesp: timeout"
+	}
+	eof {
+	    verbose -log "simesp: eof, waiting for simesp process exit"
+	    wait -i $simesp_spawn_id
+	    set simesp_spawn_id ""
+	    error "unable to start simesp: eof"
+	}
+    }
+
+    verbose -log "simesp: simesp spawned with spawn id $simesp_spawn_id, pid [exp_pid $simesp_spawn_id]"
+    
+    return 0
+}
+
+proc symbol_file_load { arg } {
+    global gdb_prompt
+    send_gdb "symbol-file $arg \n"
+    gdb_expect {
+	-re ".*$gdb_prompt $" {}
+	-re "Load new symbol table from.*y or n.*" {
+           send_gdb "y\n"
+           gdb_expect {
+               -re ".*$gdb_prompt $" {}
+               timeout {
+                   gdb_load_error "unable to load symbols. y."
+               }
+           }
+	}
+	timeout {
+	    gdb_load_error "unable to load symbols"
+	}
+    }
+}
+
+proc gdb_file_cmd { arg } {
+    global gdb_prompt
+    global GDB
+    global last_loaded_file
+
+    # GCC for Windows target may create foo.exe given "-o foo".
+    if { ![file exists $arg] && [file exists "$arg.exe"] } {
+	set arg "$arg.exe"
+    }
+
+    # Save this for the benefit of gdbserver-support.exp.
+    set last_loaded_file $arg
+
+    # Set whether debug info was found.
+    # Default to "fail".
+    global gdb_file_cmd_debug_info gdb_file_cmd_msg
+    set gdb_file_cmd_debug_info "fail"
+
+    if [is_remote host] {
+	set arg [remote_download host $arg]
+	if { $arg == "" } {
+	    perror "download failed"
+	    return -1
+	}
+    }
+
+    if { $arg != "{}"} {
+        symbol_file_load $arg
+    }
+
+    # The file command used to kill the remote target.  For the benefit
+    # of the testsuite, preserve this behavior.  Mark as optional so it doesn't
+    # get written to the stdin log.
+    send_gdb "kill\n" optional
+    gdb_expect 120 {
+	-re "Kill the program being debugged. .y or n. $" {
+	    send_gdb "y\n" answer
+	    verbose "\t\tKilling previous program being debugged"
+	    exp_continue
+	}
+	-re "$gdb_prompt $" {
+	    # OK.
+	}
+    }
+    return 0
+}
+
