@@ -44,7 +44,7 @@ variables:
     - test "${CI_JOB_NAME##*-}" == "without_python" && export GDB_PYTHON_TESTS=""
     - export TESTS_FOR_RUN="${GDB_BASE_TESTS} ${GDB_BASE_TESTS_FOR_TARGET} ${GDB_PYTHON_TESTS}"
     - echo "TESTS_FOR_RUN $TESTS_FOR_RUN"
-    - runtest --tool gdb --status --target xtensa-${ESP_CHIP}-elf --target_board=simesp GDB=${GDB_DIST_DIR}/bin/xtensa-${ESP_CHIP}-elf-gdb $TESTS_FOR_RUN
+    - runtest --tool gdb --status --target xtensa-${ESP_CHIP}-elf --target_board=simesp GDB=${GDB_DIST_DIR}/bin/xtensa-${ESP_CHIP}-elf-gdb $TESTS_FOR_RUN gdb.${ESP_CHIP}/*.exp
 
 # Template for others tests without qemu
 .test_no_qemu_template: &test_no_qemu_template
@@ -57,7 +57,7 @@ variables:
     - echo "GDB_BASE_TESTS $GDB_BASE_TESTS"
     - test "${CI_JOB_NAME##*-}" != "without_python" && pyenv local ${PYTHON_VERSION}
     - test "${CI_JOB_NAME##*-}" != "without_python" && export LD_LIBRARY_PATH="`python-config --prefix`/lib:$LD_LIBRARY_PATH"
-    - runtest --tool gdb --status --target xtensa-${ESP_CHIP}-elf GDB=${GDB_DIST_DIR}/bin/xtensa-${ESP_CHIP}-elf-gdb ${GDB_BASE_TESTS}
+    - runtest --tool gdb --status --target xtensa-${ESP_CHIP}-elf GDB=${GDB_DIST_DIR}/bin/xtensa-${ESP_CHIP}-elf-gdb ${GDB_BASE_TESTS} gdb.${ESP_CHIP}/*.exp
 
 # Pack build output
 .pack_template: &pack_template
