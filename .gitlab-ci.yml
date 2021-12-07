@@ -59,6 +59,59 @@ variables:
     - test "${CI_JOB_NAME##*-}" != "without_python" && export LD_LIBRARY_PATH="`python-config --prefix`/lib:$LD_LIBRARY_PATH"
     - runtest --tool gdb --status --target xtensa-${ESP_CHIP}-elf GDB=${GDB_DIST_DIR}/bin/xtensa-${ESP_CHIP}-elf-gdb ${GDB_BASE_TESTS} gdb.${ESP_CHIP}/*.exp
 
+.windows_test_corefile: &windows_test_corefile |
+  & $env:GDB_DIST_DIR\bin\xtensa-$env:ESP_CHIP-elf-gdb $chip_tests_dir\corefile.elf $chip_tests_dir\corefile.core -ex "bt" -ex "quit" | Tee-Object -FilePath test_corefile_out.txt
+  $stringmatch = Get-Content -Raw -Path test_corefile_out.txt
+  $pattern = Get-Content -Raw -Path $chip_tests_dir\corefile_pattern.txt
+  Select-String -InputObject $stringmatch -pattern $pattern -OutVariable patternMatch
+  if(!$patternMatch) {exit 1}
+
+.windows_test_tdep: &windows_test_tdep |
+  & $env:GDB_DIST_DIR\bin\xtensa-$env:ESP_CHIP-elf-gdb -ex '\"maint print arch\"' -ex "quit" | Tee-Object -FilePath test_tdep_out.txt
+  $stringmatch = Get-Content -Raw -Path test_tdep_out.txt
+  $pattern = Get-Content -Raw -Path $chip_tests_dir\tdep_pattern.txt
+  Select-String -InputObject $stringmatch -pattern $pattern -OutVariable patternMatch
+  if(!$patternMatch) {exit 1}
+
+# Template for windows
+.test_windows_template: &test_windows_template
+  stage: test
+  variables:
+    GIT_SUBMODULE_STRATEGY: none
+  inherit:
+    default: false
+  script:
+    - $chip_tests_dir="$env:CI_PROJECT_DIR\gdb\testsuite\gdb.$env:ESP_CHIP"
+    - *windows_test_corefile
+    - *windows_test_tdep
+
+# Template for macos
+.test_macos_template: &test_macos_template
+  stage: test
+  variables:
+    GIT_SUBMODULE_STRATEGY: none
+  inherit:
+    default: false
+  before_script:
+    - curl -LO http://ftp.gnu.org/gnu/dejagnu/dejagnu-1.6.3.tar.gz
+    - tar -xf dejagnu-1.6.3.tar.gz
+    - pushd dejagnu-1.6.3
+    - ./configure
+    - make
+    - export PATH="$PWD:$PATH"
+    - popd
+    - eval "$(pyenv init --path)"
+  script:
+    - cd gdb/testsuite
+    - cp -R ${GDB_DIST_DIR}/share/gdb/* ../data-directory/
+    - ./configure
+    - make site.exp
+    - pyenv local $TEST_PYTHON_VERSION
+    - python3 -V
+    - ${GDB_DIST_DIR}/bin/xtensa-${ESP_CHIP}-elf-gdb --version || true
+    - test -n "$(${GDB_DIST_DIR}/bin/xtensa-${ESP_CHIP}-elf-gdb --version | grep "With python-${TEST_PYTHON_VERSION%.*}")"
+    - runtest --tool gdb --status --target xtensa-${ESP_CHIP}-elf GDB=${GDB_DIST_DIR}/bin/xtensa-${ESP_CHIP}-elf-gdb gdb.${ESP_CHIP}/*.exp
+
 # Pack build output
 .pack_template: &pack_template
   stage: pack

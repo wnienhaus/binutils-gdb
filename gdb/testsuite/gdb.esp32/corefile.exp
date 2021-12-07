@@ -1,14 +1,14 @@
 set expected_output \
   [multi_line \
      ".*" \
-     "#0  0x400d4c19 in recur_func .* at .*/main/test_core_dump\.c:70" \
-     "70	.*/main/test_core_dump\.c: No such file or directory\." \
+     "#0  0x400d4c19 in recur_func .* at .*\/main\/test_core_dump\.c:70" \
+     "70	.*\/main\/test_core_dump\.c: No such file or directory\." \
      ".*Current thread is 1 .*process 1073452304.*" \
-     "#0  0x400d4c19 in recur_func .* at .*/main/test_core_dump\.c:70" \
-     "#1  0x400d4bf4 in recur_func .* at .*/main/test_core_dump\.c:63" \
-     "#2  0x400d4bf4 in recur_func .* at .*/main/test_core_dump\.c:63" \
-     "#3  0x400d4c3c in unaligned_ptr_task .*pvParameter=0x0.* at .*/main/test_core_dump\.c:80" \
-     "#4  0x40087a30 in vPortTaskWrapper .*pxCode=0x400d4c24 <unaligned_ptr_task>, pvParameters=0x0.* at /builds/espressif/esp-idf/components/freertos/port/xtensa/port\.c:159" \
+     "#0  0x400d4c19 in recur_func .* at .*\/main\/test_core_dump\.c:70" \
+     "#1  0x400d4bf4 in recur_func .* at .*\/main\/test_core_dump\.c:63" \
+     "#2  0x400d4bf4 in recur_func .* at .*\/main\/test_core_dump\.c:63" \
+     "#3  0x400d4c3c in unaligned_ptr_task .*pvParameter=0x0.* at .*\/main\/test_core_dump\.c:80" \
+     "#4  0x40087a30 in vPortTaskWrapper .*pxCode=0x400d4c24 <unaligned_ptr_task>, pvParameters=0x0.* at \/builds\/espressif\/esp-idf\/components\/freertos\/port\/xtensa\/port\.c:159" \
      "$gdb_prompt $" \
   ]
 

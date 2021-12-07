@@ -302,6 +302,114 @@ esp32s2-test-x86_64-linux-gnu-3.10.0:
   needs: [ x86_64-linux-gnu-3.10.0 ]
   extends: .test_no_qemu_template
 
+# TEST MACOS x86_64
+
+
+esp32-test-macos-3.6.13:
+  tags: [ macos_shell ]
+  variables:
+    ESP_CHIP: esp32
+    TEST_PYTHON_VERSION: 3.6.13
+  needs: [ x86_64-apple-darwin14-3.6.0 ]
+  extends: .test_macos_template
+
+esp32s2-test-macos-3.6.13:
+  tags: [ macos_shell ]
+  variables:
+    ESP_CHIP: esp32s2
+    TEST_PYTHON_VERSION: 3.6.13
+  needs: [ x86_64-apple-darwin14-3.6.0 ]
+  extends: .test_macos_template
+
+
+
+esp32-test-macos-3.7.10:
+  tags: [ macos_shell ]
+  variables:
+    ESP_CHIP: esp32
+    TEST_PYTHON_VERSION: 3.7.10
+  needs: [ x86_64-apple-darwin14-3.7.0 ]
+  extends: .test_macos_template
+
+esp32s2-test-macos-3.7.10:
+  tags: [ macos_shell ]
+  variables:
+    ESP_CHIP: esp32s2
+    TEST_PYTHON_VERSION: 3.7.10
+  needs: [ x86_64-apple-darwin14-3.7.0 ]
+  extends: .test_macos_template
+
+
+
+esp32-test-macos-3.8.10:
+  tags: [ macos_shell ]
+  variables:
+    ESP_CHIP: esp32
+    TEST_PYTHON_VERSION: 3.8.10
+  needs: [ x86_64-apple-darwin14-3.8.0 ]
+  extends: .test_macos_template
+
+esp32s2-test-macos-3.8.10:
+  tags: [ macos_shell ]
+  variables:
+    ESP_CHIP: esp32s2
+    TEST_PYTHON_VERSION: 3.8.10
+  needs: [ x86_64-apple-darwin14-3.8.0 ]
+  extends: .test_macos_template
+
+
+
+esp32-test-macos-3.9.5:
+  tags: [ macos_shell ]
+  variables:
+    ESP_CHIP: esp32
+    TEST_PYTHON_VERSION: 3.9.5
+  needs: [ x86_64-apple-darwin14-3.9.0 ]
+  extends: .test_macos_template
+
+esp32s2-test-macos-3.9.5:
+  tags: [ macos_shell ]
+  variables:
+    ESP_CHIP: esp32s2
+    TEST_PYTHON_VERSION: 3.9.5
+  needs: [ x86_64-apple-darwin14-3.9.0 ]
+  extends: .test_macos_template
+
+
+
+esp32-test-macos-3.10.0b2:
+  tags: [ macos_shell ]
+  variables:
+    ESP_CHIP: esp32
+    TEST_PYTHON_VERSION: 3.10.0b2
+  needs: [ x86_64-apple-darwin14-3.10.0 ]
+  extends: .test_macos_template
+
+esp32s2-test-macos-3.10.0b2:
+  tags: [ macos_shell ]
+  variables:
+    ESP_CHIP: esp32s2
+    TEST_PYTHON_VERSION: 3.10.0b2
+  needs: [ x86_64-apple-darwin14-3.10.0 ]
+  extends: .test_macos_template
+
+# TEST WINDOWS x86_64
+
+
+esp32-test-windows:
+  tags: [ windows, powershell ]
+  variables:
+    ESP_CHIP: esp32
+  needs: [ x86_64-w64-mingw32-without_python ]
+  extends: .test_windows_template
+
+esp32s2-test-windows:
+  tags: [ windows, powershell ]
+  variables:
+    ESP_CHIP: esp32s2
+  needs: [ x86_64-w64-mingw32-without_python ]
+  extends: .test_windows_template
+
 # PACK GDB linux_amd64
 
 pack-x86_64-linux-gnu:

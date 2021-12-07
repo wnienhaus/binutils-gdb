@@ -1,6 +1,7 @@
 #!/bin/bash
 
 PYTHON_VERSIONS="without_python 3.6.0 3.7.0 3.8.0 3.9.0 3.10.0"
+MACOS_PYTHON_VERSIONS="3.6.13 3.7.10 3.8.10 3.9.5 3.10.0b2"
 ESP_CHIPS="esp32 esp32s2"
 
 declare -a ARCHITECTURES_ARRAY=("x86_64-linux-gnu"
@@ -11,6 +12,8 @@ declare -a ARCHITECTURES_ARRAY=("x86_64-linux-gnu"
                                 "i686-w64-mingw32"
                                 "x86_64-w64-mingw32"
                                 "x86_64-apple-darwin14")
+
+
 
 # e.g. a postfix of image for "arm-linux-gnueabi" is "arm-cross".
 # Note that sequence of array is important
@@ -56,7 +59,7 @@ function build_arch() {
   echo ""
 }
 
-function test_arch() {
+function test_arch_linux() {
   ARCH_TRIPLET=$1
   IMAGE_SUFFIX=$2
   RUNNER_TAGS=$3
@@ -80,6 +83,37 @@ function test_arch() {
       echo "  extends: $TEST_TEMPLATE"
       echo ""
     done;
+  done;
+}
+
+function test_macos() {
+  for PYTHON_VERSION in $MACOS_PYTHON_VERSIONS; do
+    echo ""
+    echo ""
+    for ESP_CHIP in $ESP_CHIPS; do
+      echo "$ESP_CHIP-test-macos-$PYTHON_VERSION:"
+      echo "  tags: [ macos_shell ]"
+      echo "  variables:"
+      echo "    ESP_CHIP: $ESP_CHIP"
+      echo "    TEST_PYTHON_VERSION: $PYTHON_VERSION"
+      echo "  needs: [ x86_64-apple-darwin14-${PYTHON_VERSION%.*}.0 ]"
+      echo "  extends: .test_macos_template"
+      echo ""
+    done;
+  done;
+}
+
+function test_windows() {
+  echo ""
+  echo ""
+  for ESP_CHIP in $ESP_CHIPS; do
+    echo "$ESP_CHIP-test-windows:"
+    echo "  tags: [ windows, powershell ]"
+    echo "  variables:"
+    echo "    ESP_CHIP: $ESP_CHIP"
+    echo "  needs: [ x86_64-w64-mingw32-without_python ]"
+    echo "  extends: .test_windows_template"
+    echo ""
   done;
 }
 
@@ -140,7 +174,13 @@ do
 done
 
 echo "# TEST LINUX x86_64"
-test_arch "x86_64-linux-gnu" "" "[ \"amd64\", \"build\" ]"
+test_arch_linux "x86_64-linux-gnu" "" "[ \"amd64\", \"build\" ]"
+
+echo "# TEST MACOS x86_64"
+test_macos
+
+echo "# TEST WINDOWS x86_64"
+test_windows
 
 for (( i=0; i<${ARCHITECTURES_ARRAY_LENGHT}; i++ ));
 do
