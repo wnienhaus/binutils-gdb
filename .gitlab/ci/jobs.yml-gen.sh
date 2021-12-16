@@ -26,12 +26,12 @@ declare -a IMAGE_POSTFIX_ARRAY=(""
                                 "-win64-cross"
                                 "-macos-cross")
 
-declare -a PRETTY_NAME_ARRAY=(  "linux_amd64"
-                                "linux_i686"
-                                "linux_armel"
-                                "linux_armhf"
-                                "linux_arm64"
-                                "win"
+declare -a PRETTY_NAME_ARRAY=(  "linux-amd64"
+                                "linux-i686"
+                                "linux-armel"
+                                "linux-armhf"
+                                "linux-arm64"
+                                "win32"
                                 "win64"
                                 "macos")
 
@@ -121,15 +121,22 @@ function pack_output() {
   ARCH_TRIPLET=$1
   IS_TESTED=$2
   RUNNER_TAGS=$3
-  ARCHIVE_PREFIX=$4
-  if [ -z "${ARCHIVE_PREFIX}" ]; then
+  PLATFORM_NAME=$4
+  if [ -z "${PLATFORM_NAME}" ]; then
     echo "ARCHIVE PREFIX WAS NOT SPECIFIED!" | tee >(cat >&2)
     exit 1
   fi
   echo ""
   echo "pack-$ARCH_TRIPLET:"
   echo "  variables:"
-  echo "    ARCHIVE_PREFIX: ${ARCHIVE_PREFIX}"
+  echo "    PLATFORM_NAME: ${PLATFORM_NAME}"
+  if [[ ${PLATFORM_NAME} =~ "win" ]]; then
+    echo "    ARCHIVE_TOOL: \"zip -r\""
+    echo "    ARCHIVE_EXT: \"zip\""
+  else
+    echo "    ARCHIVE_TOOL: \"tar czvf\""
+    echo "    ARCHIVE_EXT: \"tar.gz\""
+  fi
   echo "  tags: $RUNNER_TAGS"
   echo "  needs:"
   for PYTHON_VERSION in $PYTHON_VERSIONS; do
@@ -139,20 +146,6 @@ function pack_output() {
   echo ""
   echo ""
 }
-
-function upload_to_http() {
-  echo ""
-  echo "upload_to_http:"
-  echo "  needs:"
-  for (( i=0; i<${ARCHITECTURES_ARRAY_LENGHT}; i++ ));
-  do
-    echo "    - pack-${ARCHITECTURES_ARRAY[$i]}"
-  done
-  echo "  extends: .private_deploy_template"
-  echo ""
-  echo ""
-}
-
 
 read -r -d '' header <<-EOF
 # DO NOT EDIT!
@@ -191,5 +184,3 @@ do
   fi
   pack_output ${ARCHITECTURES_ARRAY[$i]} $IS_TESTED "[ \"amd64\", \"build\" ]" ${PRETTY_NAME_ARRAY[$i]}
 done
-
-upload_to_http

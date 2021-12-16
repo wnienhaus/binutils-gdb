@@ -5,6 +5,8 @@ stages:
   - pack
   - private_deploy
   - test
+  - release_stage1
+  - release_submit
 
 image: $CI_DOCKER_REGISTRY/esp32-toolchain
 variables:
@@ -12,6 +14,46 @@ variables:
   TOOLCHAIN_IMAGE_TAG: 3
   DEJAGNU_IMAGE_TAG: 20210826-3
   GDB_DIST_DIR: ${CI_PROJECT_DIR}/dist
+
+  GITHUB_IMAGE_TAG: 2
+
+  # GitHub Tool options
+  GITHUB_USER: "${GH_USER}"
+  GITHUB_REPO: "${GH_REPO}"
+  GITHUB_TOKEN: "${GH_TOKEN}"
+
+  RELEASE_DESC: "New release"
+
+.add_gh_key_remote: &add_gh_key_remote |
+  command -v ssh-agent >/dev/null || exit 1
+  eval $(ssh-agent -s)
+  printf '%s\n' "${GH_PUSH_KEY}" | tr -d '\r' | ssh-add - > /dev/null
+  mkdir -p ~/.ssh && chmod 700 ~/.ssh
+  [[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config || ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+  git remote remove github || true
+  git remote add github ${GH_PUSH_REPO}
+
+.release_submit_action: &release_submit_action
+  image: espressif/github-hub:${GITHUB_IMAGE_TAG}
+  when: manual
+  allow_failure: true
+  before_script:
+    - set -o errexit; set -o pipefail; set -o nounset
+    - test "${DEBUG_SHELL:-''}" = "1" && set -x
+    - git remote remove github || true
+    - git remote add github ${GH_REPO_HTTPS}
+  variables:
+    GIT_STRATEGY: fetch
+    GH_REL_TAG: ${CI_COMMIT_TAG}
+
+before_script:
+  - set -o errexit; set -o pipefail; set -o nounset
+  - test "${DEBUG_SHELL:-''}" = "1" && set -x
+
+.release_tag_filter: &release_tag_filter
+  only:
+    - /^v[0-9].*$/
+    - /^binutils-gdb-.*$/
 
 .use_ci_tools: &use_ci_tools |
   curl -sSL ${CIT_LOADER_URL} -o cit_loader.sh && sh cit_loader.sh
@@ -39,7 +81,6 @@ variables:
     - make site.exp
     - XTENSA_TARGET=${ESP_CHIP} make -C esp_bin_generator
     - test "${CI_JOB_NAME##*-}" != "without_python" && pyenv local ${PYTHON_VERSION}
-    - test "${CI_JOB_NAME##*-}" != "without_python" && export LD_LIBRARY_PATH="`python-config --prefix`/lib:$LD_LIBRARY_PATH"
     - test "${CI_JOB_NAME##*-}" == "without_python" && export ESPTOOL_PATH="/opt/pyenv/pyenv-2.2.2/versions/3.6.0/bin/esptool.py"
     - test "${CI_JOB_NAME##*-}" == "without_python" && export GDB_PYTHON_TESTS=""
     - export TESTS_FOR_RUN="${GDB_BASE_TESTS} ${GDB_BASE_TESTS_FOR_TARGET} ${GDB_PYTHON_TESTS}"
@@ -56,7 +97,6 @@ variables:
     - make site.exp
     - echo "GDB_BASE_TESTS $GDB_BASE_TESTS"
     - test "${CI_JOB_NAME##*-}" != "without_python" && pyenv local ${PYTHON_VERSION}
-    - test "${CI_JOB_NAME##*-}" != "without_python" && export LD_LIBRARY_PATH="`python-config --prefix`/lib:$LD_LIBRARY_PATH"
     - runtest --tool gdb --status --target xtensa-${ESP_CHIP}-elf GDB=${GDB_DIST_DIR}/bin/xtensa-${ESP_CHIP}-elf-gdb ${GDB_BASE_TESTS} gdb.${ESP_CHIP}/*.exp
 
 .windows_test_corefile: &windows_test_corefile |
@@ -93,6 +133,8 @@ variables:
   inherit:
     default: false
   before_script:
+    - set -o errexit; set -o pipefail; set -o nounset
+    - test "${DEBUG_SHELL:-''}" = "1" && set -x
     - curl -LO http://ftp.gnu.org/gnu/dejagnu/dejagnu-1.6.3.tar.gz
     - tar -xf dejagnu-1.6.3.tar.gz
     - pushd dejagnu-1.6.3
@@ -120,18 +162,20 @@ variables:
     GIT_STRATEGY: none
   artifacts:
     paths:
-      - ${GDB_DIST_DIR}/*.tar.bz2
+      - ${GDB_DIST_DIR}/*.${ARCHIVE_EXT}
     when: always
     expire_in: 1 day
   script:
-    - export ARCHIVE_NAME=${ARCHIVE_PREFIX}-binutils-gdb-${CI_COMMIT_TAG:-${CI_COMMIT_SHA}}.tar.bz2
+    - export ARCHIVE_NAME=binutils-gdb-${PLATFORM_NAME}-${CI_COMMIT_TAG:-${CI_COMMIT_SHA}}.${ARCHIVE_EXT}
     - mv ${GDB_DIST_DIR} binutils-gdb
-    - tar cjvf ${ARCHIVE_NAME} binutils-gdb
+    - ${ARCHIVE_TOOL} ${ARCHIVE_NAME} binutils-gdb
     - mkdir ${GDB_DIST_DIR}
     - mv ${ARCHIVE_NAME} ${GDB_DIST_DIR}/
 
-.private_deploy_template: &private_deploy_template
+upload_to_http:
   stage: private_deploy
+  needs:
+    - pack-arm-linux-gnueabihf
   tags:
     - deploy
     - shiny
@@ -143,12 +187,14 @@ variables:
     reports:
       dotenv: ${GDB_DIST_DIR}/build.env
   before_script:
+    - set -o errexit; set -o pipefail; set -o nounset
+    - test "${DEBUG_SHELL:-''}" = "1" && set -x
     - *use_ci_tools
   script:
     - cit_add_ssh_key "${HTTP_UPLOAD_KEY}" "$(cit_parse_url_host ${HTTP_UPLOAD_DIR})"
     # List of archives in dist/
     - cd ${GDB_DIST_DIR}
-    - FILES=$(find . -name "*.tar.bz2")
+    - FILES=$(find . -type f -name "binutils-gdb-*-${CI_COMMIT_TAG:-${CI_COMMIT_SHA}}*")
     - scp ${FILES} ${HTTP_UPLOAD_DIR}/
     # Show info
     - /bin/ls -l ${FILES}
@@ -166,3 +212,50 @@ test_with_openocd:
   trigger:
     project: idf/openocd-esp32
     strategy: depend
+
+release_tag_draft:
+  stage: release_stage1
+  tags: [ "amd64", "internet" ]
+  needs:
+    - pack-x86_64-linux-gnu
+    - pack-i586-linux-gnu
+    - pack-arm-linux-gnueabi
+    - pack-arm-linux-gnueabihf
+    - pack-aarch64-linux-gnu
+    - pack-i686-w64-mingw32
+    - pack-x86_64-w64-mingw32
+    - pack-x86_64-apple-darwin14
+  <<: *release_tag_filter
+  <<: *release_submit_action
+  script:
+    - hub release delete ${GH_REL_TAG} || true
+    # List of archives
+    - cd ${GDB_DIST_DIR}
+    - ATTACH_FILES=$(find -type f -name "binutils-gdb-*-${CI_COMMIT_TAG:-${CI_COMMIT_SHA}}*" -printf "-a \"%p\" ")
+    - echo "ATTACH_FILES = \"${ATTACH_FILES}\""
+    # Create draft release with archives attached
+    - hub release create --draft -m "${RELEASE_DESC}" ${ATTACH_FILES} ${GH_REL_TAG}
+
+Release_tag_submit:
+  stage: release_submit
+  tags: [ "amd64", "internet" ]
+  <<: *release_tag_filter
+  <<: *release_submit_action
+  script:
+    - hub release create -m "${RELEASE_DESC}" ${GH_REL_TAG}
+
+Pre-Release_tag_submit:
+  stage: release_submit
+  tags: [ "amd64", "internet" ]
+  <<: *release_tag_filter
+  <<: *release_submit_action
+  script:
+    - hub release create --prerelease -m "${RELEASE_DESC}" ${GH_REL_TAG}
+
+Delete_tag_release:
+  stage: release_submit
+  tags: [ "amd64", "internet" ]
+  <<: *release_tag_filter
+  <<: *release_submit_action
+  script:
+    - hub release delete ${GH_REL_TAG}
