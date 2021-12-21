@@ -175,8 +175,8 @@
 
 // Since we can not compare strings in preprocessor (PACKAGE == "gdb")
 // then check gdb unique macro
-#ifdef GDBINIT
+#ifdef WITH_XTENSACONFIG
   #warning !!!OVERRIDE xtenas-config.h MACROS WITH VALUES FROM DINAMYC CONFIG!!!
   #include "xtensaconfig/dynconfig.h"
-#endif /* GDBINIT */
+#endif /* WITH_XTENSACONFIG */
 #endif /* !XTENSA_CONFIG_H */

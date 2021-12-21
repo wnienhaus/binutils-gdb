@@ -7,550 +7,1391 @@ include: '.gitlab/ci/gdb-test-suites.yml'
 
 # BUILD linux-amd64
 
-x86_64-linux-gnu-without_python:
+
+xtensa-linux-amd64-without_python:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-linux-gnu
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: without_python
   image: $CI_DOCKER_REGISTRY/esp32-toolchain:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-x86_64-linux-gnu-3.6.0:
+xtensa-linux-amd64-3.6.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-linux-gnu
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.6.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-x86_64-linux-gnu-3.7.0:
+xtensa-linux-amd64-3.7.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-linux-gnu
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.7.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-x86_64-linux-gnu-3.8.0:
+xtensa-linux-amd64-3.8.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-linux-gnu
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.8.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-x86_64-linux-gnu-3.9.0:
+xtensa-linux-amd64-3.9.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-linux-gnu
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.9.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-x86_64-linux-gnu-3.10.0:
+xtensa-linux-amd64-3.10.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-linux-gnu
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.10.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+
+riscv32-linux-amd64-without_python:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-linux-gnu
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: without_python
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-linux-amd64-3.6.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-linux-gnu
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.6.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-linux-amd64-3.7.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-linux-gnu
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.7.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-linux-amd64-3.8.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-linux-gnu
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.8.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-linux-amd64-3.9.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-linux-gnu
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.9.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-linux-amd64-3.10.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-linux-gnu
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.10.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
 
 
 # BUILD linux-i686
 
-i586-linux-gnu-without_python:
+
+xtensa-linux-i686-without_python:
+  variables:
+    BUILD_ARCH_TRIPLET: i586-linux-gnu
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: without_python
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-x86:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-i586-linux-gnu-3.6.0:
+xtensa-linux-i686-3.6.0:
+  variables:
+    BUILD_ARCH_TRIPLET: i586-linux-gnu
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.6.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-x86:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-i586-linux-gnu-3.7.0:
+xtensa-linux-i686-3.7.0:
+  variables:
+    BUILD_ARCH_TRIPLET: i586-linux-gnu
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.7.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-x86:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-i586-linux-gnu-3.8.0:
+xtensa-linux-i686-3.8.0:
+  variables:
+    BUILD_ARCH_TRIPLET: i586-linux-gnu
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.8.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-x86:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-i586-linux-gnu-3.9.0:
+xtensa-linux-i686-3.9.0:
+  variables:
+    BUILD_ARCH_TRIPLET: i586-linux-gnu
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.9.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-x86:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-i586-linux-gnu-3.10.0:
+xtensa-linux-i686-3.10.0:
+  variables:
+    BUILD_ARCH_TRIPLET: i586-linux-gnu
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.10.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-x86:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+
+riscv32-linux-i686-without_python:
+  variables:
+    BUILD_ARCH_TRIPLET: i586-linux-gnu
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: without_python
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-x86:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-linux-i686-3.6.0:
+  variables:
+    BUILD_ARCH_TRIPLET: i586-linux-gnu
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.6.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-x86:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-linux-i686-3.7.0:
+  variables:
+    BUILD_ARCH_TRIPLET: i586-linux-gnu
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.7.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-x86:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-linux-i686-3.8.0:
+  variables:
+    BUILD_ARCH_TRIPLET: i586-linux-gnu
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.8.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-x86:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-linux-i686-3.9.0:
+  variables:
+    BUILD_ARCH_TRIPLET: i586-linux-gnu
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.9.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-x86:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-linux-i686-3.10.0:
+  variables:
+    BUILD_ARCH_TRIPLET: i586-linux-gnu
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.10.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-x86:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
 
 
 # BUILD linux-armel
 
-arm-linux-gnueabi-without_python:
+
+xtensa-linux-armel-without_python:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabi
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: without_python
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-arm-linux-gnueabi-3.6.0:
+xtensa-linux-armel-3.6.0:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabi
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.6.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-arm-linux-gnueabi-3.7.0:
+xtensa-linux-armel-3.7.0:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabi
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.7.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-arm-linux-gnueabi-3.8.0:
+xtensa-linux-armel-3.8.0:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabi
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.8.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-arm-linux-gnueabi-3.9.0:
+xtensa-linux-armel-3.9.0:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabi
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.9.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-arm-linux-gnueabi-3.10.0:
+xtensa-linux-armel-3.10.0:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabi
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.10.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+
+riscv32-linux-armel-without_python:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabi
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: without_python
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-linux-armel-3.6.0:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabi
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.6.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-linux-armel-3.7.0:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabi
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.7.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-linux-armel-3.8.0:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabi
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.8.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-linux-armel-3.9.0:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabi
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.9.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-linux-armel-3.10.0:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabi
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.10.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
 
 
 # BUILD linux-armhf
 
-arm-linux-gnueabihf-without_python:
+
+xtensa-linux-armhf-without_python:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabihf
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: without_python
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-arm-linux-gnueabihf-3.6.0:
+xtensa-linux-armhf-3.6.0:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabihf
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.6.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-arm-linux-gnueabihf-3.7.0:
+xtensa-linux-armhf-3.7.0:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabihf
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.7.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-arm-linux-gnueabihf-3.8.0:
+xtensa-linux-armhf-3.8.0:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabihf
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.8.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-arm-linux-gnueabihf-3.9.0:
+xtensa-linux-armhf-3.9.0:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabihf
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.9.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-arm-linux-gnueabihf-3.10.0:
+xtensa-linux-armhf-3.10.0:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabihf
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.10.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+
+riscv32-linux-armhf-without_python:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabihf
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: without_python
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-linux-armhf-3.6.0:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabihf
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.6.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-linux-armhf-3.7.0:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabihf
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.7.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-linux-armhf-3.8.0:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabihf
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.8.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-linux-armhf-3.9.0:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabihf
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.9.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-linux-armhf-3.10.0:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabihf
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.10.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
 
 
 # BUILD linux-arm64
 
-aarch64-linux-gnu-without_python:
+
+xtensa-linux-arm64-without_python:
+  variables:
+    BUILD_ARCH_TRIPLET: aarch64-linux-gnu
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: without_python
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-aarch64-linux-gnu-3.6.0:
+xtensa-linux-arm64-3.6.0:
+  variables:
+    BUILD_ARCH_TRIPLET: aarch64-linux-gnu
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.6.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-aarch64-linux-gnu-3.7.0:
+xtensa-linux-arm64-3.7.0:
+  variables:
+    BUILD_ARCH_TRIPLET: aarch64-linux-gnu
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.7.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-aarch64-linux-gnu-3.8.0:
+xtensa-linux-arm64-3.8.0:
+  variables:
+    BUILD_ARCH_TRIPLET: aarch64-linux-gnu
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.8.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-aarch64-linux-gnu-3.9.0:
+xtensa-linux-arm64-3.9.0:
+  variables:
+    BUILD_ARCH_TRIPLET: aarch64-linux-gnu
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.9.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-aarch64-linux-gnu-3.10.0:
+xtensa-linux-arm64-3.10.0:
+  variables:
+    BUILD_ARCH_TRIPLET: aarch64-linux-gnu
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.10.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+
+riscv32-linux-arm64-without_python:
+  variables:
+    BUILD_ARCH_TRIPLET: aarch64-linux-gnu
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: without_python
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-linux-arm64-3.6.0:
+  variables:
+    BUILD_ARCH_TRIPLET: aarch64-linux-gnu
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.6.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-linux-arm64-3.7.0:
+  variables:
+    BUILD_ARCH_TRIPLET: aarch64-linux-gnu
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.7.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-linux-arm64-3.8.0:
+  variables:
+    BUILD_ARCH_TRIPLET: aarch64-linux-gnu
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.8.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-linux-arm64-3.9.0:
+  variables:
+    BUILD_ARCH_TRIPLET: aarch64-linux-gnu
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.9.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-linux-arm64-3.10.0:
+  variables:
+    BUILD_ARCH_TRIPLET: aarch64-linux-gnu
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.10.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
 
 
 # BUILD win32
 
-i686-w64-mingw32-without_python:
+
+xtensa-win32-without_python:
+  variables:
+    BUILD_ARCH_TRIPLET: i686-w64-mingw32
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: without_python
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-win-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-i686-w64-mingw32-3.6.0:
+xtensa-win32-3.6.0:
+  variables:
+    BUILD_ARCH_TRIPLET: i686-w64-mingw32
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.6.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-win-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-i686-w64-mingw32-3.7.0:
+xtensa-win32-3.7.0:
+  variables:
+    BUILD_ARCH_TRIPLET: i686-w64-mingw32
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.7.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-win-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-i686-w64-mingw32-3.8.0:
+xtensa-win32-3.8.0:
+  variables:
+    BUILD_ARCH_TRIPLET: i686-w64-mingw32
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.8.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-win-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-i686-w64-mingw32-3.9.0:
+xtensa-win32-3.9.0:
+  variables:
+    BUILD_ARCH_TRIPLET: i686-w64-mingw32
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.9.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-win-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-i686-w64-mingw32-3.10.0:
+xtensa-win32-3.10.0:
+  variables:
+    BUILD_ARCH_TRIPLET: i686-w64-mingw32
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.10.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-win-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+
+riscv32-win32-without_python:
+  variables:
+    BUILD_ARCH_TRIPLET: i686-w64-mingw32
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: without_python
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-win-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-win32-3.6.0:
+  variables:
+    BUILD_ARCH_TRIPLET: i686-w64-mingw32
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.6.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-win-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-win32-3.7.0:
+  variables:
+    BUILD_ARCH_TRIPLET: i686-w64-mingw32
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.7.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-win-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-win32-3.8.0:
+  variables:
+    BUILD_ARCH_TRIPLET: i686-w64-mingw32
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.8.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-win-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-win32-3.9.0:
+  variables:
+    BUILD_ARCH_TRIPLET: i686-w64-mingw32
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.9.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-win-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-win32-3.10.0:
+  variables:
+    BUILD_ARCH_TRIPLET: i686-w64-mingw32
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.10.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-win-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
 
 
 # BUILD win64
 
-x86_64-w64-mingw32-without_python:
+
+xtensa-win64-without_python:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-w64-mingw32
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: without_python
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-win64-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-x86_64-w64-mingw32-3.6.0:
+xtensa-win64-3.6.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-w64-mingw32
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.6.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-win64-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-x86_64-w64-mingw32-3.7.0:
+xtensa-win64-3.7.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-w64-mingw32
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.7.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-win64-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-x86_64-w64-mingw32-3.8.0:
+xtensa-win64-3.8.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-w64-mingw32
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.8.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-win64-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-x86_64-w64-mingw32-3.9.0:
+xtensa-win64-3.9.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-w64-mingw32
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.9.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-win64-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-x86_64-w64-mingw32-3.10.0:
+xtensa-win64-3.10.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-w64-mingw32
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.10.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-win64-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+
+riscv32-win64-without_python:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-w64-mingw32
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: without_python
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-win64-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-win64-3.6.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-w64-mingw32
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.6.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-win64-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-win64-3.7.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-w64-mingw32
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.7.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-win64-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-win64-3.8.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-w64-mingw32
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.8.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-win64-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-win64-3.9.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-w64-mingw32
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.9.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-win64-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-win64-3.10.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-w64-mingw32
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.10.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-win64-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
 
 
 # BUILD macos
 
-x86_64-apple-darwin14-without_python:
+
+xtensa-macos-without_python:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-apple-darwin14
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: without_python
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-macos-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-x86_64-apple-darwin14-3.6.0:
+xtensa-macos-3.6.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-apple-darwin14
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.6.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-macos-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-x86_64-apple-darwin14-3.7.0:
+xtensa-macos-3.7.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-apple-darwin14
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.7.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-macos-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-x86_64-apple-darwin14-3.8.0:
+xtensa-macos-3.8.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-apple-darwin14
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.8.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-macos-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-x86_64-apple-darwin14-3.9.0:
+xtensa-macos-3.9.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-apple-darwin14
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.9.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-macos-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
-x86_64-apple-darwin14-3.10.0:
+xtensa-macos-3.10.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-apple-darwin14
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.10.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-macos-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+
+riscv32-macos-without_python:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-apple-darwin14
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: without_python
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-macos-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-macos-3.6.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-apple-darwin14
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.6.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-macos-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-macos-3.7.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-apple-darwin14
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.7.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-macos-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-macos-3.8.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-apple-darwin14
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.8.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-macos-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-macos-3.9.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-apple-darwin14
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.9.0
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-macos-cross:$TOOLCHAIN_IMAGE_TAG
+  extends: .build_template
+riscv32-macos-3.10.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-apple-darwin14
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.10.0
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-macos-cross:$TOOLCHAIN_IMAGE_TAG
   extends: .build_template
 
 
-# TEST LINUX x86_64
+# TEST linux-amd64
 
 
-esp32-test-x86_64-linux-gnu-without_python:
+xtensa-esp32-test-linux-amd64-without_python:
   tags: [ "amd64", "build" ]
   variables:
     ESP_CHIP: esp32
+    ESP_CHIP_ARCH: xtensa
     PYTHON_VERSION: without_python
   image: $CI_DOCKER_REGISTRY/esp32-dejagnu:$DEJAGNU_IMAGE_TAG
-  needs: [ x86_64-linux-gnu-without_python ]
+  needs: [ xtensa-linux-amd64-without_python ]
   extends: .test_qemu_template
 
-esp32s2-test-x86_64-linux-gnu-without_python:
+
+
+xtensa-esp32s2-test-linux-amd64-without_python:
   tags: [ "amd64", "build" ]
   variables:
     ESP_CHIP: esp32s2
+    ESP_CHIP_ARCH: xtensa
     PYTHON_VERSION: without_python
   image: $CI_DOCKER_REGISTRY/esp32-dejagnu:$DEJAGNU_IMAGE_TAG
-  needs: [ x86_64-linux-gnu-without_python ]
+  needs: [ xtensa-linux-amd64-without_python ]
   extends: .test_no_qemu_template
 
 
 
-esp32-test-x86_64-linux-gnu-3.6.0:
+riscv32-esp-test-linux-amd64-without_python:
+  tags: [ "amd64", "build" ]
+  variables:
+    ESP_CHIP: esp
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: without_python
+  image: $CI_DOCKER_REGISTRY/esp32-dejagnu:$DEJAGNU_IMAGE_TAG
+  needs: [ riscv32-linux-amd64-without_python ]
+  extends: .test_no_qemu_template
+
+
+
+xtensa-esp32-test-linux-amd64-3.6.0:
   tags: [ "amd64", "build" ]
   variables:
     ESP_CHIP: esp32
+    ESP_CHIP_ARCH: xtensa
     PYTHON_VERSION: 3.6.0
   image: $CI_DOCKER_REGISTRY/esp32-dejagnu:$DEJAGNU_IMAGE_TAG
-  needs: [ x86_64-linux-gnu-3.6.0 ]
+  needs: [ xtensa-linux-amd64-3.6.0 ]
   extends: .test_qemu_template
 
-esp32s2-test-x86_64-linux-gnu-3.6.0:
+
+
+xtensa-esp32s2-test-linux-amd64-3.6.0:
   tags: [ "amd64", "build" ]
   variables:
     ESP_CHIP: esp32s2
+    ESP_CHIP_ARCH: xtensa
     PYTHON_VERSION: 3.6.0
   image: $CI_DOCKER_REGISTRY/esp32-dejagnu:$DEJAGNU_IMAGE_TAG
-  needs: [ x86_64-linux-gnu-3.6.0 ]
+  needs: [ xtensa-linux-amd64-3.6.0 ]
   extends: .test_no_qemu_template
 
 
 
-esp32-test-x86_64-linux-gnu-3.7.0:
+riscv32-esp-test-linux-amd64-3.6.0:
+  tags: [ "amd64", "build" ]
+  variables:
+    ESP_CHIP: esp
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.6.0
+  image: $CI_DOCKER_REGISTRY/esp32-dejagnu:$DEJAGNU_IMAGE_TAG
+  needs: [ riscv32-linux-amd64-3.6.0 ]
+  extends: .test_no_qemu_template
+
+
+
+xtensa-esp32-test-linux-amd64-3.7.0:
   tags: [ "amd64", "build" ]
   variables:
     ESP_CHIP: esp32
+    ESP_CHIP_ARCH: xtensa
     PYTHON_VERSION: 3.7.0
   image: $CI_DOCKER_REGISTRY/esp32-dejagnu:$DEJAGNU_IMAGE_TAG
-  needs: [ x86_64-linux-gnu-3.7.0 ]
+  needs: [ xtensa-linux-amd64-3.7.0 ]
   extends: .test_qemu_template
 
-esp32s2-test-x86_64-linux-gnu-3.7.0:
+
+
+xtensa-esp32s2-test-linux-amd64-3.7.0:
   tags: [ "amd64", "build" ]
   variables:
     ESP_CHIP: esp32s2
+    ESP_CHIP_ARCH: xtensa
     PYTHON_VERSION: 3.7.0
   image: $CI_DOCKER_REGISTRY/esp32-dejagnu:$DEJAGNU_IMAGE_TAG
-  needs: [ x86_64-linux-gnu-3.7.0 ]
+  needs: [ xtensa-linux-amd64-3.7.0 ]
   extends: .test_no_qemu_template
 
 
 
-esp32-test-x86_64-linux-gnu-3.8.0:
+riscv32-esp-test-linux-amd64-3.7.0:
+  tags: [ "amd64", "build" ]
+  variables:
+    ESP_CHIP: esp
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.7.0
+  image: $CI_DOCKER_REGISTRY/esp32-dejagnu:$DEJAGNU_IMAGE_TAG
+  needs: [ riscv32-linux-amd64-3.7.0 ]
+  extends: .test_no_qemu_template
+
+
+
+xtensa-esp32-test-linux-amd64-3.8.0:
   tags: [ "amd64", "build" ]
   variables:
     ESP_CHIP: esp32
+    ESP_CHIP_ARCH: xtensa
     PYTHON_VERSION: 3.8.0
   image: $CI_DOCKER_REGISTRY/esp32-dejagnu:$DEJAGNU_IMAGE_TAG
-  needs: [ x86_64-linux-gnu-3.8.0 ]
+  needs: [ xtensa-linux-amd64-3.8.0 ]
   extends: .test_qemu_template
 
-esp32s2-test-x86_64-linux-gnu-3.8.0:
+
+
+xtensa-esp32s2-test-linux-amd64-3.8.0:
   tags: [ "amd64", "build" ]
   variables:
     ESP_CHIP: esp32s2
+    ESP_CHIP_ARCH: xtensa
     PYTHON_VERSION: 3.8.0
   image: $CI_DOCKER_REGISTRY/esp32-dejagnu:$DEJAGNU_IMAGE_TAG
-  needs: [ x86_64-linux-gnu-3.8.0 ]
+  needs: [ xtensa-linux-amd64-3.8.0 ]
   extends: .test_no_qemu_template
 
 
 
-esp32-test-x86_64-linux-gnu-3.9.0:
+riscv32-esp-test-linux-amd64-3.8.0:
+  tags: [ "amd64", "build" ]
+  variables:
+    ESP_CHIP: esp
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.8.0
+  image: $CI_DOCKER_REGISTRY/esp32-dejagnu:$DEJAGNU_IMAGE_TAG
+  needs: [ riscv32-linux-amd64-3.8.0 ]
+  extends: .test_no_qemu_template
+
+
+
+xtensa-esp32-test-linux-amd64-3.9.0:
   tags: [ "amd64", "build" ]
   variables:
     ESP_CHIP: esp32
+    ESP_CHIP_ARCH: xtensa
     PYTHON_VERSION: 3.9.0
   image: $CI_DOCKER_REGISTRY/esp32-dejagnu:$DEJAGNU_IMAGE_TAG
-  needs: [ x86_64-linux-gnu-3.9.0 ]
+  needs: [ xtensa-linux-amd64-3.9.0 ]
   extends: .test_qemu_template
 
-esp32s2-test-x86_64-linux-gnu-3.9.0:
+
+
+xtensa-esp32s2-test-linux-amd64-3.9.0:
   tags: [ "amd64", "build" ]
   variables:
     ESP_CHIP: esp32s2
+    ESP_CHIP_ARCH: xtensa
     PYTHON_VERSION: 3.9.0
   image: $CI_DOCKER_REGISTRY/esp32-dejagnu:$DEJAGNU_IMAGE_TAG
-  needs: [ x86_64-linux-gnu-3.9.0 ]
+  needs: [ xtensa-linux-amd64-3.9.0 ]
   extends: .test_no_qemu_template
 
 
 
-esp32-test-x86_64-linux-gnu-3.10.0:
+riscv32-esp-test-linux-amd64-3.9.0:
+  tags: [ "amd64", "build" ]
+  variables:
+    ESP_CHIP: esp
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.9.0
+  image: $CI_DOCKER_REGISTRY/esp32-dejagnu:$DEJAGNU_IMAGE_TAG
+  needs: [ riscv32-linux-amd64-3.9.0 ]
+  extends: .test_no_qemu_template
+
+
+
+xtensa-esp32-test-linux-amd64-3.10.0:
   tags: [ "amd64", "build" ]
   variables:
     ESP_CHIP: esp32
+    ESP_CHIP_ARCH: xtensa
     PYTHON_VERSION: 3.10.0
   image: $CI_DOCKER_REGISTRY/esp32-dejagnu:$DEJAGNU_IMAGE_TAG
-  needs: [ x86_64-linux-gnu-3.10.0 ]
+  needs: [ xtensa-linux-amd64-3.10.0 ]
   extends: .test_qemu_template
 
-esp32s2-test-x86_64-linux-gnu-3.10.0:
+
+
+xtensa-esp32s2-test-linux-amd64-3.10.0:
   tags: [ "amd64", "build" ]
   variables:
     ESP_CHIP: esp32s2
+    ESP_CHIP_ARCH: xtensa
     PYTHON_VERSION: 3.10.0
   image: $CI_DOCKER_REGISTRY/esp32-dejagnu:$DEJAGNU_IMAGE_TAG
-  needs: [ x86_64-linux-gnu-3.10.0 ]
+  needs: [ xtensa-linux-amd64-3.10.0 ]
   extends: .test_no_qemu_template
 
-# TEST MACOS x86_64
 
 
-esp32-test-macos-3.6.13:
+riscv32-esp-test-linux-amd64-3.10.0:
+  tags: [ "amd64", "build" ]
+  variables:
+    ESP_CHIP: esp
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.10.0
+  image: $CI_DOCKER_REGISTRY/esp32-dejagnu:$DEJAGNU_IMAGE_TAG
+  needs: [ riscv32-linux-amd64-3.10.0 ]
+  extends: .test_no_qemu_template
+
+# TEST macos
+
+
+xtensa-esp32-test-macos-3.6.13:
   tags: [ macos_shell ]
   variables:
     ESP_CHIP: esp32
+    ESP_CHIP_ARCH: xtensa
     TEST_PYTHON_VERSION: 3.6.13
-  needs: [ x86_64-apple-darwin14-3.6.0 ]
+  needs: [ xtensa-macos-3.6.0 ]
   extends: .test_macos_template
 
-esp32s2-test-macos-3.6.13:
+xtensa-esp32s2-test-macos-3.6.13:
   tags: [ macos_shell ]
   variables:
     ESP_CHIP: esp32s2
+    ESP_CHIP_ARCH: xtensa
     TEST_PYTHON_VERSION: 3.6.13
-  needs: [ x86_64-apple-darwin14-3.6.0 ]
+  needs: [ xtensa-macos-3.6.0 ]
+  extends: .test_macos_template
+
+riscv32-esp-test-macos-3.6.13:
+  tags: [ macos_shell ]
+  variables:
+    ESP_CHIP: esp
+    ESP_CHIP_ARCH: riscv32
+    TEST_PYTHON_VERSION: 3.6.13
+  needs: [ riscv32-macos-3.6.0 ]
   extends: .test_macos_template
 
 
 
-esp32-test-macos-3.7.10:
+xtensa-esp32-test-macos-3.7.10:
   tags: [ macos_shell ]
   variables:
     ESP_CHIP: esp32
+    ESP_CHIP_ARCH: xtensa
     TEST_PYTHON_VERSION: 3.7.10
-  needs: [ x86_64-apple-darwin14-3.7.0 ]
+  needs: [ xtensa-macos-3.7.0 ]
   extends: .test_macos_template
 
-esp32s2-test-macos-3.7.10:
+xtensa-esp32s2-test-macos-3.7.10:
   tags: [ macos_shell ]
   variables:
     ESP_CHIP: esp32s2
+    ESP_CHIP_ARCH: xtensa
     TEST_PYTHON_VERSION: 3.7.10
-  needs: [ x86_64-apple-darwin14-3.7.0 ]
+  needs: [ xtensa-macos-3.7.0 ]
+  extends: .test_macos_template
+
+riscv32-esp-test-macos-3.7.10:
+  tags: [ macos_shell ]
+  variables:
+    ESP_CHIP: esp
+    ESP_CHIP_ARCH: riscv32
+    TEST_PYTHON_VERSION: 3.7.10
+  needs: [ riscv32-macos-3.7.0 ]
   extends: .test_macos_template
 
 
 
-esp32-test-macos-3.8.10:
+xtensa-esp32-test-macos-3.8.10:
   tags: [ macos_shell ]
   variables:
     ESP_CHIP: esp32
+    ESP_CHIP_ARCH: xtensa
     TEST_PYTHON_VERSION: 3.8.10
-  needs: [ x86_64-apple-darwin14-3.8.0 ]
+  needs: [ xtensa-macos-3.8.0 ]
   extends: .test_macos_template
 
-esp32s2-test-macos-3.8.10:
+xtensa-esp32s2-test-macos-3.8.10:
   tags: [ macos_shell ]
   variables:
     ESP_CHIP: esp32s2
+    ESP_CHIP_ARCH: xtensa
     TEST_PYTHON_VERSION: 3.8.10
-  needs: [ x86_64-apple-darwin14-3.8.0 ]
+  needs: [ xtensa-macos-3.8.0 ]
+  extends: .test_macos_template
+
+riscv32-esp-test-macos-3.8.10:
+  tags: [ macos_shell ]
+  variables:
+    ESP_CHIP: esp
+    ESP_CHIP_ARCH: riscv32
+    TEST_PYTHON_VERSION: 3.8.10
+  needs: [ riscv32-macos-3.8.0 ]
   extends: .test_macos_template
 
 
 
-esp32-test-macos-3.9.5:
+xtensa-esp32-test-macos-3.9.5:
   tags: [ macos_shell ]
   variables:
     ESP_CHIP: esp32
+    ESP_CHIP_ARCH: xtensa
     TEST_PYTHON_VERSION: 3.9.5
-  needs: [ x86_64-apple-darwin14-3.9.0 ]
+  needs: [ xtensa-macos-3.9.0 ]
   extends: .test_macos_template
 
-esp32s2-test-macos-3.9.5:
+xtensa-esp32s2-test-macos-3.9.5:
   tags: [ macos_shell ]
   variables:
     ESP_CHIP: esp32s2
+    ESP_CHIP_ARCH: xtensa
     TEST_PYTHON_VERSION: 3.9.5
-  needs: [ x86_64-apple-darwin14-3.9.0 ]
+  needs: [ xtensa-macos-3.9.0 ]
+  extends: .test_macos_template
+
+riscv32-esp-test-macos-3.9.5:
+  tags: [ macos_shell ]
+  variables:
+    ESP_CHIP: esp
+    ESP_CHIP_ARCH: riscv32
+    TEST_PYTHON_VERSION: 3.9.5
+  needs: [ riscv32-macos-3.9.0 ]
   extends: .test_macos_template
 
 
 
-esp32-test-macos-3.10.0b2:
+xtensa-esp32-test-macos-3.10.0b2:
   tags: [ macos_shell ]
   variables:
     ESP_CHIP: esp32
+    ESP_CHIP_ARCH: xtensa
     TEST_PYTHON_VERSION: 3.10.0b2
-  needs: [ x86_64-apple-darwin14-3.10.0 ]
+  needs: [ xtensa-macos-3.10.0 ]
   extends: .test_macos_template
 
-esp32s2-test-macos-3.10.0b2:
+xtensa-esp32s2-test-macos-3.10.0b2:
   tags: [ macos_shell ]
   variables:
     ESP_CHIP: esp32s2
+    ESP_CHIP_ARCH: xtensa
     TEST_PYTHON_VERSION: 3.10.0b2
-  needs: [ x86_64-apple-darwin14-3.10.0 ]
+  needs: [ xtensa-macos-3.10.0 ]
   extends: .test_macos_template
 
-# TEST WINDOWS x86_64
+riscv32-esp-test-macos-3.10.0b2:
+  tags: [ macos_shell ]
+  variables:
+    ESP_CHIP: esp
+    ESP_CHIP_ARCH: riscv32
+    TEST_PYTHON_VERSION: 3.10.0b2
+  needs: [ riscv32-macos-3.10.0 ]
+  extends: .test_macos_template
+
+# TEST win64
 
 
-esp32-test-windows:
+xtensa-esp32-test-windows:
   tags: [ windows, powershell ]
   variables:
     ESP_CHIP: esp32
-  needs: [ x86_64-w64-mingw32-without_python ]
+    ESP_CHIP_ARCH: xtensa
+  needs: [ xtensa-win64-without_python ]
   extends: .test_windows_template
 
-esp32s2-test-windows:
+xtensa-esp32s2-test-windows:
   tags: [ windows, powershell ]
   variables:
     ESP_CHIP: esp32s2
-  needs: [ x86_64-w64-mingw32-without_python ]
+    ESP_CHIP_ARCH: xtensa
+  needs: [ xtensa-win64-without_python ]
+  extends: .test_windows_template
+
+riscv32-esp-test-windows:
+  tags: [ windows, powershell ]
+  variables:
+    ESP_CHIP: esp
+    ESP_CHIP_ARCH: riscv32
+  needs: [ riscv32-win64-without_python ]
   extends: .test_windows_template
 
 # PACK GDB linux-amd64
 
-pack-x86_64-linux-gnu:
+pack-xtensa-linux-amd64:
   variables:
     PLATFORM_NAME: linux-amd64
+    ESP_CHIP_ARCH: xtensa
     ARCHIVE_TOOL: "tar czvf"
     ARCHIVE_EXT: "tar.gz"
   tags: [ "amd64", "build" ]
   needs:
-    - x86_64-linux-gnu-without_python
-    - x86_64-linux-gnu-3.6.0
-    - x86_64-linux-gnu-3.7.0
-    - x86_64-linux-gnu-3.8.0
-    - x86_64-linux-gnu-3.9.0
-    - x86_64-linux-gnu-3.10.0
+    - xtensa-linux-amd64-without_python
+    - xtensa-linux-amd64-3.6.0
+    - xtensa-linux-amd64-3.7.0
+    - xtensa-linux-amd64-3.8.0
+    - xtensa-linux-amd64-3.9.0
+    - xtensa-linux-amd64-3.10.0
+  extends: .pack_template
+
+pack-riscv32-linux-amd64:
+  variables:
+    PLATFORM_NAME: linux-amd64
+    ESP_CHIP_ARCH: riscv32
+    ARCHIVE_TOOL: "tar czvf"
+    ARCHIVE_EXT: "tar.gz"
+  tags: [ "amd64", "build" ]
+  needs:
+    - riscv32-linux-amd64-without_python
+    - riscv32-linux-amd64-3.6.0
+    - riscv32-linux-amd64-3.7.0
+    - riscv32-linux-amd64-3.8.0
+    - riscv32-linux-amd64-3.9.0
+    - riscv32-linux-amd64-3.10.0
   extends: .pack_template
 
 
 # PACK GDB linux-i686
 
-pack-i586-linux-gnu:
+pack-xtensa-linux-i686:
   variables:
     PLATFORM_NAME: linux-i686
+    ESP_CHIP_ARCH: xtensa
     ARCHIVE_TOOL: "tar czvf"
     ARCHIVE_EXT: "tar.gz"
   tags: [ "amd64", "build" ]
   needs:
-    - i586-linux-gnu-without_python
-    - i586-linux-gnu-3.6.0
-    - i586-linux-gnu-3.7.0
-    - i586-linux-gnu-3.8.0
-    - i586-linux-gnu-3.9.0
-    - i586-linux-gnu-3.10.0
+    - xtensa-linux-i686-without_python
+    - xtensa-linux-i686-3.6.0
+    - xtensa-linux-i686-3.7.0
+    - xtensa-linux-i686-3.8.0
+    - xtensa-linux-i686-3.9.0
+    - xtensa-linux-i686-3.10.0
+  extends: .pack_template
+
+pack-riscv32-linux-i686:
+  variables:
+    PLATFORM_NAME: linux-i686
+    ESP_CHIP_ARCH: riscv32
+    ARCHIVE_TOOL: "tar czvf"
+    ARCHIVE_EXT: "tar.gz"
+  tags: [ "amd64", "build" ]
+  needs:
+    - riscv32-linux-i686-without_python
+    - riscv32-linux-i686-3.6.0
+    - riscv32-linux-i686-3.7.0
+    - riscv32-linux-i686-3.8.0
+    - riscv32-linux-i686-3.9.0
+    - riscv32-linux-i686-3.10.0
   extends: .pack_template
 
 
 # PACK GDB linux-armel
 
-pack-arm-linux-gnueabi:
+pack-xtensa-linux-armel:
   variables:
     PLATFORM_NAME: linux-armel
+    ESP_CHIP_ARCH: xtensa
     ARCHIVE_TOOL: "tar czvf"
     ARCHIVE_EXT: "tar.gz"
   tags: [ "amd64", "build" ]
   needs:
-    - arm-linux-gnueabi-without_python
-    - arm-linux-gnueabi-3.6.0
-    - arm-linux-gnueabi-3.7.0
-    - arm-linux-gnueabi-3.8.0
-    - arm-linux-gnueabi-3.9.0
-    - arm-linux-gnueabi-3.10.0
+    - xtensa-linux-armel-without_python
+    - xtensa-linux-armel-3.6.0
+    - xtensa-linux-armel-3.7.0
+    - xtensa-linux-armel-3.8.0
+    - xtensa-linux-armel-3.9.0
+    - xtensa-linux-armel-3.10.0
+  extends: .pack_template
+
+pack-riscv32-linux-armel:
+  variables:
+    PLATFORM_NAME: linux-armel
+    ESP_CHIP_ARCH: riscv32
+    ARCHIVE_TOOL: "tar czvf"
+    ARCHIVE_EXT: "tar.gz"
+  tags: [ "amd64", "build" ]
+  needs:
+    - riscv32-linux-armel-without_python
+    - riscv32-linux-armel-3.6.0
+    - riscv32-linux-armel-3.7.0
+    - riscv32-linux-armel-3.8.0
+    - riscv32-linux-armel-3.9.0
+    - riscv32-linux-armel-3.10.0
   extends: .pack_template
 
 
 # PACK GDB linux-armhf
 
-pack-arm-linux-gnueabihf:
+pack-xtensa-linux-armhf:
   variables:
     PLATFORM_NAME: linux-armhf
+    ESP_CHIP_ARCH: xtensa
     ARCHIVE_TOOL: "tar czvf"
     ARCHIVE_EXT: "tar.gz"
   tags: [ "amd64", "build" ]
   needs:
-    - arm-linux-gnueabihf-without_python
-    - arm-linux-gnueabihf-3.6.0
-    - arm-linux-gnueabihf-3.7.0
-    - arm-linux-gnueabihf-3.8.0
-    - arm-linux-gnueabihf-3.9.0
-    - arm-linux-gnueabihf-3.10.0
+    - xtensa-linux-armhf-without_python
+    - xtensa-linux-armhf-3.6.0
+    - xtensa-linux-armhf-3.7.0
+    - xtensa-linux-armhf-3.8.0
+    - xtensa-linux-armhf-3.9.0
+    - xtensa-linux-armhf-3.10.0
+  extends: .pack_template
+
+pack-riscv32-linux-armhf:
+  variables:
+    PLATFORM_NAME: linux-armhf
+    ESP_CHIP_ARCH: riscv32
+    ARCHIVE_TOOL: "tar czvf"
+    ARCHIVE_EXT: "tar.gz"
+  tags: [ "amd64", "build" ]
+  needs:
+    - riscv32-linux-armhf-without_python
+    - riscv32-linux-armhf-3.6.0
+    - riscv32-linux-armhf-3.7.0
+    - riscv32-linux-armhf-3.8.0
+    - riscv32-linux-armhf-3.9.0
+    - riscv32-linux-armhf-3.10.0
   extends: .pack_template
 
 
 # PACK GDB linux-arm64
 
-pack-aarch64-linux-gnu:
+pack-xtensa-linux-arm64:
   variables:
     PLATFORM_NAME: linux-arm64
+    ESP_CHIP_ARCH: xtensa
     ARCHIVE_TOOL: "tar czvf"
     ARCHIVE_EXT: "tar.gz"
   tags: [ "amd64", "build" ]
   needs:
-    - aarch64-linux-gnu-without_python
-    - aarch64-linux-gnu-3.6.0
-    - aarch64-linux-gnu-3.7.0
-    - aarch64-linux-gnu-3.8.0
-    - aarch64-linux-gnu-3.9.0
-    - aarch64-linux-gnu-3.10.0
+    - xtensa-linux-arm64-without_python
+    - xtensa-linux-arm64-3.6.0
+    - xtensa-linux-arm64-3.7.0
+    - xtensa-linux-arm64-3.8.0
+    - xtensa-linux-arm64-3.9.0
+    - xtensa-linux-arm64-3.10.0
+  extends: .pack_template
+
+pack-riscv32-linux-arm64:
+  variables:
+    PLATFORM_NAME: linux-arm64
+    ESP_CHIP_ARCH: riscv32
+    ARCHIVE_TOOL: "tar czvf"
+    ARCHIVE_EXT: "tar.gz"
+  tags: [ "amd64", "build" ]
+  needs:
+    - riscv32-linux-arm64-without_python
+    - riscv32-linux-arm64-3.6.0
+    - riscv32-linux-arm64-3.7.0
+    - riscv32-linux-arm64-3.8.0
+    - riscv32-linux-arm64-3.9.0
+    - riscv32-linux-arm64-3.10.0
   extends: .pack_template
 
 
 # PACK GDB win32
 
-pack-i686-w64-mingw32:
+pack-xtensa-win32:
   variables:
     PLATFORM_NAME: win32
+    ESP_CHIP_ARCH: xtensa
     ARCHIVE_TOOL: "zip -r"
     ARCHIVE_EXT: "zip"
   tags: [ "amd64", "build" ]
   needs:
-    - i686-w64-mingw32-without_python
-    - i686-w64-mingw32-3.6.0
-    - i686-w64-mingw32-3.7.0
-    - i686-w64-mingw32-3.8.0
-    - i686-w64-mingw32-3.9.0
-    - i686-w64-mingw32-3.10.0
+    - xtensa-win32-without_python
+    - xtensa-win32-3.6.0
+    - xtensa-win32-3.7.0
+    - xtensa-win32-3.8.0
+    - xtensa-win32-3.9.0
+    - xtensa-win32-3.10.0
+  extends: .pack_template
+
+pack-riscv32-win32:
+  variables:
+    PLATFORM_NAME: win32
+    ESP_CHIP_ARCH: riscv32
+    ARCHIVE_TOOL: "zip -r"
+    ARCHIVE_EXT: "zip"
+  tags: [ "amd64", "build" ]
+  needs:
+    - riscv32-win32-without_python
+    - riscv32-win32-3.6.0
+    - riscv32-win32-3.7.0
+    - riscv32-win32-3.8.0
+    - riscv32-win32-3.9.0
+    - riscv32-win32-3.10.0
   extends: .pack_template
 
 
 # PACK GDB win64
 
-pack-x86_64-w64-mingw32:
+pack-xtensa-win64:
   variables:
     PLATFORM_NAME: win64
+    ESP_CHIP_ARCH: xtensa
     ARCHIVE_TOOL: "zip -r"
     ARCHIVE_EXT: "zip"
   tags: [ "amd64", "build" ]
   needs:
-    - x86_64-w64-mingw32-without_python
-    - x86_64-w64-mingw32-3.6.0
-    - x86_64-w64-mingw32-3.7.0
-    - x86_64-w64-mingw32-3.8.0
-    - x86_64-w64-mingw32-3.9.0
-    - x86_64-w64-mingw32-3.10.0
+    - xtensa-win64-without_python
+    - xtensa-win64-3.6.0
+    - xtensa-win64-3.7.0
+    - xtensa-win64-3.8.0
+    - xtensa-win64-3.9.0
+    - xtensa-win64-3.10.0
+  extends: .pack_template
+
+pack-riscv32-win64:
+  variables:
+    PLATFORM_NAME: win64
+    ESP_CHIP_ARCH: riscv32
+    ARCHIVE_TOOL: "zip -r"
+    ARCHIVE_EXT: "zip"
+  tags: [ "amd64", "build" ]
+  needs:
+    - riscv32-win64-without_python
+    - riscv32-win64-3.6.0
+    - riscv32-win64-3.7.0
+    - riscv32-win64-3.8.0
+    - riscv32-win64-3.9.0
+    - riscv32-win64-3.10.0
   extends: .pack_template
 
 
 # PACK GDB macos
 
-pack-x86_64-apple-darwin14:
+pack-xtensa-macos:
   variables:
     PLATFORM_NAME: macos
+    ESP_CHIP_ARCH: xtensa
     ARCHIVE_TOOL: "tar czvf"
     ARCHIVE_EXT: "tar.gz"
   tags: [ "amd64", "build" ]
   needs:
-    - x86_64-apple-darwin14-without_python
-    - x86_64-apple-darwin14-3.6.0
-    - x86_64-apple-darwin14-3.7.0
-    - x86_64-apple-darwin14-3.8.0
-    - x86_64-apple-darwin14-3.9.0
-    - x86_64-apple-darwin14-3.10.0
+    - xtensa-macos-without_python
+    - xtensa-macos-3.6.0
+    - xtensa-macos-3.7.0
+    - xtensa-macos-3.8.0
+    - xtensa-macos-3.9.0
+    - xtensa-macos-3.10.0
+  extends: .pack_template
+
+pack-riscv32-macos:
+  variables:
+    PLATFORM_NAME: macos
+    ESP_CHIP_ARCH: riscv32
+    ARCHIVE_TOOL: "tar czvf"
+    ARCHIVE_EXT: "tar.gz"
+  tags: [ "amd64", "build" ]
+  needs:
+    - riscv32-macos-without_python
+    - riscv32-macos-3.6.0
+    - riscv32-macos-3.7.0
+    - riscv32-macos-3.8.0
+    - riscv32-macos-3.9.0
+    - riscv32-macos-3.10.0
   extends: .pack_template
 
 

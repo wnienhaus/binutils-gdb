@@ -2,7 +2,14 @@
 
 PYTHON_VERSIONS="without_python 3.6.0 3.7.0 3.8.0 3.9.0 3.10.0"
 MACOS_PYTHON_VERSIONS="3.6.13 3.7.10 3.8.10 3.9.5 3.10.0b2"
-ESP_CHIPS="esp32 esp32s2"
+declare -a TEST_ESP_CHIPS=(         "esp32"
+                                    "esp32s2"
+                                    "esp")
+declare -a TEST_ESP_CHIPS_ARCH=(    "xtensa"
+                                    "xtensa"
+                                    "riscv32")
+
+ESP_ARCHITECTURES_ALL="xtensa riscv32"
 
 declare -a ARCHITECTURES_ARRAY=("x86_64-linux-gnu"
                                 "i586-linux-gnu"
@@ -35,10 +42,10 @@ declare -a PRETTY_NAME_ARRAY=(  "linux-amd64"
                                 "win64"
                                 "macos")
 
-ARCHITECTURES_ARRAY_LENGHT=${#ARCHITECTURES_ARRAY[@]}
+ARCHITECTURES_ARRAY_LENGTH=${#ARCHITECTURES_ARRAY[@]}
 
-test $ARCHITECTURES_ARRAY_LENGHT != ${#IMAGE_POSTFIX_ARRAY[@]} && echo "Bad arrays initialization" && exit 1
-test $ARCHITECTURES_ARRAY_LENGHT != ${#PRETTY_NAME_ARRAY[@]} && echo "Bad arrays initialization" && exit 1
+test $ARCHITECTURES_ARRAY_LENGTH != ${#IMAGE_POSTFIX_ARRAY[@]} && echo "Bad arrays initialization" && exit 1
+test $ARCHITECTURES_ARRAY_LENGTH != ${#PRETTY_NAME_ARRAY[@]} && echo "Bad arrays initialization" && exit 1
 
 read -r -d '' build_arch_python <<-EOF
 \$ARCH_TRIPLET-\$PYTHON_VERSION
@@ -47,39 +54,50 @@ read -r -d '' build_arch_python <<-EOF
 EOF
 
 function build_arch() {
-  ARCH_TRIPLET=$1
-  IMAGE_SUFFIX=$2
+  BUILD_ARCH_TRIPLET=$1
+  BUILD_ARCH_PRETTY=$2
+  IMAGE_SUFFIX=$3
   echo ""
-  for PYTHON_VERSION in $PYTHON_VERSIONS; do
-    echo "$ARCH_TRIPLET-$PYTHON_VERSION:"
-    echo "  image: \$CI_DOCKER_REGISTRY/esp32-toolchain$IMAGE_SUFFIX:\$TOOLCHAIN_IMAGE_TAG"
-    echo "  extends: .build_template"
+  for ESP_CHIP_ARCH in $ESP_ARCHITECTURES_ALL; do
+    echo ""
+    for PYTHON_VERSION in $PYTHON_VERSIONS; do
+      echo "$ESP_CHIP_ARCH-$BUILD_ARCH_PRETTY-$PYTHON_VERSION:"
+      echo "  variables:"
+      echo "    BUILD_ARCH_TRIPLET: $BUILD_ARCH_TRIPLET"
+      echo "    ESP_CHIP_ARCH: $ESP_CHIP_ARCH"
+      echo "    PYTHON_VERSION: $PYTHON_VERSION"
+      echo "  image: \$CI_DOCKER_REGISTRY/esp32-toolchain$IMAGE_SUFFIX:\$TOOLCHAIN_IMAGE_TAG"
+      echo "  extends: .build_template"
+    done;
   done;
   echo ""
   echo ""
 }
 
 function test_arch_linux() {
-  ARCH_TRIPLET=$1
+  BUILD_ARCH_PRETTY=$1
   IMAGE_SUFFIX=$2
   RUNNER_TAGS=$3
   for PYTHON_VERSION in $PYTHON_VERSIONS; do
-    echo ""
-    echo ""
-    for ESP_CHIP in $ESP_CHIPS; do
+    for ((i = 0; i < ${#TEST_ESP_CHIPS[@]}; i++)); do
+      ESP_CHIP=${TEST_ESP_CHIPS[$i]}
+      ESP_CHIP_ARCH=${TEST_ESP_CHIPS_ARCH[$i]}
+      echo ""
+      echo ""
       TEST_TEMPLATE=
       if [ $ESP_CHIP == "esp32" ]; then
-          TEST_TEMPLATE=".test_qemu_template"
+        TEST_TEMPLATE=".test_qemu_template"
       else
-          TEST_TEMPLATE=".test_no_qemu_template"
+        TEST_TEMPLATE=".test_no_qemu_template"
       fi
-      echo "$ESP_CHIP-test-$ARCH_TRIPLET-$PYTHON_VERSION:"
+      echo "$ESP_CHIP_ARCH-$ESP_CHIP-test-$BUILD_ARCH_PRETTY-$PYTHON_VERSION:"
       echo "  tags: $RUNNER_TAGS"
       echo "  variables:"
       echo "    ESP_CHIP: $ESP_CHIP"
+      echo "    ESP_CHIP_ARCH: $ESP_CHIP_ARCH"
       echo "    PYTHON_VERSION: $PYTHON_VERSION"
       echo "  image: \$CI_DOCKER_REGISTRY/esp32-dejagnu$IMAGE_SUFFIX:\$DEJAGNU_IMAGE_TAG"
-      echo "  needs: [ $ARCH_TRIPLET-$PYTHON_VERSION ]"
+      echo "  needs: [ $ESP_CHIP_ARCH-$BUILD_ARCH_PRETTY-$PYTHON_VERSION ]"
       echo "  extends: $TEST_TEMPLATE"
       echo ""
     done;
@@ -90,13 +108,16 @@ function test_macos() {
   for PYTHON_VERSION in $MACOS_PYTHON_VERSIONS; do
     echo ""
     echo ""
-    for ESP_CHIP in $ESP_CHIPS; do
-      echo "$ESP_CHIP-test-macos-$PYTHON_VERSION:"
+    for ((i = 0; i < ${#TEST_ESP_CHIPS[@]}; i++)); do
+      ESP_CHIP=${TEST_ESP_CHIPS[$i]}
+      ESP_CHIP_ARCH=${TEST_ESP_CHIPS_ARCH[$i]}
+      echo "$ESP_CHIP_ARCH-$ESP_CHIP-test-macos-$PYTHON_VERSION:"
       echo "  tags: [ macos_shell ]"
       echo "  variables:"
       echo "    ESP_CHIP: $ESP_CHIP"
+      echo "    ESP_CHIP_ARCH: $ESP_CHIP_ARCH"
       echo "    TEST_PYTHON_VERSION: $PYTHON_VERSION"
-      echo "  needs: [ x86_64-apple-darwin14-${PYTHON_VERSION%.*}.0 ]"
+      echo "  needs: [ $ESP_CHIP_ARCH-macos-${PYTHON_VERSION%.*}.0 ]"
       echo "  extends: .test_macos_template"
       echo ""
     done;
@@ -106,43 +127,44 @@ function test_macos() {
 function test_windows() {
   echo ""
   echo ""
-  for ESP_CHIP in $ESP_CHIPS; do
-    echo "$ESP_CHIP-test-windows:"
+  for ((i = 0; i < ${#TEST_ESP_CHIPS[@]}; i++)); do
+    ESP_CHIP=${TEST_ESP_CHIPS[$i]}
+    ESP_CHIP_ARCH=${TEST_ESP_CHIPS_ARCH[$i]}
+    echo "$ESP_CHIP_ARCH-$ESP_CHIP-test-windows:"
     echo "  tags: [ windows, powershell ]"
     echo "  variables:"
     echo "    ESP_CHIP: $ESP_CHIP"
-    echo "  needs: [ x86_64-w64-mingw32-without_python ]"
+    echo "    ESP_CHIP_ARCH: $ESP_CHIP_ARCH"
+    echo "  needs: [ $ESP_CHIP_ARCH-win64-without_python ]"
     echo "  extends: .test_windows_template"
     echo ""
   done;
 }
 
 function pack_output() {
-  ARCH_TRIPLET=$1
+  BUILD_ARCH_PRETTY=$1
   IS_TESTED=$2
   RUNNER_TAGS=$3
-  PLATFORM_NAME=$4
-  if [ -z "${PLATFORM_NAME}" ]; then
-    echo "ARCHIVE PREFIX WAS NOT SPECIFIED!" | tee >(cat >&2)
-    exit 1
-  fi
-  echo ""
-  echo "pack-$ARCH_TRIPLET:"
-  echo "  variables:"
-  echo "    PLATFORM_NAME: ${PLATFORM_NAME}"
-  if [[ ${PLATFORM_NAME} =~ "win" ]]; then
-    echo "    ARCHIVE_TOOL: \"zip -r\""
-    echo "    ARCHIVE_EXT: \"zip\""
-  else
-    echo "    ARCHIVE_TOOL: \"tar czvf\""
-    echo "    ARCHIVE_EXT: \"tar.gz\""
-  fi
-  echo "  tags: $RUNNER_TAGS"
-  echo "  needs:"
-  for PYTHON_VERSION in $PYTHON_VERSIONS; do
-    echo "    - $ARCH_TRIPLET-$PYTHON_VERSION"
+  for ESP_CHIP_ARCH in $ESP_ARCHITECTURES_ALL; do
+    echo ""
+    echo "pack-$ESP_CHIP_ARCH-$BUILD_ARCH_PRETTY:"
+    echo "  variables:"
+    echo "    PLATFORM_NAME: ${BUILD_ARCH_PRETTY}"
+    echo "    ESP_CHIP_ARCH: ${ESP_CHIP_ARCH}"
+    if [[ ${BUILD_ARCH_PRETTY} =~ "win" ]]; then
+      echo "    ARCHIVE_TOOL: \"zip -r\""
+      echo "    ARCHIVE_EXT: \"zip\""
+    else
+      echo "    ARCHIVE_TOOL: \"tar czvf\""
+      echo "    ARCHIVE_EXT: \"tar.gz\""
+    fi
+    echo "  tags: $RUNNER_TAGS"
+    echo "  needs:"
+    for PYTHON_VERSION in $PYTHON_VERSIONS; do
+      echo "    - $ESP_CHIP_ARCH-$BUILD_ARCH_PRETTY-$PYTHON_VERSION"
+    done;
+    echo "  extends: .pack_template"
   done;
-  echo "  extends: .pack_template"
   echo ""
   echo ""
 }
@@ -160,27 +182,25 @@ echo "$header"
 echo ""
 
 
-for (( i=0; i<${ARCHITECTURES_ARRAY_LENGHT}; i++ ));
-do
+for (( i=0; i<${ARCHITECTURES_ARRAY_LENGTH}; i++ )); do
   echo "# BUILD ${PRETTY_NAME_ARRAY[$i]}"
-  build_arch ${ARCHITECTURES_ARRAY[$i]} ${IMAGE_POSTFIX_ARRAY[$i]}
+  build_arch ${ARCHITECTURES_ARRAY[$i]} ${PRETTY_NAME_ARRAY[$i]} ${IMAGE_POSTFIX_ARRAY[$i]}
 done
 
-echo "# TEST LINUX x86_64"
-test_arch_linux "x86_64-linux-gnu" "" "[ \"amd64\", \"build\" ]"
+echo "# TEST linux-amd64"
+test_arch_linux "linux-amd64" "" "[ \"amd64\", \"build\" ]"
 
-echo "# TEST MACOS x86_64"
+echo "# TEST macos"
 test_macos
 
-echo "# TEST WINDOWS x86_64"
+echo "# TEST win64"
 test_windows
 
-for (( i=0; i<${ARCHITECTURES_ARRAY_LENGHT}; i++ ));
-do
+for (( i=0; i<${ARCHITECTURES_ARRAY_LENGTH}; i++ )); do
   echo "# PACK GDB ${PRETTY_NAME_ARRAY[$i]}"
   IS_TESTED="n"
   if [ ${ARCHITECTURES_ARRAY[$i]} == "x86_64-linux-gnu" ]; then
     IS_TESTED="y"
   fi
-  pack_output ${ARCHITECTURES_ARRAY[$i]} $IS_TESTED "[ \"amd64\", \"build\" ]" ${PRETTY_NAME_ARRAY[$i]}
+  pack_output ${PRETTY_NAME_ARRAY[$i]} $IS_TESTED "[ \"amd64\", \"build\" ]"
 done

@@ -69,7 +69,7 @@ before_script:
     when: always
     expire_in: 6 hours
   script:
-    - ./build_xtensa_gdb.sh ${CI_JOB_NAME%-*} ${CI_JOB_NAME##*-} ${GDB_DIST_DIR}
+    - ./build_xtensa_gdb.sh ${BUILD_ARCH_TRIPLET} ${ESP_CHIP_ARCH} ${PYTHON_VERSION} ${GDB_DIST_DIR}
 
 # Template for tests with qemu
 .test_qemu_template: &test_qemu_template
@@ -77,15 +77,15 @@ before_script:
   script:
     - cd gdb/testsuite
     - cp -R ${GDB_DIST_DIR}/share/gdb/* ../data-directory/
-    - ./configure --target=xtensa-${ESP_CHIP}-elf --host=xtensa-${ESP_CHIP}-elf
+    - ./configure --target=${ESP_CHIP_ARCH}-${ESP_CHIP}-elf --host=${ESP_CHIP_ARCH}-${ESP_CHIP}-elf
     - make site.exp
-    - XTENSA_TARGET=${ESP_CHIP} make -C esp_bin_generator
+    - if [ ${ESP_CHIP_ARCH} == "xtensa" ]; then XTENSA_TARGET=${ESP_CHIP} make -C esp_bin_generator; fi
     - test "${CI_JOB_NAME##*-}" != "without_python" && pyenv local ${PYTHON_VERSION}
     - test "${CI_JOB_NAME##*-}" == "without_python" && export ESPTOOL_PATH="/opt/pyenv/pyenv-2.2.2/versions/3.6.0/bin/esptool.py"
     - test "${CI_JOB_NAME##*-}" == "without_python" && export GDB_PYTHON_TESTS=""
     - export TESTS_FOR_RUN="${GDB_BASE_TESTS} ${GDB_BASE_TESTS_FOR_TARGET} ${GDB_PYTHON_TESTS}"
     - echo "TESTS_FOR_RUN $TESTS_FOR_RUN"
-    - runtest --tool gdb --status --target xtensa-${ESP_CHIP}-elf --target_board=simesp GDB=${GDB_DIST_DIR}/bin/xtensa-${ESP_CHIP}-elf-gdb $TESTS_FOR_RUN gdb.${ESP_CHIP}/*.exp
+    - runtest --tool gdb --status --target ${ESP_CHIP_ARCH}-${ESP_CHIP}-elf --target_board=simesp GDB=${GDB_DIST_DIR}/bin/${ESP_CHIP_ARCH}-${ESP_CHIP}-elf-gdb $TESTS_FOR_RUN gdb.${ESP_CHIP_ARCH}-${ESP_CHIP}/*.exp
 
 # Template for others tests without qemu
 .test_no_qemu_template: &test_no_qemu_template
@@ -93,21 +93,21 @@ before_script:
   script:
     - cd gdb/testsuite
     - cp -R ${GDB_DIST_DIR}/share/gdb/* ../data-directory/
-    - ./configure --target=xtensa-${ESP_CHIP}-elf --host=xtensa-${ESP_CHIP}-elf 
+    - ./configure --target=${ESP_CHIP_ARCH}-${ESP_CHIP}-elf --host=${ESP_CHIP_ARCH}-${ESP_CHIP}-elf 
     - make site.exp
     - echo "GDB_BASE_TESTS $GDB_BASE_TESTS"
     - test "${CI_JOB_NAME##*-}" != "without_python" && pyenv local ${PYTHON_VERSION}
-    - runtest --tool gdb --status --target xtensa-${ESP_CHIP}-elf GDB=${GDB_DIST_DIR}/bin/xtensa-${ESP_CHIP}-elf-gdb ${GDB_BASE_TESTS} gdb.${ESP_CHIP}/*.exp
+    - runtest --tool gdb --status --target ${ESP_CHIP_ARCH}-${ESP_CHIP}-elf GDB=${GDB_DIST_DIR}/bin/${ESP_CHIP_ARCH}-${ESP_CHIP}-elf-gdb ${GDB_BASE_TESTS} gdb.${ESP_CHIP_ARCH}-${ESP_CHIP}/*.exp
 
 .windows_test_corefile: &windows_test_corefile |
-  & $env:GDB_DIST_DIR\bin\xtensa-$env:ESP_CHIP-elf-gdb $chip_tests_dir\corefile.elf $chip_tests_dir\corefile.core -ex "bt" -ex "quit" | Tee-Object -FilePath test_corefile_out.txt
+  & $env:GDB_DIST_DIR\bin\$env:ESP_CHIP_ARCH-$env:ESP_CHIP-elf-gdb $chip_tests_dir\corefile.elf $chip_tests_dir\corefile.core -ex "bt" -ex "quit" | Tee-Object -FilePath test_corefile_out.txt
   $stringmatch = Get-Content -Raw -Path test_corefile_out.txt
   $pattern = Get-Content -Raw -Path $chip_tests_dir\corefile_pattern.txt
   Select-String -InputObject $stringmatch -pattern $pattern -OutVariable patternMatch
   if(!$patternMatch) {exit 1}
 
 .windows_test_tdep: &windows_test_tdep |
-  & $env:GDB_DIST_DIR\bin\xtensa-$env:ESP_CHIP-elf-gdb -ex '\"maint print arch\"' -ex "quit" | Tee-Object -FilePath test_tdep_out.txt
+  & $env:GDB_DIST_DIR\bin\$env:ESP_CHIP_ARCH-$env:ESP_CHIP-elf-gdb -ex '\"maint print arch\"' -ex "quit" | Tee-Object -FilePath test_tdep_out.txt
   $stringmatch = Get-Content -Raw -Path test_tdep_out.txt
   $pattern = Get-Content -Raw -Path $chip_tests_dir\tdep_pattern.txt
   Select-String -InputObject $stringmatch -pattern $pattern -OutVariable patternMatch
@@ -121,7 +121,7 @@ before_script:
   inherit:
     default: false
   script:
-    - $chip_tests_dir="$env:CI_PROJECT_DIR\gdb\testsuite\gdb.$env:ESP_CHIP"
+    - $chip_tests_dir="$env:CI_PROJECT_DIR\gdb\testsuite\gdb.$env:ESP_CHIP_ARCH-$env:ESP_CHIP"
     - *windows_test_corefile
     - *windows_test_tdep
 
@@ -150,9 +150,9 @@ before_script:
     - make site.exp
     - pyenv local $TEST_PYTHON_VERSION
     - python3 -V
-    - ${GDB_DIST_DIR}/bin/xtensa-${ESP_CHIP}-elf-gdb --version || true
-    - test -n "$(${GDB_DIST_DIR}/bin/xtensa-${ESP_CHIP}-elf-gdb --version | grep "With python-${TEST_PYTHON_VERSION%.*}")"
-    - runtest --tool gdb --status --target xtensa-${ESP_CHIP}-elf GDB=${GDB_DIST_DIR}/bin/xtensa-${ESP_CHIP}-elf-gdb gdb.${ESP_CHIP}/*.exp
+    - ${GDB_DIST_DIR}/bin/${ESP_CHIP_ARCH}-${ESP_CHIP}-elf-gdb --version || true
+    - test -n "$(${GDB_DIST_DIR}/bin/${ESP_CHIP_ARCH}-${ESP_CHIP}-elf-gdb --version | grep "With python-${TEST_PYTHON_VERSION%.*}")"
+    - runtest --tool gdb --status --target ${ESP_CHIP_ARCH}-${ESP_CHIP}-elf GDB=${GDB_DIST_DIR}/bin/${ESP_CHIP_ARCH}-${ESP_CHIP}-elf-gdb gdb.${ESP_CHIP_ARCH}-${ESP_CHIP}/*.exp
 
 # Pack build output
 .pack_template: &pack_template
@@ -175,7 +175,7 @@ before_script:
 upload_to_http:
   stage: private_deploy
   needs:
-    - pack-arm-linux-gnueabihf
+    - pack-xtensa-linux-armhf
   tags:
     - deploy
     - shiny
@@ -217,14 +217,22 @@ release_tag_draft:
   stage: release_stage1
   tags: [ "amd64", "internet" ]
   needs:
-    - pack-x86_64-linux-gnu
-    - pack-i586-linux-gnu
-    - pack-arm-linux-gnueabi
-    - pack-arm-linux-gnueabihf
-    - pack-aarch64-linux-gnu
-    - pack-i686-w64-mingw32
-    - pack-x86_64-w64-mingw32
-    - pack-x86_64-apple-darwin14
+    - pack-xtensa-linux-amd64
+    - pack-riscv32-linux-amd64
+    - pack-xtensa-linux-i686
+    - pack-riscv32-linux-i686
+    - pack-xtensa-linux-armel
+    - pack-riscv32-linux-armel
+    - pack-xtensa-linux-armhf
+    - pack-riscv32-linux-armhf
+    - pack-xtensa-linux-arm64
+    - pack-riscv32-linux-arm64
+    - pack-xtensa-win32
+    - pack-riscv32-win32
+    - pack-xtensa-win64
+    - pack-riscv32-win64
+    - pack-xtensa-macos
+    - pack-riscv32-macos
   <<: *release_tag_filter
   <<: *release_submit_action
   script:

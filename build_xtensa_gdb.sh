@@ -2,19 +2,20 @@
 set -e
 
 TARGET_HOST=$1
-BUILD_PYTHON_VERSION=$2
-DESTDIR=$3
+ESP_CHIP_ARCHITECTURE=$2
+BUILD_PYTHON_VERSION=$3
+GDB_DIST=$4
 GDB_REPO_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 GDB_BUILD_DIR="${GDB_REPO_ROOT}/_build"
 
-if [[ -z $TARGET_HOST  || -z $BUILD_PYTHON_VERSION ]]; then
-  echo "Target host and python version must be specified (set python version \"without_python\" to build without python), eg:"
-  echo "  ./build_xtensa_gdb.sh i686-w64-mingw32 3.6.0"
+if [[ -z $TARGET_HOST  || -z $BUILD_PYTHON_VERSION || -z $ESP_CHIP_ARCHITECTURE ]]; then
+  echo "Target host, chip arch and python version must be specified (set python version \"without_python\" to build without python), eg:"
+  echo "  ./build_xtensa_gdb.sh i686-w64-mingw32 xtensa 3.6.0"
   exit 1
 fi
 
-if [ -z $DESTDIR ]; then
-  DESTDIR="${GDB_REPO_ROOT}/dist"
+if [ -z $GDB_DIST ]; then
+  GDB_DIST="${GDB_REPO_ROOT}/dist"
 fi
 
 PLATFORM=
@@ -25,15 +26,6 @@ elif  [[ ${TARGET_HOST} == *"apple-darwin"* ]] ; then
 else # linux
   PLATFORM="linux"
 fi
-
-# Clean build and dist directories
-rm -fr $GDB_BUILD_DIR $DESTDIR
-
-# Build xtensa-config libs
-cd xtensaconfig
-make clean
-AR="$TARGET_HOST-ar" CC="$TARGET_HOST-gcc" make install DESTDIR=$DESTDIR PLATFORM=$PLATFORM
-cd ..
 
 # Prepare build configure variables
 if [ $BUILD_PYTHON_VERSION != "without_python" ]; then
@@ -59,6 +51,17 @@ else # linux
   PYTHON_LIB_PREFIX="lib"
 fi
 
+# Clean build and dist directories
+rm -fr $GDB_BUILD_DIR $GDB_DIST
+
+# Build xtensa-config libs
+pushd xtensaconfig
+make clean
+AR="$TARGET_HOST-ar" CC="$TARGET_HOST-gcc" TARGET_ESP_ARCH=${ESP_CHIP_ARCHITECTURE} DESTDIR=$GDB_DIST PLATFORM=$PLATFORM make install
+popd
+
+# Temporary rename wrapper
+mv $GDB_DIST/bin/${ESP_CHIP_ARCHITECTURE}-esp-elf-gdb${EXE} ${GDB_DIST}/bin/${ESP_CHIP_ARCHITECTURE}-esp-elf-gdb-wrapper${EXE} 2> /dev/null || true
 
 PYTHON_CONFIG_OPTS=
 if [ $BUILD_PYTHON_VERSION != "without_python" ]; then
@@ -76,9 +79,14 @@ else
 	PYTHON_CONFIG_OPTS="--without-python"
 fi
 
+WITH_XTENSACONFIG_OPTS=
+if [ $ESP_CHIP_ARCHITECTURE == "xtensa" ]; then
+  WITH_XTENSACONFIG_OPTS="--with-xtensaconfig"
+fi
+
 CONFIG_OPTS=" \
 --host=$TARGET_HOST \
---target=xtensa-esp-elf \
+--target=${ESP_CHIP_ARCHITECTURE}-esp-elf \
 --build=`gcc -dumpmachine` \
 --disable-werror \
 --with-expat \
@@ -96,6 +104,7 @@ CONFIG_OPTS=" \
 --with-mpc=/opt/mpc-$TARGET_HOST \
 --without-mpfr \
 ${PYTHON_CONFIG_OPTS} \
+${WITH_XTENSACONFIG_OPTS} \
 --with-static-standard-libraries \
 "
 
@@ -108,13 +117,21 @@ eval "$GDB_REPO_ROOT/configure $CONFIG_OPTS"
 # Build GDB
 
 make
-make install DESTDIR=$DESTDIR
+make install DESTDIR=$GDB_DIST
 
 #strip binaries. Save user's disc space
-${TARGET_HOST}-strip $DESTDIR/bin/xtensa-esp-elf-gdb${EXE}
-${TARGET_HOST}-strip $DESTDIR/bin/xtensa-esp-elf-gprof${EXE}
+${TARGET_HOST}-strip $GDB_DIST/bin/${ESP_CHIP_ARCHITECTURE}-esp-elf-gdb${EXE}
+${TARGET_HOST}-strip $GDB_DIST/bin/${ESP_CHIP_ARCHITECTURE}-esp-elf-gprof${EXE}
+
+GDB_PROGRAM_SUFFIX=
+if [ $BUILD_PYTHON_VERSION == "without_python" ]; then
+  GDB_PROGRAM_SUFFIX="no-python"
+else
+  GDB_PROGRAM_SUFFIX=${BUILD_PYTHON_VERSION%.*}
+fi
 
 # rename gdb to have python version in filename
-if [ $BUILD_PYTHON_VERSION != "without_python" ]; then
-	mv $DESTDIR/bin/xtensa-esp-elf-gdb${EXE} $DESTDIR/bin/xtensa-esp-elf-gdb-${BUILD_PYTHON_VERSION%.*}${EXE}
-fi
+mv $GDB_DIST/bin/${ESP_CHIP_ARCHITECTURE}-esp-elf-gdb${EXE} $GDB_DIST/bin/${ESP_CHIP_ARCHITECTURE}-esp-elf-gdb-${GDB_PROGRAM_SUFFIX}${EXE}
+
+# rename wrapper to original gdb name
+mv $GDB_DIST/bin/${ESP_CHIP_ARCHITECTURE}-esp-elf-gdb-wrapper${EXE} $GDB_DIST/bin/${ESP_CHIP_ARCHITECTURE}-esp-elf-gdb${EXE} 2> /dev/null || true

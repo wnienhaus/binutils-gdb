@@ -56,10 +56,12 @@
 #include "observable.h"
 #include "serial.h"
 
+#ifdef WITH_XTENSACONFIG
 #include "gdb/xtensa-tdep.h"
 #include "xtensa-isa.h"
 #include "xtensa-isa-internal.h"
 #include "xtensaconfig/dynconfig.h"
+#endif
 
 /* The selected interpreter.  This will be used as a set command
    variable, so it should always be malloc'ed - since
@@ -771,7 +773,9 @@ captured_main_1 (struct captured_main_args *context)
       OPT_EIEX,
       OPT_READNOW,
       OPT_READNEVER,
-      OPT_XTENSACONFIG
+#ifdef WITH_XTENSACONFIG
+      OPT_XTENSACONFIG,
+#endif
     };
     /* This struct requires int* in the struct, but write_files is a bool.
        So use this temporary int that we write back after argument parsing.  */
@@ -848,7 +852,9 @@ captured_main_1 (struct captured_main_args *context)
       {"args", no_argument, &set_args, 1},
       {"l", required_argument, 0, 'l'},
       {"return-child-result", no_argument, &return_child_result, 1},
+#ifdef WITH_XTENSACONFIG
       {"mcpu", required_argument, 0, OPT_XTENSACONFIG},
+#endif
       {0, no_argument, 0, 0}
     };
 
@@ -1011,7 +1017,7 @@ captured_main_1 (struct captured_main_args *context)
 		remote_timeout = timeout;
 	    }
 	    break;
-
+#ifdef WITH_XTENSACONFIG
 	  case OPT_XTENSACONFIG:
 	    {
               extern char *xtensaconfig_string;
@@ -1038,6 +1044,7 @@ captured_main_1 (struct captured_main_args *context)
               }
 	    }
 	    break;
+#endif
 	  case OPT_READNOW:
 	    {
 	      readnow_symbol_files = 1;
@@ -1497,11 +1504,13 @@ Remote debugging options:\n\n\
 Other options:\n\n\
   --cd=DIR           Change current directory to DIR.\n\
   --data-directory=DIR, -D\n\
-		     Set GDB's data-directory to DIR.\n\
-  --mcpu=ESPCHIP     Specify the name of the Xtensa configuration\n\
+		     Set GDB's data-directory to DIR.\n"
+#ifdef WITH_XTENSACONFIG
+"  --mcpu=ESPCHIP     Specify the name of the Xtensa configuration\n\
 		     ('esp8266', 'esp32', 'esp32s2', 'esp32s3' etc)\n\
-		     Default is xtensa from the original GDB.\n\
-"), stream);
+		     Default is xtensa from the original GDB.\n"
+#endif
+), stream);
   fputs_unfiltered (_("\n\
 At startup, GDB reads the following early init files and executes their\n\
 commands:\n\
