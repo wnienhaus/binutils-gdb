@@ -106,6 +106,7 @@ CONFIG_OPTS=" \
 ${PYTHON_CONFIG_OPTS} \
 ${WITH_XTENSACONFIG_OPTS} \
 --with-static-standard-libraries \
+--with-pkgversion="esp-gdb"\
 "
 
 # Makes configure happy if native build
