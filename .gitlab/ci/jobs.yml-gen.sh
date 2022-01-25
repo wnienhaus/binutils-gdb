@@ -148,8 +148,8 @@ function pack_output() {
       echo "    ARCHIVE_TOOL: \"zip -r\""
       echo "    ARCHIVE_EXT: \"zip\""
     else
-      echo "    ARCHIVE_TOOL: \"tar czvf\""
-      echo "    ARCHIVE_EXT: \"tar.gz\""
+      echo "    ARCHIVE_TOOL: \${LINUX_ARCHIVE_TOOL}"
+      echo "    ARCHIVE_EXT: \${LINUX_ARCHIVE_EXT}"
     fi
     echo "  tags: $RUNNER_TAGS"
     echo "  needs:"

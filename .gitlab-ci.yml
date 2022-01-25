@@ -24,6 +24,9 @@ variables:
 
   RELEASE_DESC: "New release"
 
+  LINUX_ARCHIVE_TOOL: "tar czvf"
+  LINUX_ARCHIVE_EXT: "tar.gz"
+
 .get_release_version: &get_release_version |
   CI_COMMIT_TAG_WITH_RELEASE=${CI_COMMIT_TAG:-""}
   CI_COMMIT_TAG_WO_RELEASE=${CI_COMMIT_TAG_WITH_RELEASE%"-"*}
@@ -211,7 +214,7 @@ upload_to_http:
     - /bin/ls -l ${FILES}
     - sha256sum ${FILES}
     - echo -e "\nArchives were published there:\n\n$(for n in ${FILES}; do echo "${HTTP_PUBLIC_DIR}/${n}"; done)\n"
-    - echo "NEW_GDB_ARMHF_DISTRO_URL=${HTTP_PUBLIC_DIR}/xtensa-esp-elf-gdb-${ESP_GDB_VERSION}-arm-linux-gnueabihf.tar.bz2" >> ${GDB_DIST_DIR}/build.env
+    - echo "NEW_GDB_ARMHF_DISTRO_URL=${HTTP_PUBLIC_DIR}/xtensa-esp-elf-gdb-${ESP_GDB_VERSION}-arm-linux-gnueabihf.${LINUX_ARCHIVE_EXT}" >> ${GDB_DIST_DIR}/build.env
     - echo "NEW_GDB_ARMHF_DISTRO_DIR=xtensa-esp-elf-gdb" >> ${GDB_DIST_DIR}/build.env
 
 test_with_openocd:
@@ -220,6 +223,7 @@ test_with_openocd:
   allow_failure: true
   variables:
     GDB_ARMHF_DISTRO_URL: ${NEW_GDB_ARMHF_DISTRO_URL}
+    NEW_GDB_ARMHF_DISTRO_DIR: ${NEW_GDB_ARMHF_DISTRO_DIR}
   needs: [ upload_to_http ]
   trigger:
     project: idf/openocd-esp32

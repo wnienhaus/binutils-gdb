@@ -1121,8 +1121,8 @@ pack-xtensa-x86_64-linux-gnu:
   variables:
     PLATFORM_NAME: x86_64-linux-gnu
     ESP_CHIP_ARCH: xtensa
-    ARCHIVE_TOOL: "tar czvf"
-    ARCHIVE_EXT: "tar.gz"
+    ARCHIVE_TOOL: ${LINUX_ARCHIVE_TOOL}
+    ARCHIVE_EXT: ${LINUX_ARCHIVE_EXT}
   tags: [ "amd64", "build" ]
   needs:
     - xtensa-x86_64-linux-gnu-without_python
@@ -1137,8 +1137,8 @@ pack-riscv32-x86_64-linux-gnu:
   variables:
     PLATFORM_NAME: x86_64-linux-gnu
     ESP_CHIP_ARCH: riscv32
-    ARCHIVE_TOOL: "tar czvf"
-    ARCHIVE_EXT: "tar.gz"
+    ARCHIVE_TOOL: ${LINUX_ARCHIVE_TOOL}
+    ARCHIVE_EXT: ${LINUX_ARCHIVE_EXT}
   tags: [ "amd64", "build" ]
   needs:
     - riscv32-x86_64-linux-gnu-without_python
@@ -1156,8 +1156,8 @@ pack-xtensa-i586-linux-gnu:
   variables:
     PLATFORM_NAME: i586-linux-gnu
     ESP_CHIP_ARCH: xtensa
-    ARCHIVE_TOOL: "tar czvf"
-    ARCHIVE_EXT: "tar.gz"
+    ARCHIVE_TOOL: ${LINUX_ARCHIVE_TOOL}
+    ARCHIVE_EXT: ${LINUX_ARCHIVE_EXT}
   tags: [ "amd64", "build" ]
   needs:
     - xtensa-i586-linux-gnu-without_python
@@ -1172,8 +1172,8 @@ pack-riscv32-i586-linux-gnu:
   variables:
     PLATFORM_NAME: i586-linux-gnu
     ESP_CHIP_ARCH: riscv32
-    ARCHIVE_TOOL: "tar czvf"
-    ARCHIVE_EXT: "tar.gz"
+    ARCHIVE_TOOL: ${LINUX_ARCHIVE_TOOL}
+    ARCHIVE_EXT: ${LINUX_ARCHIVE_EXT}
   tags: [ "amd64", "build" ]
   needs:
     - riscv32-i586-linux-gnu-without_python
@@ -1191,8 +1191,8 @@ pack-xtensa-arm-linux-gnueabi:
   variables:
     PLATFORM_NAME: arm-linux-gnueabi
     ESP_CHIP_ARCH: xtensa
-    ARCHIVE_TOOL: "tar czvf"
-    ARCHIVE_EXT: "tar.gz"
+    ARCHIVE_TOOL: ${LINUX_ARCHIVE_TOOL}
+    ARCHIVE_EXT: ${LINUX_ARCHIVE_EXT}
   tags: [ "amd64", "build" ]
   needs:
     - xtensa-arm-linux-gnueabi-without_python
@@ -1207,8 +1207,8 @@ pack-riscv32-arm-linux-gnueabi:
   variables:
     PLATFORM_NAME: arm-linux-gnueabi
     ESP_CHIP_ARCH: riscv32
-    ARCHIVE_TOOL: "tar czvf"
-    ARCHIVE_EXT: "tar.gz"
+    ARCHIVE_TOOL: ${LINUX_ARCHIVE_TOOL}
+    ARCHIVE_EXT: ${LINUX_ARCHIVE_EXT}
   tags: [ "amd64", "build" ]
   needs:
     - riscv32-arm-linux-gnueabi-without_python
@@ -1226,8 +1226,8 @@ pack-xtensa-arm-linux-gnueabihf:
   variables:
     PLATFORM_NAME: arm-linux-gnueabihf
     ESP_CHIP_ARCH: xtensa
-    ARCHIVE_TOOL: "tar czvf"
-    ARCHIVE_EXT: "tar.gz"
+    ARCHIVE_TOOL: ${LINUX_ARCHIVE_TOOL}
+    ARCHIVE_EXT: ${LINUX_ARCHIVE_EXT}
   tags: [ "amd64", "build" ]
   needs:
     - xtensa-arm-linux-gnueabihf-without_python
@@ -1242,8 +1242,8 @@ pack-riscv32-arm-linux-gnueabihf:
   variables:
     PLATFORM_NAME: arm-linux-gnueabihf
     ESP_CHIP_ARCH: riscv32
-    ARCHIVE_TOOL: "tar czvf"
-    ARCHIVE_EXT: "tar.gz"
+    ARCHIVE_TOOL: ${LINUX_ARCHIVE_TOOL}
+    ARCHIVE_EXT: ${LINUX_ARCHIVE_EXT}
   tags: [ "amd64", "build" ]
   needs:
     - riscv32-arm-linux-gnueabihf-without_python
@@ -1261,8 +1261,8 @@ pack-xtensa-aarch64-linux-gnu:
   variables:
     PLATFORM_NAME: aarch64-linux-gnu
     ESP_CHIP_ARCH: xtensa
-    ARCHIVE_TOOL: "tar czvf"
-    ARCHIVE_EXT: "tar.gz"
+    ARCHIVE_TOOL: ${LINUX_ARCHIVE_TOOL}
+    ARCHIVE_EXT: ${LINUX_ARCHIVE_EXT}
   tags: [ "amd64", "build" ]
   needs:
     - xtensa-aarch64-linux-gnu-without_python
@@ -1277,8 +1277,8 @@ pack-riscv32-aarch64-linux-gnu:
   variables:
     PLATFORM_NAME: aarch64-linux-gnu
     ESP_CHIP_ARCH: riscv32
-    ARCHIVE_TOOL: "tar czvf"
-    ARCHIVE_EXT: "tar.gz"
+    ARCHIVE_TOOL: ${LINUX_ARCHIVE_TOOL}
+    ARCHIVE_EXT: ${LINUX_ARCHIVE_EXT}
   tags: [ "amd64", "build" ]
   needs:
     - riscv32-aarch64-linux-gnu-without_python
@@ -1366,8 +1366,8 @@ pack-xtensa-x86_64-apple-darwin14:
   variables:
     PLATFORM_NAME: x86_64-apple-darwin14
     ESP_CHIP_ARCH: xtensa
-    ARCHIVE_TOOL: "tar czvf"
-    ARCHIVE_EXT: "tar.gz"
+    ARCHIVE_TOOL: ${LINUX_ARCHIVE_TOOL}
+    ARCHIVE_EXT: ${LINUX_ARCHIVE_EXT}
   tags: [ "amd64", "build" ]
   needs:
     - xtensa-x86_64-apple-darwin14-without_python
@@ -1382,8 +1382,8 @@ pack-riscv32-x86_64-apple-darwin14:
   variables:
     PLATFORM_NAME: x86_64-apple-darwin14
     ESP_CHIP_ARCH: riscv32
-    ARCHIVE_TOOL: "tar czvf"
-    ARCHIVE_EXT: "tar.gz"
+    ARCHIVE_TOOL: ${LINUX_ARCHIVE_TOOL}
+    ARCHIVE_EXT: ${LINUX_ARCHIVE_EXT}
   tags: [ "amd64", "build" ]
   needs:
     - riscv32-x86_64-apple-darwin14-without_python
