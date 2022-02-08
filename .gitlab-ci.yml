@@ -256,9 +256,9 @@ release_tag_draft:
     - hub release delete ${GH_REL_TAG} || true
     # List of archives
     - cd ${GDB_DIST_DIR}
-    - ATTACH_FILES=$(find -type f -name "*esp-elf-gdb-${ESP_GDB_VERSION}*" -printf "-a \"%p\" ")
-    - echo "ATTACH_FILES = \"${ATTACH_FILES}\""
+    - ATTACH_FILES=$(find * -type f -name "*esp-elf-gdb-${ESP_GDB_VERSION}*" -printf "-a %p ")
     # Create draft release with archives attached
+    - echo hub release create --draft -m "${RELEASE_DESC}" ${ATTACH_FILES} ${GH_REL_TAG}
     - hub release create --draft -m "${RELEASE_DESC}" ${ATTACH_FILES} ${GH_REL_TAG}
 
 Release_tag_submit:
