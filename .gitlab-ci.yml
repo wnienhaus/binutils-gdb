@@ -84,6 +84,10 @@ before_script:
 # Template for tests with qemu
 .test_qemu_template: &test_qemu_template
   stage: test
+  artifacts:
+    when: on_failure
+    paths:
+      - ${CI_PROJECT_DIR}/gdb/testsuite/gdb.log
   script:
     - cd gdb/testsuite
     - cp -R ${GDB_DIST_DIR}/share/gdb/* ../data-directory/
@@ -93,9 +97,8 @@ before_script:
     - test "${CI_JOB_NAME##*-}" != "without_python" && pyenv local ${PYTHON_VERSION}
     - test "${CI_JOB_NAME##*-}" == "without_python" && export ESPTOOL_PATH="/opt/pyenv/pyenv-2.2.2/versions/3.6.0/bin/esptool.py"
     - test "${CI_JOB_NAME##*-}" == "without_python" && export GDB_PYTHON_TESTS=""
-    - export TESTS_FOR_RUN="${GDB_BASE_TESTS} ${GDB_BASE_TESTS_FOR_TARGET} ${GDB_PYTHON_TESTS}"
-    - echo "TESTS_FOR_RUN $TESTS_FOR_RUN"
-    - runtest --tool gdb --status --target ${ESP_CHIP_ARCH}-${ESP_CHIP}-elf --target_board=simesp GDB=${GDB_DIST_DIR}/bin/${ESP_CHIP_ARCH}-${ESP_CHIP}-elf-gdb $TESTS_FOR_RUN gdb.${ESP_CHIP_ARCH}-${ESP_CHIP}/*.exp
+    - TESTS_TO_RUN="${GDB_BASE_TESTS} ${GDB_BASE_TESTS_FOR_TARGET} ${GDB_PYTHON_TESTS} gdb.${ESP_CHIP_ARCH}-${ESP_CHIP}/*.exp"
+    - runtest --tool gdb --status --target ${ESP_CHIP_ARCH}-${ESP_CHIP}-elf --target_board=simesp GDB=${GDB_DIST_DIR}/bin/${ESP_CHIP_ARCH}-${ESP_CHIP}-elf-gdb $TESTS_TO_RUN
 
 # Template for others tests without qemu
 .test_no_qemu_template: &test_no_qemu_template

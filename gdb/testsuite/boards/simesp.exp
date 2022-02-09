@@ -40,16 +40,20 @@ set_board_info gdb,no_long_long 1
 set_board_info gdb,noresults 1
 set_board_info gdb,nosignals 1
 set_board_info gdb,skip_huge_test 1
+set_board_info gdb,start_symbol entry
+set_board_info gdb,timeout 300
 
 proc gdb_load_error { log_msg } {
     global simesp_spawn_id
 
     verbose -log "simesp: $log_msg"
-    verbose -log "simesp: closing simesp spawn id"
-    close -i $simesp_spawn_id
-    verbose -log "simesp: waiting for simesp process exit"
-    wait -i $simesp_spawn_id
-    set simesp_spawn_id ""
+    if { $simesp_spawn_id != "" } {
+        verbose -log "simesp: closing simesp spawn id"
+        close -i $simesp_spawn_id
+        verbose -log "simesp: waiting for simesp process exit"
+        wait -i $simesp_spawn_id
+        set simesp_spawn_id ""
+    }
     error "$log_msg"
 }
 
@@ -98,22 +102,52 @@ proc gdb_load { args } {
     exec ${esp_tool_bin} --chip=${simesp_cpu} merge_bin --fill-flash-size 4MB -o ${args}.bin 0x1000 ${args}.tmp
 
     # Run simesp.
-    set cmd "spawn -noecho ${simesp_path} -nographic -monitor null -cpu ${simesp_cpu} -M ${simesp_cpu} -m 4M -S -s -drive file=${args}.bin,if=mtd,format=raw"
+    set cmd "spawn -noecho ${simesp_path} -nographic -monitor null -cpu ${simesp_cpu} -M ${simesp_cpu} -m 4M -S -s -drive file=${args}.bin,if=mtd,format=raw -d trace:gdbstub_op_start"
     verbose -log "Spawning simesp: $cmd"
     eval $cmd
     set simesp_spawn_id $spawn_id
 
+    expect {
+	-i $simesp_spawn_id -re ".*Starting gdbstub using device.*1234" {}
+	timeout {
+	    verbose -log "simesp: timeout, closing simesp spawn id"
+	    close -i $simesp_spawn_id
+	    verbose -log "simesp: timeout, waiting for simesp process exit"
+	    wait -i $simesp_spawn_id
+	    set simesp_spawn_id ""
+	    error "unable to start simesp: timeout"
+	}
+	eof {
+	    verbose -log "simesp: eof, waiting for simesp process exit"
+	    wait -i $simesp_spawn_id
+	    set simesp_spawn_id ""
+	    error "unable to start simesp: eof"
+	}
+    }
+
     verbose -log "simesp: simesp spawned with spawn id $simesp_spawn_id, pid [exp_pid $simesp_spawn_id]"
     
-    send_gdb "symbol-file $args \n"
+    return 0
+}
+
+proc symbol_file_load { arg } {
+    global gdb_prompt
+    send_gdb "symbol-file $arg \n"
     gdb_expect {
 	-re ".*$gdb_prompt $" {}
+	-re "Load new symbol table from.*y or n.*" {
+           send_gdb "y\n"
+           gdb_expect {
+               -re ".*$gdb_prompt $" {}
+               timeout {
+                   gdb_load_error "unable to load symbols. y."
+               }
+           }
+	}
 	timeout {
 	    gdb_load_error "unable to load symbols"
 	}
     }
-
-    return 0
 }
 
 proc gdb_file_cmd { arg } {
@@ -142,6 +176,10 @@ proc gdb_file_cmd { arg } {
 	}
     }
 
+    if { $arg != "{}"} {
+        symbol_file_load $arg
+    }
+
     # The file command used to kill the remote target.  For the benefit
     # of the testsuite, preserve this behavior.  Mark as optional so it doesn't
     # get written to the stdin log.
@@ -159,24 +197,3 @@ proc gdb_file_cmd { arg } {
     return 0
 }
 
-proc runto_main { } {
-    global gdb_prompt
-
-    send_gdb "tbreak main\n"
-    gdb_expect {
-	-re ".*Temporary breakpoint 1 at.*\[\r\n\]+$gdb_prompt $" {}
-	timeout {
-	    gdb_load_error "set breakpoint failed"
-	}
-    }
-
-    send_gdb "continue\n"
-    gdb_expect {
-	-re ".*$gdb_prompt $" {}
-	timeout {
-	    gdb_load_error "go to main failed"
-	}
-    }
-
-    return [runto main no-message]
-}

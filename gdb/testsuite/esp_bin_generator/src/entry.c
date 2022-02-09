@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <setjmp.h>
+#include <stdlib.h>
 
 extern char _end;
 extern char __bss_start;
@@ -20,5 +21,15 @@ void entry()
     syscalls_init();
 
     main();
+    exit(0);
 }
 
+void usleep(uint32_t time)
+{
+    ets_delay_us(time);
+}
+
+void sleep(uint32_t time)
+{
+    ets_delay_us(time*1000000);
+}
