@@ -1239,49 +1239,6 @@ xtensa_window_interrupt_frame_cache (struct frame_info *this_frame,
 				     xtensa_frame_cache_t *cache,
 				     CORE_ADDR pc);
 
-/* Check if the frame should be decoded as if it is the outermost frame,
-   where the ENTRY instruction is about to be executed. */
-static bool
-xtensa_is_frame_entry (struct gdbarch *gdbarch, CORE_ADDR pc)
-{
-  gdb_byte buf[4];
-  int insn;
-  enum bfd_endian byte_order = gdbarch_byte_order (gdbarch);
-
-  LONGEST op1;
-  if (!(safe_read_memory_integer (pc, 1, byte_order, &op1)
-        && XTENSA_IS_ENTRY (gdbarch, op1)))
-    return false;
-
-  /* PC points to the ENTRY instruction. However this might be
-     because the previous instruction belonged to another function,
-     and that function was a call to "noreturn" function, e.g.:
-
-       some_func:
-         entry sp, 32
-         mov.n a10, a2
-         call8 panic
-         // no retw.n because "panic" has noreturn attribute
-       next_func:
-         entry sp, 32     // <-  return address
-         ...
-
-     In such case, we need to decode the frame as usual.
-     The code below checks if the instruction at PC-3 is a call/callx. */
-
-  read_memory(pc - 3, buf, 3);
-  insn = extract_unsigned_integer (buf, 3, byte_order);
-
-  /* Decode call instruction. See comment in extract_call_winsize */
-  if ((byte_order == BFD_ENDIAN_LITTLE &&
-       (((insn & 0xf) == 0x5) || ((insn & 0xcf) == 0xc0))) ||
-      (byte_order == BFD_ENDIAN_BIG &&
-       (((insn >> 20) == 0x5) || (((insn >> 16) & 0xf3) == 0x03))))
-	return false;
-
-  return true;
-}
-
 static struct xtensa_frame_cache *
 xtensa_frame_cache (struct frame_info *this_frame, void **this_cache)
 {
@@ -1308,13 +1265,16 @@ xtensa_frame_cache (struct frame_info *this_frame, void **this_cache)
 
   if (windowed)
     {
+      LONGEST op1;
+
       /* Get WINDOWBASE, WINDOWSTART, and PS registers.  */
       wb = get_frame_register_unsigned (this_frame, 
 					gdbarch_tdep (gdbarch)->wb_regnum);
       ws = get_frame_register_unsigned (this_frame,
 					gdbarch_tdep (gdbarch)->ws_regnum);
 
-      if (xtensa_is_frame_entry(gdbarch, pc))
+      if (safe_read_memory_integer (pc, 1, byte_order, &op1)
+	  && XTENSA_IS_ENTRY (gdbarch, op1))
 	{
 	  int callinc = CALLINC (ps);
 	  ra = get_frame_register_unsigned
@@ -1327,8 +1287,7 @@ xtensa_frame_cache (struct frame_info *this_frame, void **this_cache)
 	  cache->prev_sp = get_frame_register_unsigned
 			     (this_frame, gdbarch_tdep (gdbarch)->a0_base + 1);
 
-	  /* xtensa_is_frame_entry has checked that the previous instruction
-	     is not a call, so this only can be the outermost frame where we are
+	  /* This only can be the outermost frame since we are
 	     just about to execute ENTRY.  SP hasn't been set yet.
 	     We can assume any frame size, because it does not
 	     matter, and, let's fake frame base in cache.  */
