@@ -33,15 +33,6 @@ variables:
   ESP_GDB_VERSION=${CI_COMMIT_TAG_WO_RELEASE#"esp-gdb-"}
   ESP_GDB_VERSION=${ESP_GDB_VERSION:-${CI_COMMIT_SHORT_SHA}}
 
-.add_gh_key_remote: &add_gh_key_remote |
-  command -v ssh-agent >/dev/null || exit 1
-  eval $(ssh-agent -s)
-  printf '%s\n' "${GH_PUSH_KEY}" | tr -d '\r' | ssh-add - > /dev/null
-  mkdir -p ~/.ssh && chmod 700 ~/.ssh
-  [[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config || ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
-  git remote remove github || true
-  git remote add github ${GH_PUSH_REPO}
-
 .release_submit_action: &release_submit_action
   image: espressif/github-hub:${GITHUB_IMAGE_TAG}
   when: manual
@@ -259,10 +250,19 @@ release_tag_draft:
     - hub release delete ${GH_REL_TAG} || true
     # List of archives
     - cd ${GDB_DIST_DIR}
-    - ATTACH_FILES=$(find * -type f -name "*esp-elf-gdb-${ESP_GDB_VERSION}*" -printf "-a %p ")
+    - FILES_LIST=$(find * -type f -name "*esp-elf-gdb-${ESP_GDB_VERSION}*")
+    - ATTACH_FILE_OPTIONS=$(printf -- "-a %s " $FILES_LIST)
+    - SHA256_FILE="esp-gdb-${ESP_GDB_VERSION}-checksum.sha256"
+    - |
+      for n in $FILES_LIST; do
+           sz=$(stat -c%s "${n}") >> ${SHA256_FILE};
+           printf "# %s: %s bytes\n" "${n}" "${sz}" >> ${SHA256_FILE};
+           sha256sum -b "${n}" >> ${SHA256_FILE};
+      done
+    - ATTACH_FILE_OPTIONS="-a $SHA256_FILE $ATTACH_FILE_OPTIONS"
     # Create draft release with archives attached
-    - echo hub release create --draft -m "${RELEASE_DESC}" ${ATTACH_FILES} ${GH_REL_TAG}
-    - hub release create --draft -m "${RELEASE_DESC}" ${ATTACH_FILES} ${GH_REL_TAG}
+    - echo hub release create --draft -m "${RELEASE_DESC}" ${ATTACH_FILE_OPTIONS} ${GH_REL_TAG}
+    - hub release create --draft -m "${RELEASE_DESC}" ${ATTACH_FILE_OPTIONS} ${GH_REL_TAG}
 
 Release_tag_submit:
   stage: release_submit
