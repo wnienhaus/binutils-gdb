@@ -1909,7 +1909,8 @@ do_start_initialization ()
   PyImport_AppendInittab ("_gdb", init__gdb_module);
 #endif
 
-  Py_Initialize ();
+  // Initialize python but without signal handlings
+  Py_InitializeEx (0);
 #if PY_VERSION_HEX < 0x03090000
   /* PyEval_InitThreads became deprecated in Python 3.9 and will
      be removed in Python 3.11.  Prior to Python 3.7, this call was
