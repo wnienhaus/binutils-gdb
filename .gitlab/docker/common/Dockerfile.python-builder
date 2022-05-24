@@ -61,7 +61,8 @@ RUN . ~/.profile && \
     for PYTHON_VERSION in $PYTHON_VERSIONS; do \
         pyenv install "$PYTHON_VERSION"; \
         cp -R /root/.pyenv/versions/$PYTHON_VERSION /opt/python-`${HOST_TRIPLET}`-${PYTHON_VERSION}; \
-    done;
+    done; \
+    find /root/.pyenv/versions  -type f | xargs strip || true
 
 RUN . ~/.profile && \
     for TARGET_HOST in $TARGET_HOSTS; do \
@@ -84,4 +85,5 @@ RUN . ~/.profile && \
             cd ..; \
             rm -fr Python-"$PYTHON_VERSION"; \
         done; \
-    done;
+    done; \
+    rm -fr  /opt/python-${TARGET_HOST}-*/bin /opt/python-${TARGET_HOST}-*/lib/python* /opt/python-${TARGET_HOST}-*/share

@@ -58,21 +58,20 @@ RUN if [ -z "$TARGET_HOST" ] ; then export TARGET_HOST=`gcc -dumpmachine`; fi &&
     echo "$NCURSES_SHA256 *ncurses-$NCURSES_VERSION.tar.gz" | sha256sum --check --strict - && \
     tar xzf ncurses-$NCURSES_VERSION.tar.gz && \
     pushd ncurses-$NCURSES_VERSION && \
-    mkdir tic && \
-    pushd tic && \
+    mkdir utils && \
+    pushd utils && \
     $PWD/../configure && \
-    make -C include && make -C progs tic && \
-    export TIC_PATH=$(pwd)/progs/tic && \
+    make -C include && make -C progs tic infocmp && \
+    export PATH=$PWD/progs:$PATH && \
     popd && \
-    CONFIG_OPTS="--prefix=/opt/ncurses-$TARGET_HOST --host=$TARGET_HOST \
-    --without-progs --without-debug --enable-termcap --enable-symlinks --without-manpage \
-    --with-terminfo-dirs=/etc/terminfo:/lib/terminfo:/usr/share/terminfo:/usr/lib/terminfo \
-    --with-default-terminfo-dir=/lib/terminfo \
-    --without-tests --without-cxx --without-cxx-binding --without-ada --without-fallbacks \
-    --with-abi-version=5 $NCURSES_TARGET_OPTS" && \
-    ./configure $CONFIG_OPTS && \
+    NCURSES_OPTS="--prefix=/opt/ncurses-$TARGET_HOST --host=$TARGET_HOST \
+        --without-progs --without-debug --enable-termcap --enable-symlinks --without-manpages \
+        --without-tests --without-cxx --without-cxx-binding --without-ada \
+        --disable-database --disable-db-install --with-abi-version=5 \
+        --with-fallbacks=linux,xterm,xterm-color,xterm-256color,vt100 $NCURSES_TARGET_OPTS" && \
+    ./configure $NCURSES_OPTS && \
     make && make install && \
-    ./configure $CONFIG_OPTS --enable-widec && \
+    ./configure $NCURSES_OPTS --enable-widec && \
     make && make install && \
     popd && rm -fr ncurses-$NCURSES_VERSION*
 

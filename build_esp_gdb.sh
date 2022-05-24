@@ -109,18 +109,18 @@ ${WITH_XTENSACONFIG_OPTS} \
 --with-liblzma-type=static \
 --with-libgmp-type=static \
 --with-static-standard-libraries \
---with-pkgversion="esp-gdb"\
+--with-pkgversion="esp-gdb" \
+--with-curses \
+--enable-tui \
 "
 
 # Makes configure happy if native build
 export LD_LIBRARY_PATH="$PYTHON_CROSS_DIR_LIB:$LD_LIBRARY_PATH"
 
-# Link with static libncurses for linux/macos
-if [[ ${PLATFORM} != "windows" ]] ; then
-  export CFLAGS="-I/opt/ncurses-$TARGET_HOST/include"
-  export CXXFLAGS="-I/opt/ncurses-$TARGET_HOST/include"
-  export LDFLAGS="-L/opt/ncurses-$TARGET_HOST/lib"
-fi
+# Link with static libncurses
+export CFLAGS="-I/opt/ncurses-$TARGET_HOST/include"
+export CXXFLAGS="-I/opt/ncurses-$TARGET_HOST/include"
+export LDFLAGS="-L/opt/ncurses-$TARGET_HOST/lib"
 
 mkdir $GDB_BUILD_DIR && cd $GDB_BUILD_DIR
 eval "$GDB_REPO_ROOT/configure $CONFIG_OPTS"
