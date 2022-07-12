@@ -18,5 +18,12 @@ ARG OPENSSL_BUILD_PLATFORM="linux-generic64"
 ARG OPENSSL_TARGET_PLATFORM="linux-aarch64"
 ARG TARGET_HOST="aarch64-linux-gnu"
 
+RUN set -ex;                                            \
+    apt-get update                                      \
+  && apt-get install -y -q --no-install-recommends      \
+        libc6-dev                                       \
+        linux-libc-dev                                  \
+  && rm -rf /var/lib/apt/lists/*
+
 INCLUDE+ ./common/Dockerfile.gdb-deps
 INCLUDE+ ./common/Dockerfile.python-builder

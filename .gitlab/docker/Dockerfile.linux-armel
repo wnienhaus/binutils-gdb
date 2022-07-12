@@ -18,5 +18,12 @@ ARG OPENSSL_BUILD_PLATFORM="linux-generic32"
 ARG OPENSSL_TARGET_PLATFORM="linux-armv4"
 ARG TARGET_HOST="arm-linux-gnueabi"
 
+RUN set -ex;                                            \
+    apt-get update                                      \
+  && apt-get install -y -q --no-install-recommends      \
+        libc6-dev                                       \
+        linux-libc-dev                                  \
+  && rm -rf /var/lib/apt/lists/*
+
 INCLUDE+ ./common/Dockerfile.gdb-deps
 INCLUDE+ ./common/Dockerfile.python-builder

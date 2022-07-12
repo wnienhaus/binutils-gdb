@@ -16,10 +16,20 @@ FROM ${DOCKER_REGISTRY}/esp32-toolchain-macos-cross:${TOOLCHAIN_TAG}
 ARG PYTHON_DOWNLOAD_LINKS="https://www.python.org/ftp/python/3.6.0/python-3.6.0-macosx10.6.pkg \
     https://www.python.org/ftp/python/3.7.0/python-3.7.0-macosx10.6.pkg \
     https://www.python.org/ftp/python/3.8.0/python-3.8.0-macosx10.9.pkg \
+    https://www.python.org/ftp/python/3.8.10/python-3.8.10-macos11.pkg \
     https://www.python.org/ftp/python/3.9.0/python-3.9.0-macosx10.9.pkg \
+    https://www.python.org/ftp/python/3.9.13/python-3.9.13-macos11.pkg \
     https://www.python.org/ftp/python/3.10.0/python-3.10.0-macos11.pkg"
 
 ARG TARGET_HOST="x86_64-apple-darwin14"
+
+RUN rm /bin/sh && ln -s bash /bin/sh
+
+RUN which $TARGET_HOST-gcc || \
+    (set +H && \
+    echo  -e "#!/bin/bash\n$TARGET_HOST-clang++ \"\$@\"" > /opt/osxcross/target/bin/$TARGET_HOST-g++ && \
+    echo  -e "#!/bin/bash\n$TARGET_HOST-clang \"\$@\"" > /opt/osxcross/target/bin/$TARGET_HOST-gcc && \
+    chmod 755 /opt/osxcross/target/bin/$TARGET_HOST-g++ /opt/osxcross/target/bin/$TARGET_HOST-gcc)
 
 INCLUDE+ ./common/Dockerfile.gdb-deps
 

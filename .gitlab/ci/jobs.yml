@@ -725,6 +725,68 @@ riscv32-x86_64-apple-darwin14-3.10.0:
   extends: .build_template
 
 
+# BUILD aarch64-apple-darwin21.1
+
+
+xtensa-aarch64-apple-darwin21.1-without_python:
+  variables:
+    BUILD_ARCH_TRIPLET: aarch64-apple-darwin21.1
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: without_python
+  image: $CI_REGISTRY_IMAGE/gdb-build-macos-arm64:$CI_COMMIT_SHA
+  extends: .build_template
+xtensa-aarch64-apple-darwin21.1-3.8.10:
+  variables:
+    BUILD_ARCH_TRIPLET: aarch64-apple-darwin21.1
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.8.10
+  image: $CI_REGISTRY_IMAGE/gdb-build-macos-arm64:$CI_COMMIT_SHA
+  extends: .build_template
+xtensa-aarch64-apple-darwin21.1-3.9.13:
+  variables:
+    BUILD_ARCH_TRIPLET: aarch64-apple-darwin21.1
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.9.13
+  image: $CI_REGISTRY_IMAGE/gdb-build-macos-arm64:$CI_COMMIT_SHA
+  extends: .build_template
+xtensa-aarch64-apple-darwin21.1-3.10.0:
+  variables:
+    BUILD_ARCH_TRIPLET: aarch64-apple-darwin21.1
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.10.0
+  image: $CI_REGISTRY_IMAGE/gdb-build-macos-arm64:$CI_COMMIT_SHA
+  extends: .build_template
+
+riscv32-aarch64-apple-darwin21.1-without_python:
+  variables:
+    BUILD_ARCH_TRIPLET: aarch64-apple-darwin21.1
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: without_python
+  image: $CI_REGISTRY_IMAGE/gdb-build-macos-arm64:$CI_COMMIT_SHA
+  extends: .build_template
+riscv32-aarch64-apple-darwin21.1-3.8.10:
+  variables:
+    BUILD_ARCH_TRIPLET: aarch64-apple-darwin21.1
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.8.10
+  image: $CI_REGISTRY_IMAGE/gdb-build-macos-arm64:$CI_COMMIT_SHA
+  extends: .build_template
+riscv32-aarch64-apple-darwin21.1-3.9.13:
+  variables:
+    BUILD_ARCH_TRIPLET: aarch64-apple-darwin21.1
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.9.13
+  image: $CI_REGISTRY_IMAGE/gdb-build-macos-arm64:$CI_COMMIT_SHA
+  extends: .build_template
+riscv32-aarch64-apple-darwin21.1-3.10.0:
+  variables:
+    BUILD_ARCH_TRIPLET: aarch64-apple-darwin21.1
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.10.0
+  image: $CI_REGISTRY_IMAGE/gdb-build-macos-arm64:$CI_COMMIT_SHA
+  extends: .build_template
+
+
 # TEST x86_64-linux-gnu
 
 
@@ -1018,7 +1080,7 @@ riscv32-esp-test-x86_64-linux-gnu-3.10.0:
 
 
 xtensa-esp32-test-macos-3.6.13:
-  tags: [ macos_shell ]
+  tags: [ "darwin", "amd64" ]
   variables:
     ESP_CHIP: esp32
     ESP_CHIP_ARCH: xtensa
@@ -1027,7 +1089,7 @@ xtensa-esp32-test-macos-3.6.13:
   extends: .test_macos_template
 
 xtensa-esp32s2-test-macos-3.6.13:
-  tags: [ macos_shell ]
+  tags: [ "darwin", "amd64" ]
   variables:
     ESP_CHIP: esp32s2
     ESP_CHIP_ARCH: xtensa
@@ -1036,7 +1098,7 @@ xtensa-esp32s2-test-macos-3.6.13:
   extends: .test_macos_template
 
 xtensa-esp32s3-test-macos-3.6.13:
-  tags: [ macos_shell ]
+  tags: [ "darwin", "amd64" ]
   variables:
     ESP_CHIP: esp32s3
     ESP_CHIP_ARCH: xtensa
@@ -1045,7 +1107,7 @@ xtensa-esp32s3-test-macos-3.6.13:
   extends: .test_macos_template
 
 riscv32-esp-test-macos-3.6.13:
-  tags: [ macos_shell ]
+  tags: [ "darwin", "amd64" ]
   variables:
     ESP_CHIP: esp
     ESP_CHIP_ARCH: riscv32
@@ -1056,7 +1118,7 @@ riscv32-esp-test-macos-3.6.13:
 
 
 xtensa-esp32-test-macos-3.7.10:
-  tags: [ macos_shell ]
+  tags: [ "darwin", "amd64" ]
   variables:
     ESP_CHIP: esp32
     ESP_CHIP_ARCH: xtensa
@@ -1065,7 +1127,7 @@ xtensa-esp32-test-macos-3.7.10:
   extends: .test_macos_template
 
 xtensa-esp32s2-test-macos-3.7.10:
-  tags: [ macos_shell ]
+  tags: [ "darwin", "amd64" ]
   variables:
     ESP_CHIP: esp32s2
     ESP_CHIP_ARCH: xtensa
@@ -1074,7 +1136,7 @@ xtensa-esp32s2-test-macos-3.7.10:
   extends: .test_macos_template
 
 xtensa-esp32s3-test-macos-3.7.10:
-  tags: [ macos_shell ]
+  tags: [ "darwin", "amd64" ]
   variables:
     ESP_CHIP: esp32s3
     ESP_CHIP_ARCH: xtensa
@@ -1083,7 +1145,7 @@ xtensa-esp32s3-test-macos-3.7.10:
   extends: .test_macos_template
 
 riscv32-esp-test-macos-3.7.10:
-  tags: [ macos_shell ]
+  tags: [ "darwin", "amd64" ]
   variables:
     ESP_CHIP: esp
     ESP_CHIP_ARCH: riscv32
@@ -1094,7 +1156,7 @@ riscv32-esp-test-macos-3.7.10:
 
 
 xtensa-esp32-test-macos-3.8.10:
-  tags: [ macos_shell ]
+  tags: [ "darwin", "amd64" ]
   variables:
     ESP_CHIP: esp32
     ESP_CHIP_ARCH: xtensa
@@ -1103,7 +1165,7 @@ xtensa-esp32-test-macos-3.8.10:
   extends: .test_macos_template
 
 xtensa-esp32s2-test-macos-3.8.10:
-  tags: [ macos_shell ]
+  tags: [ "darwin", "amd64" ]
   variables:
     ESP_CHIP: esp32s2
     ESP_CHIP_ARCH: xtensa
@@ -1112,7 +1174,7 @@ xtensa-esp32s2-test-macos-3.8.10:
   extends: .test_macos_template
 
 xtensa-esp32s3-test-macos-3.8.10:
-  tags: [ macos_shell ]
+  tags: [ "darwin", "amd64" ]
   variables:
     ESP_CHIP: esp32s3
     ESP_CHIP_ARCH: xtensa
@@ -1121,7 +1183,7 @@ xtensa-esp32s3-test-macos-3.8.10:
   extends: .test_macos_template
 
 riscv32-esp-test-macos-3.8.10:
-  tags: [ macos_shell ]
+  tags: [ "darwin", "amd64" ]
   variables:
     ESP_CHIP: esp
     ESP_CHIP_ARCH: riscv32
@@ -1132,7 +1194,7 @@ riscv32-esp-test-macos-3.8.10:
 
 
 xtensa-esp32-test-macos-3.9.5:
-  tags: [ macos_shell ]
+  tags: [ "darwin", "amd64" ]
   variables:
     ESP_CHIP: esp32
     ESP_CHIP_ARCH: xtensa
@@ -1141,7 +1203,7 @@ xtensa-esp32-test-macos-3.9.5:
   extends: .test_macos_template
 
 xtensa-esp32s2-test-macos-3.9.5:
-  tags: [ macos_shell ]
+  tags: [ "darwin", "amd64" ]
   variables:
     ESP_CHIP: esp32s2
     ESP_CHIP_ARCH: xtensa
@@ -1150,7 +1212,7 @@ xtensa-esp32s2-test-macos-3.9.5:
   extends: .test_macos_template
 
 xtensa-esp32s3-test-macos-3.9.5:
-  tags: [ macos_shell ]
+  tags: [ "darwin", "amd64" ]
   variables:
     ESP_CHIP: esp32s3
     ESP_CHIP_ARCH: xtensa
@@ -1159,7 +1221,7 @@ xtensa-esp32s3-test-macos-3.9.5:
   extends: .test_macos_template
 
 riscv32-esp-test-macos-3.9.5:
-  tags: [ macos_shell ]
+  tags: [ "darwin", "amd64" ]
   variables:
     ESP_CHIP: esp
     ESP_CHIP_ARCH: riscv32
@@ -1170,7 +1232,7 @@ riscv32-esp-test-macos-3.9.5:
 
 
 xtensa-esp32-test-macos-3.10.2:
-  tags: [ macos_shell ]
+  tags: [ "darwin", "amd64" ]
   variables:
     ESP_CHIP: esp32
     ESP_CHIP_ARCH: xtensa
@@ -1179,7 +1241,7 @@ xtensa-esp32-test-macos-3.10.2:
   extends: .test_macos_template
 
 xtensa-esp32s2-test-macos-3.10.2:
-  tags: [ macos_shell ]
+  tags: [ "darwin", "amd64" ]
   variables:
     ESP_CHIP: esp32s2
     ESP_CHIP_ARCH: xtensa
@@ -1188,7 +1250,7 @@ xtensa-esp32s2-test-macos-3.10.2:
   extends: .test_macos_template
 
 xtensa-esp32s3-test-macos-3.10.2:
-  tags: [ macos_shell ]
+  tags: [ "darwin", "amd64" ]
   variables:
     ESP_CHIP: esp32s3
     ESP_CHIP_ARCH: xtensa
@@ -1197,7 +1259,7 @@ xtensa-esp32s3-test-macos-3.10.2:
   extends: .test_macos_template
 
 riscv32-esp-test-macos-3.10.2:
-  tags: [ macos_shell ]
+  tags: [ "darwin", "amd64" ]
   variables:
     ESP_CHIP: esp
     ESP_CHIP_ARCH: riscv32
@@ -1205,60 +1267,78 @@ riscv32-esp-test-macos-3.10.2:
   needs: [ riscv32-x86_64-apple-darwin14-3.10.0 ]
   extends: .test_macos_template
 
-xtensa-esp32-test-simple-macos_arm64:
-  tags: [ darwin, aarch64 ]
+# TEST signed x86_64-apple-darwin14
+xtensa-esp32-test-simple-x86_64-apple-darwin14:
+  tags: [ "darwin", "amd64" ]
   variables:
     ESP_CHIP: esp32
     ESP_CHIP_ARCH: xtensa
   needs:
-    - xtensa-x86_64-apple-darwin14-3.6.0
-    - xtensa-x86_64-apple-darwin14-3.7.0
-    - xtensa-x86_64-apple-darwin14-3.8.0
-    - xtensa-x86_64-apple-darwin14-3.9.0
-    - xtensa-x86_64-apple-darwin14-3.10.0
-    - xtensa-x86_64-apple-darwin14-without_python
+    - sign-xtensa-x86_64-apple-darwin14
   extends: .test_simple_template
 
-xtensa-esp32s2-test-simple-macos_arm64:
-  tags: [ darwin, aarch64 ]
+xtensa-esp32s2-test-simple-x86_64-apple-darwin14:
+  tags: [ "darwin", "amd64" ]
   variables:
     ESP_CHIP: esp32s2
     ESP_CHIP_ARCH: xtensa
   needs:
-    - xtensa-x86_64-apple-darwin14-3.6.0
-    - xtensa-x86_64-apple-darwin14-3.7.0
-    - xtensa-x86_64-apple-darwin14-3.8.0
-    - xtensa-x86_64-apple-darwin14-3.9.0
-    - xtensa-x86_64-apple-darwin14-3.10.0
-    - xtensa-x86_64-apple-darwin14-without_python
+    - sign-xtensa-x86_64-apple-darwin14
   extends: .test_simple_template
 
-xtensa-esp32s3-test-simple-macos_arm64:
-  tags: [ darwin, aarch64 ]
+xtensa-esp32s3-test-simple-x86_64-apple-darwin14:
+  tags: [ "darwin", "amd64" ]
   variables:
     ESP_CHIP: esp32s3
     ESP_CHIP_ARCH: xtensa
   needs:
-    - xtensa-x86_64-apple-darwin14-3.6.0
-    - xtensa-x86_64-apple-darwin14-3.7.0
-    - xtensa-x86_64-apple-darwin14-3.8.0
-    - xtensa-x86_64-apple-darwin14-3.9.0
-    - xtensa-x86_64-apple-darwin14-3.10.0
-    - xtensa-x86_64-apple-darwin14-without_python
+    - sign-xtensa-x86_64-apple-darwin14
   extends: .test_simple_template
 
-riscv32-esp-test-simple-macos_arm64:
-  tags: [ darwin, aarch64 ]
+riscv32-esp-test-simple-x86_64-apple-darwin14:
+  tags: [ "darwin", "amd64" ]
   variables:
     ESP_CHIP: esp
     ESP_CHIP_ARCH: riscv32
   needs:
-    - riscv32-x86_64-apple-darwin14-3.6.0
-    - riscv32-x86_64-apple-darwin14-3.7.0
-    - riscv32-x86_64-apple-darwin14-3.8.0
-    - riscv32-x86_64-apple-darwin14-3.9.0
-    - riscv32-x86_64-apple-darwin14-3.10.0
-    - riscv32-x86_64-apple-darwin14-without_python
+    - sign-riscv32-x86_64-apple-darwin14
+  extends: .test_simple_template
+
+# TEST signed aarch64-apple-darwin21.1
+xtensa-esp32-test-simple-aarch64-apple-darwin21.1:
+  tags: [ "darwin", "aarch64" ]
+  variables:
+    ESP_CHIP: esp32
+    ESP_CHIP_ARCH: xtensa
+  needs:
+    - sign-xtensa-aarch64-apple-darwin21.1
+  extends: .test_simple_template
+
+xtensa-esp32s2-test-simple-aarch64-apple-darwin21.1:
+  tags: [ "darwin", "aarch64" ]
+  variables:
+    ESP_CHIP: esp32s2
+    ESP_CHIP_ARCH: xtensa
+  needs:
+    - sign-xtensa-aarch64-apple-darwin21.1
+  extends: .test_simple_template
+
+xtensa-esp32s3-test-simple-aarch64-apple-darwin21.1:
+  tags: [ "darwin", "aarch64" ]
+  variables:
+    ESP_CHIP: esp32s3
+    ESP_CHIP_ARCH: xtensa
+  needs:
+    - sign-xtensa-aarch64-apple-darwin21.1
+  extends: .test_simple_template
+
+riscv32-esp-test-simple-aarch64-apple-darwin21.1:
+  tags: [ "darwin", "aarch64" ]
+  variables:
+    ESP_CHIP: esp
+    ESP_CHIP_ARCH: riscv32
+  needs:
+    - sign-riscv32-aarch64-apple-darwin21.1
   extends: .test_simple_template
 
 # TEST x86_64-w64-mingw32
@@ -1295,6 +1375,56 @@ riscv32-esp-test-x86_64-w64-mingw32:
     ESP_CHIP_ARCH: riscv32
   needs: [ riscv32-x86_64-w64-mingw32-without_python ]
   extends: .test_windows_template
+
+# SIGN x86_64-apple-darwin14
+
+sign-xtensa-x86_64-apple-darwin14:
+  variables:
+    BINARIES_WILDCARD: "$GDB_DIST_DIR/bin/* $GDB_DIST_DIR/lib/*"
+  needs:
+    - xtensa-x86_64-apple-darwin14-without_python
+    - xtensa-x86_64-apple-darwin14-3.6.0
+    - xtensa-x86_64-apple-darwin14-3.7.0
+    - xtensa-x86_64-apple-darwin14-3.8.0
+    - xtensa-x86_64-apple-darwin14-3.9.0
+    - xtensa-x86_64-apple-darwin14-3.10.0
+  extends: .macos_codesign
+
+sign-riscv32-x86_64-apple-darwin14:
+  variables:
+    BINARIES_WILDCARD: "$GDB_DIST_DIR/bin/*"
+  needs:
+    - riscv32-x86_64-apple-darwin14-without_python
+    - riscv32-x86_64-apple-darwin14-3.6.0
+    - riscv32-x86_64-apple-darwin14-3.7.0
+    - riscv32-x86_64-apple-darwin14-3.8.0
+    - riscv32-x86_64-apple-darwin14-3.9.0
+    - riscv32-x86_64-apple-darwin14-3.10.0
+  extends: .macos_codesign
+
+
+# SIGN aarch64-apple-darwin21.1
+
+sign-xtensa-aarch64-apple-darwin21.1:
+  variables:
+    BINARIES_WILDCARD: "$GDB_DIST_DIR/bin/* $GDB_DIST_DIR/lib/*"
+  needs:
+    - xtensa-aarch64-apple-darwin21.1-without_python
+    - xtensa-aarch64-apple-darwin21.1-3.8.10
+    - xtensa-aarch64-apple-darwin21.1-3.9.13
+    - xtensa-aarch64-apple-darwin21.1-3.10.0
+  extends: .macos_codesign
+
+sign-riscv32-aarch64-apple-darwin21.1:
+  variables:
+    BINARIES_WILDCARD: "$GDB_DIST_DIR/bin/*"
+  needs:
+    - riscv32-aarch64-apple-darwin21.1-without_python
+    - riscv32-aarch64-apple-darwin21.1-3.8.10
+    - riscv32-aarch64-apple-darwin21.1-3.9.13
+    - riscv32-aarch64-apple-darwin21.1-3.10.0
+  extends: .macos_codesign
+
 
 # PACK GDB x86_64-linux-gnu
 
@@ -1551,12 +1681,7 @@ pack-xtensa-x86_64-apple-darwin14:
     ARCHIVE_EXT: ${LINUX_ARCHIVE_EXT}
   tags: [ "amd64", "build" ]
   needs:
-    - xtensa-x86_64-apple-darwin14-without_python
-    - xtensa-x86_64-apple-darwin14-3.6.0
-    - xtensa-x86_64-apple-darwin14-3.7.0
-    - xtensa-x86_64-apple-darwin14-3.8.0
-    - xtensa-x86_64-apple-darwin14-3.9.0
-    - xtensa-x86_64-apple-darwin14-3.10.0
+    - sign-xtensa-x86_64-apple-darwin14
   extends: .pack_template
 
 pack-riscv32-x86_64-apple-darwin14:
@@ -1567,12 +1692,32 @@ pack-riscv32-x86_64-apple-darwin14:
     ARCHIVE_EXT: ${LINUX_ARCHIVE_EXT}
   tags: [ "amd64", "build" ]
   needs:
-    - riscv32-x86_64-apple-darwin14-without_python
-    - riscv32-x86_64-apple-darwin14-3.6.0
-    - riscv32-x86_64-apple-darwin14-3.7.0
-    - riscv32-x86_64-apple-darwin14-3.8.0
-    - riscv32-x86_64-apple-darwin14-3.9.0
-    - riscv32-x86_64-apple-darwin14-3.10.0
+    - sign-riscv32-x86_64-apple-darwin14
+  extends: .pack_template
+
+
+# PACK GDB aarch64-apple-darwin21.1
+
+pack-xtensa-aarch64-apple-darwin21.1:
+  variables:
+    PLATFORM_NAME: aarch64-apple-darwin21.1
+    ESP_CHIP_ARCH: xtensa
+    ARCHIVE_TOOL: ${LINUX_ARCHIVE_TOOL}
+    ARCHIVE_EXT: ${LINUX_ARCHIVE_EXT}
+  tags: [ "amd64", "build" ]
+  needs:
+    - sign-xtensa-aarch64-apple-darwin21.1
+  extends: .pack_template
+
+pack-riscv32-aarch64-apple-darwin21.1:
+  variables:
+    PLATFORM_NAME: aarch64-apple-darwin21.1
+    ESP_CHIP_ARCH: riscv32
+    ARCHIVE_TOOL: ${LINUX_ARCHIVE_TOOL}
+    ARCHIVE_EXT: ${LINUX_ARCHIVE_EXT}
+  tags: [ "amd64", "build" ]
+  needs:
+    - sign-riscv32-aarch64-apple-darwin21.1
   extends: .pack_template
 
 
