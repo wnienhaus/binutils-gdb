@@ -117,6 +117,23 @@ function test_macos() {
       echo ""
     done;
   done;
+
+  for ((i = 0; i < ${#TEST_ESP_CHIPS[@]}; i++)); do
+    ESP_CHIP=${TEST_ESP_CHIPS[$i]}
+    ESP_CHIP_ARCH=${TEST_ESP_CHIPS_ARCH[$i]}
+    echo "$ESP_CHIP_ARCH-$ESP_CHIP-test-simple-macos_arm64:"
+    echo "  tags: [ darwin, aarch64 ]"
+    echo "  variables:"
+    echo "    ESP_CHIP: $ESP_CHIP"
+    echo "    ESP_CHIP_ARCH: $ESP_CHIP_ARCH"
+    echo "  needs:"
+    for PYTHON_VERSION in $MACOS_TESTS_PYTHON_VERSIONS; do
+      echo "    - $ESP_CHIP_ARCH-$MACOS_x86_64_TRIPLET-${PYTHON_VERSION%.*}.0"
+    done;
+    echo "    - $ESP_CHIP_ARCH-$MACOS_x86_64_TRIPLET-without_python"
+    echo "  extends: .test_simple_template"
+    echo ""
+  done;
 }
 
 function test_windows() {

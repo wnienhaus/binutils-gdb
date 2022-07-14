@@ -274,6 +274,16 @@ before_script:
     - ESP_DEBUG_TRACE=1 ${GDB_DIST_DIR}/bin/${ESP_CHIP_ARCH}-${ESP_CHIP}-elf-gdb --version
     - runtest --tool gdb --status --target ${ESP_CHIP_ARCH}-${ESP_CHIP}-elf GDB=${GDB_DIST_DIR}/bin/${ESP_CHIP_ARCH}-${ESP_CHIP}-elf-gdb gdb.${ESP_CHIP_ARCH}-${ESP_CHIP}/*.exp
 
+# Simple test template
+.test_simple_template: &test_simple_template
+  stage: test
+  variables:
+    GIT_SUBMODULE_STRATEGY: none
+  inherit:
+    default: false
+  script:
+    - ESP_DEBUG_TRACE=1 ${GDB_DIST_DIR}/bin/${ESP_CHIP_ARCH}-${ESP_CHIP}-elf-gdb --version
+
 # Pack build output
 .pack_template: &pack_template
   stage: pack
