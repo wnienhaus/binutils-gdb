@@ -1239,7 +1239,7 @@ xtensa_frame_cache (struct frame_info *this_frame, void **this_cache)
   struct gdbarch *gdbarch = get_frame_arch (this_frame);
   enum bfd_endian byte_order = gdbarch_byte_order (gdbarch);
   unsigned int fp_regnum;
-  int  windowed, ps_regnum;
+  int  windowed, ps_regnum, is_innermost;
 
   if (*this_cache)
     return (struct xtensa_frame_cache *) *this_cache;
@@ -1265,7 +1265,9 @@ xtensa_frame_cache (struct frame_info *this_frame, void **this_cache)
       ws = get_frame_register_unsigned (this_frame,
 					gdbarch_tdep (gdbarch)->ws_regnum);
 
-      if (safe_read_memory_integer (pc, 1, byte_order, &op1)
+      is_innermost = !(frame_relative_level(this_frame) > 0);
+      if (is_innermost &&
+	  safe_read_memory_integer (pc, 1, byte_order, &op1)
 	  && XTENSA_IS_ENTRY (gdbarch, op1))
 	{
 	  int callinc = CALLINC (ps);
