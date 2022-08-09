@@ -68,7 +68,7 @@ RUN if [ -z "$TARGET_HOST" ] ; then export TARGET_HOST=`gcc -dumpmachine`; fi &&
         --without-progs --without-debug --enable-termcap --enable-symlinks --without-manpages \
         --without-tests --without-cxx --without-cxx-binding --without-ada \
         --disable-database --disable-db-install --with-abi-version=5 \
-        --with-fallbacks=linux,xterm,xterm-color,xterm-256color,vt100 $NCURSES_TARGET_OPTS" && \
+        --with-fallbacks=linux,xterm,xterm-color,xterm-256color,vt100,ansi $NCURSES_TARGET_OPTS" && \
     ./configure $NCURSES_OPTS && \
     make && make install && \
     ./configure $NCURSES_OPTS --enable-widec && \
