@@ -6,7 +6,7 @@ stages:
   - release_stage1
   - release_submit
 
-image: $CI_DOCKER_REGISTRY/esp32-toolchain
+image: $CI_DOCKER_REGISTRY/esp32-toolchain:4
 
 variables:
 
@@ -125,6 +125,7 @@ before_script:
 
 .build_template: &build_template
   stage: build
+  tags: [amd64, build]
   artifacts:
     paths:
       - dist
@@ -138,7 +139,7 @@ before_script:
 
 .build_template_linux: &build_template_linux
   <<: *build_template
-  image: $CI_DOCKER_REGISTRY/esp32-toolchain
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain:4
   script:
     - *get_release_name
     - *set_displayed_version
@@ -171,7 +172,7 @@ esp32s2_lin_amd64:
 
 esp32_win:
   <<: *build_template_crossbuild
-  image: $CI_DOCKER_REGISTRY/esp32-toolchain-win-cross
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-win-cross:4
   variables:
     PLATFORM_NAME: "win32"
     ARCHIVE_TOOL: "zip -r"
@@ -188,7 +189,7 @@ esp32s2_win:
 
 esp32_win64:
   <<: *build_template_crossbuild
-  image: $CI_DOCKER_REGISTRY/esp32-toolchain-win64-cross
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-win64-cross:4
   variables:
     PLATFORM_NAME: "win64"
     ARCHIVE_TOOL: "zip -r"
@@ -205,22 +206,27 @@ esp32s2_win64:
 
 esp32_macos:
   <<: *build_template_crossbuild
-  image: $CI_DOCKER_REGISTRY/esp32-toolchain-macos-cross
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-macos-cross:3
   variables:
     PLATFORM_NAME: "macos"
-    CC: "x86_64-apple-darwin12-clang"
-    CXX: "x86_64-apple-darwin12-clang++"
-    CONF_HOST: "x86_64-apple-darwin12"
+    CC: "x86_64-apple-darwin14-clang"
+    CXX: "x86_64-apple-darwin14-clang++"
+    CONF_HOST: "x86_64-apple-darwin14"
     CONF_TARGET: "esp32ulp-elf"
 
 esp32s2_macos:
-  extends: esp32_macos
+  <<: *build_template_crossbuild
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-macos-cross:3
   variables:
+    PLATFORM_NAME: "macos"
+    CC: "x86_64-apple-darwin14-clang"
+    CXX: "x86_64-apple-darwin14-clang++"
+    CONF_HOST: "x86_64-apple-darwin14"
     CONF_TARGET: "esp32s2ulp-elf"
 
 esp32_lin_armel:
   <<: *build_template_crossbuild
-  image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:3
   variables:
     PLATFORM_NAME: "linux-armel"
     CONF_HOST: "arm-linux-gnueabi"
@@ -233,7 +239,7 @@ esp32s2_lin_armel:
 
 esp32_lin_arm64:
   <<: *build_template_crossbuild
-  image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:3
   variables:
     PLATFORM_NAME: "linux-arm64"
     CONF_HOST: "aarch64-linux-gnu"
@@ -261,7 +267,7 @@ esp32s2_lin_armhf:
 
 .test_template: &test_template
   stage: test
-  image: $CI_DOCKER_REGISTRY/esp32-toolchain
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain:4
   artifacts:
     paths:
       - ${TEST_CMP_DIR}
@@ -279,7 +285,7 @@ esp32s2_lin_armhf:
 
 esp32_lin_test:
   <<: *test_template
-  dependencies:
+  needs:
     - esp32_lin_amd64
   variables:
     PLATFORM_NAME: "linux-amd64"
@@ -290,7 +296,7 @@ esp32_lin_test:
 
 esp32_lin_test_s2:
   <<: *test_template
-  dependencies:
+  needs:
     - esp32_lin_amd64
   variables:
     PLATFORM_NAME: "linux-amd64"
@@ -301,7 +307,7 @@ esp32_lin_test_s2:
 
 esp32s2_lin_test:
   <<: *test_template
-  dependencies:
+  needs:
     - esp32s2_lin_amd64
   variables:
     PLATFORM_NAME: "linux-amd64"
@@ -313,9 +319,8 @@ esp32s2_lin_test:
 esp32_armel_test:
   <<: *test_template
   image: $CI_DOCKER_REGISTRY/rpi-esp-idf-env:1
-  tags:
-    - linux_arm
-  dependencies:
+  tags: [arm, linux]
+  needs:
     - esp32_lin_armel
   variables:
     # Just for size optimization on RPi
@@ -329,9 +334,8 @@ esp32_armel_test:
 esp32_armel_test_s2:
   <<: *test_template
   image: $CI_DOCKER_REGISTRY/rpi-esp-idf-env:1
-  tags:
-    - linux_arm
-  dependencies:
+  tags: [arm, linux]
+  needs:
     - esp32_lin_armel
   variables:
     # Just for size optimization on RPi
@@ -345,9 +349,8 @@ esp32_armel_test_s2:
 esp32s2_armel_test:
   <<: *test_template
   image: $CI_DOCKER_REGISTRY/rpi-esp-idf-env:1
-  tags:
-    - linux_arm
-  dependencies:
+  tags: [arm, linux]
+  needs:
     - esp32s2_lin_armel
   variables:
     GIT_DEPTH: 5
@@ -362,8 +365,7 @@ esp32s2_armel_test:
 upload_to_http:
   <<: *manual_action
   stage: private_deploy
-  tags:
-    - deploy
+  tags: [deploy]
   variables:
     GIT_STRATEGY: none
   script:
@@ -458,7 +460,7 @@ Release_tag_submit:
   stage: release_submit
   <<: *release_tag_filter
   <<: *manual_action
-  dependencies:
+  needs:
     - get_gh_tools
   variables:
     GIT_STRATEGY: none
@@ -469,7 +471,7 @@ Pre-Release_tag_submit:
   stage: release_submit
   <<: *release_tag_filter
   <<: *manual_action
-  dependencies:
+  needs:
     - get_gh_tools
   variables:
     GIT_STRATEGY: none
@@ -480,7 +482,7 @@ Delete_tag_release:
   stage: release_submit
   <<: *release_tag_filter
   <<: *manual_action
-  dependencies:
+  needs:
     - get_gh_tools
   variables:
     GIT_STRATEGY: none
