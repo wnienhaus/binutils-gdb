@@ -23,7 +23,6 @@ Software Foundation, 51 Franklin Street - Fifth Floor, Boston, MA
 02110-1301, USA.  */
 
 #include "as.h"
-#include "struc-symbol.h"
 #include "esp32ulp-defs.h"
 #include "obstack.h"
 #include "safe-ctype.h"
@@ -115,7 +114,7 @@ struct option md_longopts[] =
 
 size_t md_longopts_size = sizeof(md_longopts);
 
-int md_parse_option(int c ATTRIBUTE_UNUSED, const char *arg ATTRIBUTE_UNUSED)
+int md_parse_option(int c, const char *arg)
 {
 //	printf("md_parse_option: arg - %s\n", arg);
 	switch (c)
@@ -359,7 +358,7 @@ void md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 /* Round up a section size to the appropriate boundary.  */
 valueT md_section_align(segT segment, valueT size)
 {
-	int boundary = bfd_get_section_alignment(stdoutput, segment);
+	int boundary = bfd_section_alignment(segment);
 	return ((size + (1 << boundary) - 1) & -(1 << boundary));
 }
 

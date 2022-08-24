@@ -42,87 +42,106 @@
 //   ------------------   halt  ------------------------
 #define OPCODE_HALT 11             /*!< Instruction: store indirect to RTC memory */
 
-typedef struct {
-	unsigned int unused : 28;
-	unsigned int opcode : 4;        /*!< Opcode (OPCODE_BRANCH) */
-} cmd_halt;                      /*!< Format of ALU instruction  */
+struct s_cmd_halt {
+    unsigned int unused : 28;
+    unsigned int opcode : 4;        /*!< Opcode (OPCODE_BRANCH) */
+};                          /*!< Format of ALU instruction  */
+typedef union {
+    struct s_cmd_halt s;
+    unsigned int unsigned_int;
+} cmd_halt;
 
 
-#define OP_CMD_HALT() { *(unsigned int*)&(cmd_halt ){ \
+#define OP_CMD_HALT() { ( cmd_halt ) { .s = { \
     .unused = 0, \
-    .opcode = OPCODE_HALT } }
+    .opcode = OPCODE_HALT } }.unsigned_int }
 
 //   ------------------   WAKEUP  ------------------------
-#define OPCODE_EXIT 9            /*!< Stop executing the program (not implemented yet) */
+#define OPCODE_EXIT 9              /*!< Stop executing the program (not implemented yet) */
 #define SUB_OPCODE_WAKEUP 0        /*!< Stop executing the program and optionally wake up the chip */
 
-typedef struct {
-	unsigned int wakeup : 1;        /*!< Set to 1 to wake up chip */
-	unsigned int unused : 24;       /*!< Unused */
-	unsigned int sub_opcode : 3;    /*!< Sub opcode (SUB_OPCODE_WAKEUP) */
-	unsigned int opcode : 4;        /*!< Opcode (OPCODE_END) */
-} cmd_wakeup;                          /*!< Format of END instruction with wakeup */
+struct s_cmd_wakeup {
+    unsigned int wakeup : 1;        /*!< Set to 1 to wake up chip */
+    unsigned int unused : 24;       /*!< Unused */
+    unsigned int sub_opcode : 3;    /*!< Sub opcode (SUB_OPCODE_WAKEUP) */
+    unsigned int opcode : 4;        /*!< Opcode (OPCODE_END) */
+};                                      /*!< Format of END instruction with wakeup */
+typedef union {
+    struct s_cmd_wakeup s;
+    unsigned int unsigned_int;
+} cmd_wakeup;
 
 
-#define OP_CMD_WAKEUP(wake) { *(unsigned int*)&(cmd_wakeup ){ \
+#define OP_CMD_WAKEUP(wake) { ( cmd_wakeup ) { .s = { \
     .wakeup = wake, \
-	.unused = 0,\
-	.sub_opcode = SUB_OPCODE_WAKEUP,\
-    .opcode = OPCODE_EXIT } }
+        .unused = 0, \
+        .sub_opcode = SUB_OPCODE_WAKEUP, \
+    .opcode = OPCODE_EXIT } }.unsigned_int }
 
 //   ------------------   WAIT  ------------------------
 #define OPCODE_WAIT 4            /*!< Instruction: delay (nop) for a given number of cycles */
 
-typedef struct {
-	unsigned int wait : 16;        /*!< Set to 1 to wake up chip */
-	unsigned int unused : 12;       /*!< Unused */
-	unsigned int opcode : 4;        /*!< Opcode (OPCODE_WAIT) */
-} cmd_wait;                          /*!< Format of END instruction with wakeup */
+struct s_cmd_wait {
+    unsigned int wait : 16;         /*!< Set to 1 to wake up chip */
+    unsigned int unused : 12;       /*!< Unused */
+    unsigned int opcode : 4;        /*!< Opcode (OPCODE_WAIT) */
+};                                      /*!< Format of END instruction with wakeup */
+typedef union {
+    struct s_cmd_wait s;
+    unsigned int unsigned_int;
+} cmd_wait;
 
 
-#define OP_CMD_WAIT(cyc) { *(unsigned int*)&(cmd_wait ){ \
+#define OP_CMD_WAIT(cyc) { ( cmd_wait ) { .s = { \
     .wait = cyc, \
-	.unused = 0,\
-    .opcode = OPCODE_WAIT } }
+    .unused = 0, \
+    .opcode = OPCODE_WAIT } }.unsigned_int }
 
 //   ------------------   TSENS  ------------------------
 #define OPCODE_TSENS 10         /*!< Instruction: temperature sensor measurement (not implemented yet) */
+struct s_cmd_tsens {
+    unsigned int dreg : 2;           /*!< Register where to store temperature measurement result */
+    unsigned int wait_delay : 14;    /*!< Cycles to wait after measurement is done */
+    unsigned int cycles : 12;        /*!< Cycles used to perform measurement */
+    unsigned int opcode : 4;         /*!< Opcode (OPCODE_TSENS) */
+};                                       /*!< Format of TSENS instruction */
+typedef union {
+    struct s_cmd_tsens s;
+    unsigned int unsigned_int;
+} cmd_tsens;
 
-typedef struct {
-	unsigned int dreg : 2;          /*!< Register where to store temperature measurement result */
-	unsigned int wait_delay : 14;    /*!< Cycles to wait after measurement is done */
-	unsigned int cycles : 12;        /*!< Cycles used to perform measurement */
-	unsigned int opcode : 4;         /*!< Opcode (OPCODE_TSENS) */
-} cmd_tsens;                        /*!< Format of TSENS instruction */
 
-
-#define OP_CMD_TSENS(dreg, delay) { *(unsigned int*)&(cmd_tsens ){ \
+#define OP_CMD_TSENS(dreg, delay) { ( cmd_tsens ) { .s = { \
     .dreg = dreg, \
-	.wait_delay = delay,\
-	.cycles = 0,\
-    .opcode = OPCODE_TSENS } }
+    .wait_delay = delay, \
+    .cycles = 0, \
+    .opcode = OPCODE_TSENS } }.unsigned_int }
 
 //   ------------------   MEAS  ------------------------
 #define OPCODE_ADC 5            /*!< Instruction: SAR ADC measurement (not implemented yet) */
 
-typedef struct{
-	unsigned int dreg : 2;          /*!< Register where to store ADC result */
-	unsigned int sar_mux : 4;           /*!< Select SARADC pad (mux + 1) */
-	unsigned int sar_sel : 1;       /*!< Select SARADC0 (0) or SARADC1 (1) */
-	unsigned int unused1 : 1;       /*!< Unused */
-	unsigned int cycles : 16;       /*!< TBD, cycles used for measurement */
-	unsigned int unused2 : 4;       /*!< Unused */
-	unsigned int opcode : 4;         /*!< Opcode (OPCODE_ADC) */
+struct s_cmd_adc {
+    unsigned int dreg : 2;          /*!< Register where to store ADC result */
+    unsigned int sar_mux : 4;       /*!< Select SARADC pad (mux + 1) */
+    unsigned int sar_sel : 1;       /*!< Select SARADC0 (0) or SARADC1 (1) */
+    unsigned int unused1 : 1;       /*!< Unused */
+    unsigned int cycles : 16;       /*!< TBD, cycles used for measurement */
+    unsigned int unused2 : 4;       /*!< Unused */
+    unsigned int opcode : 4;        /*!< Opcode (OPCODE_ADC) */
+};    
+typedef union {
+    struct s_cmd_adc s;
+    unsigned int unsigned_int;
 } cmd_adc;
 
-#define OP_CMD_ADC(d_reg, mux, sel) { *(unsigned int*)&(cmd_adc ){ \
+#define OP_CMD_ADC(d_reg, mux, sel) { ( cmd_adc ) { .s = { \
     .dreg = d_reg, \
     .sar_mux = mux, \
     .sar_sel = sel, \
     .unused1 = 0, \
     .cycles = 0, \
     .unused2 = 0, \
-    .opcode = OPCODE_ADC } }
+    .opcode = OPCODE_ADC } }.unsigned_int }
 
 
 #endif

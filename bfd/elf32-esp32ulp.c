@@ -159,7 +159,7 @@ static bfd_reloc_status_type esp32ulp_jumprelr_reloc(bfd *abfd, arelent *reloc_e
 	memcpy(&ddd, (unsigned char *)data + addr, 4);
 	relocation -= reloc_entry->address;
 	//DEBUG_TRACE("dya_pass esp32ulp_jumprelr_reloc: relocation=%08x, ddd=%08x\n", (unsigned int)relocation, ddd);
-	ddd &= ~(0x000000ff < 17);
+	ddd &= ~(0x000000ff << 17);
 	int reloc = (int)relocation;
 	reloc = reloc >> 2;
 	//printf("relock=%i \n",reloc);
@@ -236,7 +236,7 @@ static bfd_reloc_status_type esp32s2ulp_jumprelr_reloc(bfd *abfd, arelent *reloc
 	memcpy(&ddd, (unsigned char *)data + addr, 4);
 	relocation -= reloc_entry->address;
 	//DEBUG_TRACE("dya_pass esp32s2ulp_jumprelr_reloc: relocation=%08x, ddd=%08x\n", (unsigned int)relocation, ddd);
-	ddd &= ~(0x000000ff < 18);
+	ddd &= ~(0x000000ff << 18);
 	int reloc = (int)relocation;
 	reloc = reloc >> 2;
 	//printf("relock=%i \n",reloc);
@@ -1333,7 +1333,7 @@ static const struct esp32ulp_reloc_map esp32ulp_reloc_map[] =
 };
 
 
-static void
+static bfd_boolean
 esp32ulp_info_to_howto(bfd *abfd ATTRIBUTE_UNUSED,
 arelent *cache_ptr,
 Elf_Internal_Rela *dst)
@@ -1350,7 +1350,8 @@ Elf_Internal_Rela *dst)
 		cache_ptr->howto = &esp32ulp_gnuext_howto_table[r_type - ESP32ULP_GNUEXT_RELOC_MIN];
 
 	else
-		cache_ptr->howto = (reloc_howto_type *)NULL;
+		return FALSE; // cache_ptr->howto = (reloc_howto_type *)NULL;
+	return TRUE;
 }
 
 /* Given a BFD reloc type, return the howto.  */
@@ -1423,12 +1424,10 @@ unsigned int r_type)
 ///* Set by ld emulation if --data-in-l1.  */
 //bfd_boolean elf32_esp32ulp_data_in_l1 = 0;
 
-static void
-elf32_esp32ulp_final_write_processing(bfd *abfd,
-bfd_boolean linker ATTRIBUTE_UNUSED)
+static bfd_boolean
+elf32_esp32ulp_final_write_processing(bfd *abfd)
 {
-	(void)abfd;
-	(void)linker;
+	return _bfd_elf_final_write_processing (abfd);
 }
 
 /* Return TRUE if the name is a local label.
@@ -1487,7 +1486,8 @@ struct bfd_link_info *info,
 
 			/* PR15323, ref flags aren't set for references in the same
 			object.  */
-			h->root.non_ir_ref = 1;
+			if (h != NULL)
+			    h->root.non_ir_ref_regular = 1;
 		}
 
 		switch (ELF32_R_TYPE(rel->r_info))
@@ -1753,7 +1753,7 @@ bfd_vma value, bfd_vma addend)
 	        else if (!bfd_link_relocatable (info))				\
 	{								\
 	  bfd_boolean err;						\
-	  err = (info->unresolved_syms_in_objects == RM_GENERATE_ERROR	\
+	  err = (info->unresolved_syms_in_objects == RM_DIAGNOSE	\
 		 || ELF_ST_VISIBILITY (h->other) != STV_DEFAULT);	\
 	  (*info->callbacks->undefined_symbol) (info,			\
 						h->root.root.string,	\
@@ -2011,7 +2011,7 @@ struct bfd_link_info *info,
 		{
 			_bfd_error_handler
 				/* xgettext:c-format */
-				(_("%B(%A+0x%lx): unresolvable relocation against symbol `%s'"),
+				(_("%pB(%pA+0x%lx): unresolvable relocation against symbol `%s'"),
 				input_bfd,
 				input_section, (long)rel->r_offset, h->root.root.string);
 			return FALSE;
@@ -2031,7 +2031,7 @@ struct bfd_link_info *info,
 				if (name == NULL)
 					return FALSE;
 				if (*name == '\0')
-					name = bfd_section_name(input_bfd, sec);
+					name = bfd_section_name(sec);
 			}
 
 			if (r == bfd_reloc_overflow)
@@ -2042,7 +2042,7 @@ struct bfd_link_info *info,
 			{
 				_bfd_error_handler
 					/* xgettext:c-format */
-					(_("%B(%A+0x%lx): reloc against `%s': error %d"),
+					(_("%pB(%pA+0x%lx): reloc against `%s': error %d"),
 					input_bfd, input_section,
 					(long)rel->r_offset, name, (int)r);
 				return FALSE;
@@ -2071,78 +2071,6 @@ struct elf_link_hash_entry *h,
 	return _bfd_elf_gc_mark_hook(sec, info, rel, h, sym);
 }
 
-/* Update the got entry reference counts for the section being removed.  */
-
-static bfd_boolean
-esp32ulp_gc_sweep_hook(bfd * abfd,
-struct bfd_link_info *info,
-	asection * sec,
-	const Elf_Internal_Rela * relocs)
-{
-	Elf_Internal_Shdr *symtab_hdr;
-	struct elf_link_hash_entry **sym_hashes;
-	bfd_signed_vma *local_got_refcounts;
-	const Elf_Internal_Rela *rel, *relend;
-	bfd *dynobj;
-	asection *sgot;
-	asection *srelgot;
-
-	dynobj = elf_hash_table(info)->dynobj;
-	if (dynobj == NULL)
-		return TRUE;
-
-	symtab_hdr = &elf_tdata(abfd)->symtab_hdr;
-	sym_hashes = elf_sym_hashes(abfd);
-	local_got_refcounts = elf_local_got_refcounts(abfd);
-
-	sgot = elf_hash_table(info)->sgot;
-	srelgot = elf_hash_table(info)->srelgot;
-
-	relend = relocs + sec->reloc_count;
-	for (rel = relocs; rel < relend; rel++)
-	{
-		unsigned long r_symndx;
-		struct elf_link_hash_entry *h;
-
-		switch (ELF32_R_TYPE(rel->r_info))
-		{
-		case R_ESP32ULP_GOT:
-			r_symndx = ELF32_R_SYM(rel->r_info);
-			if (r_symndx >= symtab_hdr->sh_info)
-			{
-				h = sym_hashes[r_symndx - symtab_hdr->sh_info];
-				if (h->got.refcount > 0)
-				{
-					--h->got.refcount;
-					if (h->got.refcount == 0)
-					{
-						/* We don't need the .got entry any more.  */
-						sgot->size -= 4;
-						srelgot->size -= sizeof(Elf32_External_Rela);
-					}
-				}
-			}
-			else if (local_got_refcounts != NULL)
-			{
-				if (local_got_refcounts[r_symndx] > 0)
-				{
-					--local_got_refcounts[r_symndx];
-					if (local_got_refcounts[r_symndx] == 0)
-					{
-						/* We don't need the .got entry any more.  */
-						sgot->size -= 4;
-						if (bfd_link_pic(info))
-							srelgot->size -= sizeof(Elf32_External_Rela);
-					}
-				}
-			}
-			break;
-		default:
-			break;
-		}
-	}
-	return TRUE;
-}
 
 extern const bfd_target esp32ulp_elf32_fdpic_vec;
 #define IS_FDPIC(bfd) ((bfd)->xvec == &esp32ulp_elf32_fdpic_vec)
@@ -2421,25 +2349,6 @@ enum insert_option insert)
 	return esp32ulpfdpic_relocs_info_find(ht, abfd, &entry, insert);
 }
 
-/* Obtain the address of the entry in HT associated with the SYMNDXth
-local symbol of the input bfd ABFD, plus the addend, creating a new
-entry if none existed.  */
-inline static struct esp32ulpfdpic_relocs_info *
-esp32ulpfdpic_relocs_info_for_local(struct htab *ht,
-bfd *abfd,
-long symndx,
-bfd_vma addend,
-enum insert_option insert)
-{
-	struct esp32ulpfdpic_relocs_info entry;
-
-	entry.symndx = symndx;
-	entry.d.abfd = abfd;
-	entry.addend = addend;
-
-	return esp32ulpfdpic_relocs_info_find(ht, abfd, &entry, insert);
-}
-
 /* Merge fields set by check_relocs() of two entries that end up being
 mapped to the same (presumably global) symbol.  */
 
@@ -2612,7 +2521,7 @@ struct bfd_link_info *info,
 			section_flags = 0;
 			name = bfd_elf_string_from_elf_section
 				(input_bfd, symtab_hdr->sh_link, sym->st_name);
-			name = (name == NULL) ? bfd_section_name(input_bfd, sec) : name;
+			name = (name == NULL) ? bfd_section_name(sec) : name;
 		}
 		else
 		{
@@ -2747,56 +2656,6 @@ struct bfd_link_info *info,
 	return TRUE;
 }
 
-/* Update the relocation information for the relocations of the section
-being removed.  */
-
-static bfd_boolean
-esp32ulpfdpic_gc_sweep_hook(bfd *abfd,
-struct bfd_link_info *info,
-	asection *sec,
-	const Elf_Internal_Rela *relocs)
-{
-	Elf_Internal_Shdr *symtab_hdr;
-	struct elf_link_hash_entry **sym_hashes, **sym_hashes_end;
-	const Elf_Internal_Rela *rel;
-	const Elf_Internal_Rela *rel_end;
-	struct esp32ulpfdpic_relocs_info *picrel;
-
-	BFD_ASSERT(IS_FDPIC(abfd));
-
-	symtab_hdr = &elf_tdata(abfd)->symtab_hdr;
-	sym_hashes = elf_sym_hashes(abfd);
-	sym_hashes_end = sym_hashes + symtab_hdr->sh_size / sizeof(Elf32_External_Sym);
-	if (!elf_bad_symtab(abfd))
-		sym_hashes_end -= symtab_hdr->sh_info;
-
-	rel_end = relocs + sec->reloc_count;
-	for (rel = relocs; rel < rel_end; rel++)
-	{
-		struct elf_link_hash_entry *h;
-		unsigned long r_symndx;
-
-		r_symndx = ELF32_R_SYM(rel->r_info);
-		if (r_symndx < symtab_hdr->sh_info)
-			h = NULL;
-		else
-			h = sym_hashes[r_symndx - symtab_hdr->sh_info];
-
-		if (h != NULL)
-			picrel = esp32ulpfdpic_relocs_info_for_global(esp32ulpfdpic_relocs_info(info),
-			abfd, h,
-			rel->r_addend, NO_INSERT);
-		else
-			picrel = esp32ulpfdpic_relocs_info_for_local(esp32ulpfdpic_relocs_info
-			(info), abfd, r_symndx,
-			rel->r_addend, NO_INSERT);
-
-		if (!picrel)
-			return TRUE;
-	}
-
-	return TRUE;
-}
 
 /* We need dynamic symbols for every section, since segments can
 relocate independently.  */
@@ -2852,7 +2711,7 @@ _esp32ulp_create_got_section(bfd *abfd, struct bfd_link_info *info)
 	s = bfd_make_section_anyway_with_flags(abfd, ".got", flags);
 	elf_hash_table(info)->sgot = s;
 	if (s == NULL
-		|| !bfd_set_section_alignment(abfd, s, ptralign))
+		|| !bfd_set_section_alignment(s, ptralign))
 		return FALSE;
 
 	if (bed->want_got_sym)
@@ -2889,7 +2748,7 @@ _esp32ulp_create_got_section(bfd *abfd, struct bfd_link_info *info)
 		s = bfd_make_section_anyway_with_flags(abfd, ".rel.got",
 			(flags | SEC_READONLY));
 		if (s == NULL
-			|| !bfd_set_section_alignment(abfd, s, 2))
+			|| !bfd_set_section_alignment(s, 2))
 			return FALSE;
 
 		esp32ulpfdpic_gotrel_section(info) = s;
@@ -2898,7 +2757,7 @@ _esp32ulp_create_got_section(bfd *abfd, struct bfd_link_info *info)
 		s = bfd_make_section_anyway_with_flags(abfd, ".rofixup",
 			(flags | SEC_READONLY));
 		if (s == NULL
-			|| !bfd_set_section_alignment(abfd, s, 2))
+			|| !bfd_set_section_alignment(s, 2))
 			return FALSE;
 
 		esp32ulpfdpic_gotfixup_section(info) = s;
@@ -2912,7 +2771,7 @@ _esp32ulp_create_got_section(bfd *abfd, struct bfd_link_info *info)
 
 	s = bfd_make_section_anyway_with_flags(abfd, ".plt", pltflags);
 	if (s == NULL
-		|| !bfd_set_section_alignment(abfd, s, bed->plt_alignment))
+		|| !bfd_set_section_alignment(s, bed->plt_alignment))
 		return FALSE;
 	/* Blackfin-specific: remember it.  */
 	esp32ulpfdpic_plt_section(info) = s;
@@ -2940,7 +2799,7 @@ _esp32ulp_create_got_section(bfd *abfd, struct bfd_link_info *info)
 	s = bfd_make_section_anyway_with_flags(abfd, ".rel.plt",
 		flags | SEC_READONLY);
 	if (s == NULL
-		|| !bfd_set_section_alignment(abfd, s, bed->s->log_file_align))
+		|| !bfd_set_section_alignment(s, bed->s->log_file_align))
 		return FALSE;
 	/* Blackfin-specific: remember it.  */
 	esp32ulpfdpic_pltrel_section(info) = s;
@@ -3006,7 +2865,7 @@ elf32_esp32ulpfdpic_create_dynamic_sections(bfd *abfd, struct bfd_link_info *inf
 				".rela.bss",
 				flags | SEC_READONLY);
 			if (s == NULL
-				|| !bfd_set_section_alignment(abfd, s, bed->s->log_file_align))
+				|| !bfd_set_section_alignment(s, bed->s->log_file_align))
 				return FALSE;
 		}
 	}
@@ -3767,21 +3626,15 @@ _esp32ulpfdpic_check_discarded_relocs(bfd *abfd, asection *sec,
 struct bfd_link_info *info,
 	bfd_boolean *changed)
 {
+	(void)abfd;
 	(void)info;// dya - remove warning
 	(void)changed;// dya - remove warning
-	Elf_Internal_Shdr *symtab_hdr;
-	struct elf_link_hash_entry **sym_hashes, **sym_hashes_end;
 
 	if ((sec->flags & SEC_RELOC) == 0
 		|| sec->reloc_count == 0)
 		return TRUE;
 
-	symtab_hdr = &elf_tdata(abfd)->symtab_hdr;
-	sym_hashes = elf_sym_hashes(abfd);
-	sym_hashes_end = sym_hashes + symtab_hdr->sh_size / sizeof(Elf32_External_Sym);
-	if (!elf_bad_symtab(abfd))
-		sym_hashes_end -= symtab_hdr->sh_info;
-
+	// TODO: FALSE ??
 	return TRUE;
 }
 
@@ -3928,10 +3781,11 @@ struct elf_link_hash_entry *h)
 	bfd * dynobj;
 
 	dynobj = elf_hash_table(info)->dynobj;
+	struct elf_link_hash_entry *def = weakdef(h);
 
 	/* Make sure we know what is going on here.  */
 	BFD_ASSERT(dynobj != NULL
-		&& (h->u.weakdef != NULL
+		&& (def
 		|| (h->def_dynamic
 		&& h->ref_regular
 		&& !h->def_regular)));
@@ -3939,12 +3793,12 @@ struct elf_link_hash_entry *h)
 	/* If this is a weak symbol, and there is a real definition, the
 	processor independent code will have arranged for us to see the
 	real definition first, and we can just use the same value.  */
-	if (h->u.weakdef != NULL)
+	if (def)
 	{
-		BFD_ASSERT(h->u.weakdef->root.type == bfd_link_hash_defined
-			|| h->u.weakdef->root.type == bfd_link_hash_defweak);
-		h->root.u.def.section = h->u.weakdef->root.u.def.section;
-		h->root.u.def.value = h->u.weakdef->root.u.def.value;
+		BFD_ASSERT(def->root.type == bfd_link_hash_defined
+			|| def->root.type == bfd_link_hash_defweak);
+		h->root.u.def.section = def->root.u.def.section;
+		h->root.u.def.value = def->root.u.def.value;
 	}
 
 	return TRUE;
@@ -4163,7 +4017,7 @@ asection *sec, const Elf_Internal_Rela *relocs)
 		default:
 			_bfd_error_handler
 				/* xgettext:c-format */
-				(_("%B: unsupported relocation type %i"),
+				(_("%pB: unsupported relocation type %lu"),
 				abfd, ELF32_R_TYPE(rel->r_info));
 			return FALSE;
 		}
@@ -4238,7 +4092,7 @@ elf32_esp32ulp_merge_private_bfd_data(bfd *ibfd, struct bfd_link_info *info)
 	if (0)
 #endif
 		_bfd_error_handler
-		("old_flags = 0x%.8lx, new_flags = 0x%.8lx, init = %s, filename = %s",
+		("old_flags = 0x%.8x, new_flags = 0x%.8x, init = %s, filename = %s",
 		old_flags, new_flags, elf_flags_init(obfd) ? "yes" : "no",
 		bfd_get_filename(ibfd));
 
@@ -4456,11 +4310,12 @@ struct elf_link_hash_entry *h)
 	unsigned int power_of_two;
 
 	dynobj = elf_hash_table(info)->dynobj;
+	struct elf_link_hash_entry *def = weakdef(h);
 
 	/* Make sure we know what is going on here.  */
 	BFD_ASSERT(dynobj != NULL
 		&& (h->needs_plt
-		|| h->u.weakdef != NULL
+		|| def
 		|| (h->def_dynamic && h->ref_regular && !h->def_regular)));
 
 	/* If this is a function, put it in the procedure linkage table.  We
@@ -4474,12 +4329,12 @@ struct elf_link_hash_entry *h)
 	/* If this is a weak symbol, and there is a real definition, the
 	processor independent code will have arranged for us to see the
 	real definition first, and we can just use the same value.  */
-	if (h->u.weakdef != NULL)
+	if (def)
 	{
-		BFD_ASSERT(h->u.weakdef->root.type == bfd_link_hash_defined
-			|| h->u.weakdef->root.type == bfd_link_hash_defweak);
-		h->root.u.def.section = h->u.weakdef->root.u.def.section;
-		h->root.u.def.value = h->u.weakdef->root.u.def.value;
+		BFD_ASSERT(def->root.type == bfd_link_hash_defined
+			|| def->root.type == bfd_link_hash_defweak);
+		h->root.u.def.section = def->root.u.def.section;
+		h->root.u.def.value = def->root.u.def.value;
 		return TRUE;
 	}
 
@@ -4535,9 +4390,9 @@ struct elf_link_hash_entry *h)
 
 	/* Apply the required alignment.  */
 	s->size = BFD_ALIGN(s->size, (bfd_size_type)(1 << power_of_two));
-	if (power_of_two > bfd_get_section_alignment(dynobj, s))
+	if (power_of_two > bfd_section_alignment(s))
 	{
-		if (!bfd_set_section_alignment(dynobj, s, power_of_two))
+		if (!bfd_set_section_alignment(s, power_of_two))
 			return FALSE;
 	}
 
@@ -4671,7 +4526,7 @@ struct bfd_link_info *info)
 
 		/* It's OK to base decisions on the section name, because none
 		of the dynobj section names depend upon the input files.  */
-		name = bfd_get_section_name(dynobj, s);
+		name = bfd_section_name(s);
 
 		strip = FALSE;
 
@@ -4879,7 +4734,6 @@ struct bfd_elf_special_section const elf32_esp32ulp_special_sections[] =
 #define elf_backend_finish_dynamic_sections \
                                         esp32ulp_finish_dynamic_sections
 #define elf_backend_gc_mark_hook        esp32ulp_gc_mark_hook
-#define elf_backend_gc_sweep_hook       esp32ulp_gc_sweep_hook
 #define bfd_elf32_bfd_merge_private_bfd_data \
                                         elf32_esp32ulp_merge_private_bfd_data
 #define bfd_elf32_bfd_set_private_flags \
@@ -4907,9 +4761,6 @@ struct bfd_elf_special_section const elf32_esp32ulp_special_sections[] =
 #define TARGET_LITTLE_NAME		"elf32-esp32ulpfdpic"
 #undef	elf32_bed
 #define	elf32_bed		elf32_esp32ulpfdpic_bed
-
-#undef elf_backend_gc_sweep_hook
-#define elf_backend_gc_sweep_hook       esp32ulpfdpic_gc_sweep_hook
 
 #undef elf_backend_got_header_size
 #define elf_backend_got_header_size     0

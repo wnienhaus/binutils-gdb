@@ -23,7 +23,6 @@ Software Foundation, 51 Franklin Street - Fifth Floor, Boston, MA
 02110-1301, USA.  */
 
 #include "as.h"
-#include "struc-symbol.h"
 #include "esp32s2ulp-defs.h"
 #include "obstack.h"
 #include "safe-ctype.h"
@@ -278,7 +277,7 @@ long check_reg_range(fixS* fixP, long value)
 valueT
 md_section_align(segT segment, valueT size)
 {
-	int boundary = bfd_get_section_alignment(stdoutput, segment);
+	int boundary = bfd_section_alignment(segment);
 	return ((size + (1 << boundary) - 1) & -(1 << boundary));
 }
 

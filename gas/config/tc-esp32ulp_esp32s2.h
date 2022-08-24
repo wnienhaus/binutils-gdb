@@ -2,7 +2,6 @@
 #define _tc_esp32ulp_esp32s2_H_
 
 #include "as.h"
-#include "struc-symbol.h"
 #include "esp32ulp-defs.h"
 #include "obstack.h"
 #include "safe-ctype.h"

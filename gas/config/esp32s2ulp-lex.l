@@ -32,8 +32,13 @@ int yylex (void);
 
 #define _REG yylval.reg
 
+/* Flex generates a static function "input" which is not used.
+   Defining YY_NO_INPUT comments it out.  */
+#define YY_NO_INPUT
 
 %}
+
+%option nounput
 
 /* Define Start States ... Actually we will use exclusion.
    If no start state is specified it should match any state
@@ -121,7 +126,7 @@ int yylex (void);
     return NUMBER;
   }
 ([0-9]+[bf])|([[:alpha:]\x80-\xff_$.][[:alnum:]\x80-\xff_$.]*) {
-    if (isdigit(yytext[0])) {
+    if (yytext[0] >= '0' && yytext[0] <= '9') {
         char lc= yytext[strlen(yytext)-1];
         if (lc == 'b') {
             char *name = fb_label_name (atoi(yytext), 0);

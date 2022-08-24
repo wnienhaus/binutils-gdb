@@ -36,4 +36,5 @@ const bfd_arch_info_type bfd_esp32s2ulp_arch =
 	bfd_default_scan,
 	bfd_arch_default_fill,
 	0,
+	0,
 };

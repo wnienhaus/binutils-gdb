@@ -156,7 +156,7 @@ am__objects_1 = app.$(OBJEXT) as.$(OBJEXT) atof-generic.$(OBJEXT) \
 	listing.$(OBJEXT) literal.$(OBJEXT) macro.$(OBJEXT) \
 	messages.$(OBJEXT) output-file.$(OBJEXT) read.$(OBJEXT) \
 	remap.$(OBJEXT) sb.$(OBJEXT) stabs.$(OBJEXT) subsegs.$(OBJEXT) \
-	tc-esp32ulp_esp32.$(OBJEXT) tc-esp32ulp_esp32s2.$(OBJEXT) \
+	config/tc-esp32ulp_esp32.$(OBJEXT) config/tc-esp32ulp_esp32s2.$(OBJEXT) \
 	symbols.$(OBJEXT) write.$(OBJEXT)
 am_as_new_OBJECTS = $(am__objects_1)
 am__dirstamp = $(am__leading_dot)dirstamp
@@ -920,6 +920,10 @@ config/tc-esp32ulp.$(OBJEXT): config/$(am__dirstamp) \
 	config/$(DEPDIR)/$(am__dirstamp)
 config/tc-esp32s2ulp.$(OBJEXT): config/$(am__dirstamp) \
 	config/$(DEPDIR)/$(am__dirstamp)
+config/tc-esp32ulp_esp32.$(OBJEXT): config/$(am__dirstamp) \
+	config/$(DEPDIR)/$(am__dirstamp)
+config/tc-esp32ulp_esp32s2.$(OBJEXT): config/$(am__dirstamp) \
+	config/$(DEPDIR)/$(am__dirstamp)
 config/tc-cr16.$(OBJEXT): config/$(am__dirstamp) \
 	config/$(DEPDIR)/$(am__dirstamp)
 config/tc-cris.$(OBJEXT): config/$(am__dirstamp) \
@@ -1116,8 +1120,6 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/app.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/as.Po@am__quote@
-#@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/comfig/tc-esp32ulp_esp32.Po@am__quote@
-#@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/comfig/tc-esp32ulp_esp32s2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/atof-generic.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/esp32ulp-parse.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/esp32s2ulp-parse.Po@am__quote@
@@ -1182,6 +1184,8 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@config/$(DEPDIR)/tc-bpf.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@config/$(DEPDIR)/tc-esp32ulp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@config/$(DEPDIR)/tc-esp32s2ulp.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@config/$(DEPDIR)/tc-esp32ulp_esp32.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@config/$(DEPDIR)/tc-esp32ulp_esp32s2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@config/$(DEPDIR)/tc-cr16.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@config/$(DEPDIR)/tc-cris.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@config/$(DEPDIR)/tc-crx.Po@am__quote@
@@ -1471,8 +1475,8 @@ maintainer-clean-generic:
 	-rm -f config/m68k-parse.c
 	-rm -f config/rl78-parse.c
 	-rm -f config/rx-parse.c
-	-rm -f esp32ulp-parse.c
-	-rm -f esp32s2ulp-parse.c
+	-rm -f config/esp32ulp-parse.c
+	-rm -f config/esp32s2ulp-parse.c
 	-rm -f itbl-lex.c
 	-rm -f itbl-parse.c
 clean: clean-recursive
@@ -1648,11 +1652,21 @@ bfin-lex-wrapper.@OBJEXT@: $(srcdir)/config/bfin-lex-wrapper.c bfin-lex.c bfin-p
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bfin-lex-wrapper.c' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(COMPILE) -c $(srcdir)/config/bfin-lex-wrapper.c $(NO_WERROR)
+
 esp32ulp-parse.c: $(srcdir)/config/esp32ulp-parse.y
 	$(SHELL) $(YLWRAP) $(srcdir)/config/esp32ulp-parse.y y.tab.c esp32ulp-parse.c y.tab.h esp32ulp-parse.h -- $(YACCCOMPILE) -d ;
 esp32ulp-parse.h: esp32ulp-parse.c
 esp32ulp-parse.h: ; @true
 $(srcdir)/config/esp32ulp-parse.h: ; @true
+
+esp32ulp-lex.c: $(srcdir)/config/esp32ulp-lex.l
+	$(SHELL) $(YLWRAP) $(srcdir)/config/esp32ulp-lex.l lex.yy.c esp32ulp-lex.c -- $(LEXCOMPILE)
+esp32ulp-lex-wrapper.@OBJEXT@: $(srcdir)/config/esp32ulp-lex-wrapper.c esp32ulp-lex.c esp32ulp-parse.h $(srcdir)/config/esp32ulp-defs.h
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $(srcdir)/config/esp32ulp-lex-wrapper.c $(NO_WERROR)
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='esp32ulp-lex-wrapper.c' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(COMPILE) -c $(srcdir)/config/esp32ulp-lex-wrapper.c $(NO_WERROR)
 
 esp32s2ulp-parse.c: $(srcdir)/config/esp32s2ulp-parse.y
 	$(SHELL) $(YLWRAP) $(srcdir)/config/esp32s2ulp-parse.y y.tab.c esp32s2ulp-parse.c y.tab.h esp32s2ulp-parse.h -- $(YACCCOMPILE) -d ;
@@ -1668,6 +1682,7 @@ esp32s2ulp-lex-wrapper.@OBJEXT@: $(srcdir)/config/esp32s2ulp-lex-wrapper.c esp32
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='esp32s2ulp-lex-wrapper.c' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(COMPILE) -c $(srcdir)/config/esp32s2ulp-lex-wrapper.c $(NO_WERROR)
+
 
 rl78-parse.c: $(srcdir)/config/rl78-parse.y $(srcdir)/../bfd/reloc.c
 	$(SHELL) $(YLWRAP) $(srcdir)/config/rl78-parse.y y.tab.c rl78-parse.c y.tab.h rl78-parse.h -- $(YACCCOMPILE) -d ;
