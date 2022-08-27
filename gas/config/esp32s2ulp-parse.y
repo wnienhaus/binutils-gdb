@@ -353,7 +353,7 @@ asm_1:
 /* DYA operation  */
 /*ALU operations*/
 
-	| ADD REG COMMA REG COMMA REG
+	ADD REG COMMA REG COMMA REG
 	{
 		if (IS_DREG ($2) && IS_DREG ($4) && IS_DREG ($6))
 		{
