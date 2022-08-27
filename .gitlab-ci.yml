@@ -27,6 +27,7 @@ variables:
   #
   # CI settings
 
+  GIT_DEPTH: 1
   GIT_SUBMODULE_STRATEGY: none
 
   #
@@ -48,15 +49,9 @@ before_script:
   - *use_ci_tools
 
 .get_release_name: &get_release_name |
-  PREFX=${CI_PROJECT_NAME}
-  tmpVER=$( tmpTAG=$(git describe --tags | grep -E "^v[0-9]") && ( echo $tmpTAG | sed -n -r "s|^v(.*)|\1|gp" ) || echo "" )
-  if [ ! $tmpVER ]; then
-    tmpVER=$( tmpTAG=$(git describe --tags | grep -E "^${PREFX}-")  && ( echo $tmpTAG | sed -n -r "s|^${PREFX}-(.*)|\1|gp" ) || echo "" )
-    if [ ! $tmpVER ]; then
-      tmpVER=$(git describe --abbrev=6)
-    fi
-  fi
-  REL_VERSION=$tmpVER
+  REL_VERSION=${CI_COMMIT_TAG:-""}
+  REL_VERSION=${REL_VERSION#"v"}
+  REL_VERSION=${REL_VERSION:-${CI_COMMIT_SHORT_SHA}}
   REL_NAME="binutils-${CONF_TARGET%-elf}-${PLATFORM_NAME}-${REL_VERSION}"
   ARCHIVE_NAME=${REL_NAME}.${ARCHIVE_EXT}
   echo "PLATFORM_NAME: $PLATFORM_NAME"
@@ -91,11 +86,9 @@ before_script:
   echo Release ${GH_REL_TAG}, file ${ARCHIVE_NAME}
   ${GH_TOOL} upload -s ${GITHUB_TOKEN} --tag ${GH_REL_TAG} -f dist/${ARCHIVE_NAME} -n ${ARCHIVE_NAME}
 
-# prefix should be like a $CI_PROJECT_NAME, but we cannot use variable here
 .release_tag_filter: &release_tag_filter
   only:
     - /^v[0-9].*$/
-    - /^binutils-esp32ulp-.*$/
 
 .manual_action: &manual_action
   when: manual
@@ -148,16 +141,11 @@ before_script:
     - *build_dist
     - *dist_archive
 
-esp32_lin_amd64:
+linux_amd64:
   <<: *build_template_linux
   variables:
     PLATFORM_NAME: "linux-amd64"
     CONF_TARGET: "esp32ulp-elf"
-
-esp32s2_lin_amd64:
-  extends: esp32_lin_amd64
-  variables:
-    CONF_TARGET: "esp32s2ulp-elf"
 
 
 .build_template_crossbuild: &build_template_crossbuild
@@ -170,7 +158,7 @@ esp32s2_lin_amd64:
     - *build_dist
     - *dist_archive
 
-esp32_win:
+win:
   <<: *build_template_crossbuild
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-win-cross:4
   variables:
@@ -182,12 +170,7 @@ esp32_win:
     CONF_HOST: "i686-w64-mingw32"
     CONF_TARGET: "esp32ulp-elf"
 
-esp32s2_win:
-  extends: esp32_win
-  variables:
-    CONF_TARGET: "esp32s2ulp-elf"
-
-esp32_win64:
+win64:
   <<: *build_template_crossbuild
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-win64-cross:4
   variables:
@@ -199,12 +182,7 @@ esp32_win64:
     CONF_HOST: "x86_64-w64-mingw32"
     CONF_TARGET: "esp32ulp-elf"
 
-esp32s2_win64:
-  extends: esp32_win64
-  variables:
-    CONF_TARGET: "esp32s2ulp-elf"
-
-esp32_macos:
+macos:
   <<: *build_template_crossbuild
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-macos-cross:3
   variables:
@@ -214,17 +192,7 @@ esp32_macos:
     CONF_HOST: "x86_64-apple-darwin14"
     CONF_TARGET: "esp32ulp-elf"
 
-esp32s2_macos:
-  <<: *build_template_crossbuild
-  image: $CI_DOCKER_REGISTRY/esp32-toolchain-macos-cross:3
-  variables:
-    PLATFORM_NAME: "macos"
-    CC: "x86_64-apple-darwin14-clang"
-    CXX: "x86_64-apple-darwin14-clang++"
-    CONF_HOST: "x86_64-apple-darwin14"
-    CONF_TARGET: "esp32s2ulp-elf"
-
-esp32_lin_armel:
+linux_armel:
   <<: *build_template_crossbuild
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:3
   variables:
@@ -232,12 +200,7 @@ esp32_lin_armel:
     CONF_HOST: "arm-linux-gnueabi"
     CONF_TARGET: "esp32ulp-elf"
 
-esp32s2_lin_armel:
-  extends: esp32_lin_armel
-  variables:
-    CONF_TARGET: "esp32s2ulp-elf"
-
-esp32_lin_arm64:
+linux_arm64:
   <<: *build_template_crossbuild
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:3
   variables:
@@ -245,23 +208,13 @@ esp32_lin_arm64:
     CONF_HOST: "aarch64-linux-gnu"
     CONF_TARGET: "esp32ulp-elf"
 
-esp32s2_lin_arm64:
-  extends: esp32_lin_arm64
-  variables:
-    CONF_TARGET: "esp32s2ulp-elf"
-
-esp32_lin_armhf:
+linux_armhf:
   <<: *build_template_crossbuild
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:3
   variables:
     PLATFORM_NAME: "linux-armhf"
     CONF_HOST: "arm-linux-gnueabihf"
     CONF_TARGET: "esp32ulp-elf"
-
-esp32s2_lin_armhf:
-  extends: esp32_lin_armhf
-  variables:
-    CONF_TARGET: "esp32s2ulp-elf"
 
 # Tests
 
@@ -283,10 +236,10 @@ esp32s2_lin_armhf:
     - git diff --exit-code -- . || (echo 'Differences found. Please check changes and commit new check files.'; exit 1)
     - echo "Compare test done"
 
-esp32_lin_test:
-  <<: *test_template
+linux_amd64_test_esp32:
+  extends: .test_template
   needs:
-    - esp32_lin_amd64
+    - linux_amd64
   variables:
     PLATFORM_NAME: "linux-amd64"
     CONF_TARGET: "esp32ulp-elf"
@@ -294,10 +247,10 @@ esp32_lin_test:
     TEST_SCRIPT: "./gas/testsuite/gas/esp32ulp/esp32/check_all.sh"
     TEST_CMP_DIR: "gas/testsuite/gas/esp32ulp/esp32/compare"
 
-esp32_lin_test_s2:
-  <<: *test_template
+linux_amd64_test_esp32s2:
+  extends: .test_template
   needs:
-    - esp32_lin_amd64
+    - linux_amd64
   variables:
     PLATFORM_NAME: "linux-amd64"
     CONF_TARGET: "esp32ulp-elf"
@@ -305,60 +258,31 @@ esp32_lin_test_s2:
     TEST_SCRIPT: "./gas/testsuite/gas/esp32ulp/esp32s2/check_all.sh"
     TEST_CMP_DIR: "gas/testsuite/gas/esp32ulp/esp32s2/compare"
 
-esp32s2_lin_test:
-  <<: *test_template
-  needs:
-    - esp32s2_lin_amd64
-  variables:
-    PLATFORM_NAME: "linux-amd64"
-    CONF_TARGET: "esp32s2ulp-elf"
-    TEST_PREFIX: "./esp32s2ulp-elf-binutils/bin/esp32s2ulp-elf-"
-    TEST_SCRIPT: "./gas/testsuite/gas/esp32s2ulp/check_all.sh"
-    TEST_CMP_DIR: "gas/testsuite/gas/esp32s2ulp/compare"
-
-esp32_armel_test:
-  <<: *test_template
+linux_armel_test_esp32:
+  extends: .test_template
   image: $CI_DOCKER_REGISTRY/rpi-esp-idf-env:1
   tags: [arm, linux]
   needs:
-    - esp32_lin_armel
+    - linux_armel
   variables:
-    # Just for size optimization on RPi
-    GIT_DEPTH: 5
     PLATFORM_NAME: "linux-armel"
     CONF_TARGET: "esp32ulp-elf"
     TEST_PREFIX: "./esp32ulp-elf-binutils/bin/esp32ulp-elf-"
     TEST_SCRIPT: "./gas/testsuite/gas/esp32ulp/esp32/check_all.sh"
     TEST_CMP_DIR: "gas/testsuite/gas/esp32ulp/esp32/compare"
 
-esp32_armel_test_s2:
-  <<: *test_template
+linux_armel_test_esp32s2:
+  extends: .test_template
   image: $CI_DOCKER_REGISTRY/rpi-esp-idf-env:1
   tags: [arm, linux]
   needs:
-    - esp32_lin_armel
+    - linux_armel
   variables:
-    # Just for size optimization on RPi
-    GIT_DEPTH: 5
     PLATFORM_NAME: "linux-armel"
     CONF_TARGET: "esp32ulp-elf"
     TEST_PREFIX: "./esp32ulp-elf-binutils/bin/esp32ulp-elf-"
     TEST_SCRIPT: "./gas/testsuite/gas/esp32ulp/esp32s2/check_all.sh"
     TEST_CMP_DIR: "gas/testsuite/gas/esp32ulp/esp32s2/compare"
-
-esp32s2_armel_test:
-  <<: *test_template
-  image: $CI_DOCKER_REGISTRY/rpi-esp-idf-env:1
-  tags: [arm, linux]
-  needs:
-    - esp32s2_lin_armel
-  variables:
-    GIT_DEPTH: 5
-    PLATFORM_NAME: "linux-armel"
-    CONF_TARGET: "esp32s2ulp-elf"
-    TEST_PREFIX: "./esp32s2ulp-elf-binutils/bin/esp32s2ulp-elf-"
-    TEST_SCRIPT: "./gas/testsuite/gas/esp32s2ulp/check_all.sh"
-    TEST_CMP_DIR: "gas/testsuite/gas/esp32s2ulp/compare"
 
 #
 
@@ -416,44 +340,23 @@ release_tag_draft:
     - PLATFORM_NAME="linux-amd64"
     - CONF_TARGET="esp32ulp-elf"
     - *gh_upload_archive
-    - PLATFORM_NAME="linux-amd64"
-    - CONF_TARGET="esp32s2ulp-elf"
-    - *gh_upload_archive
     - PLATFORM_NAME="win32"
     - CONF_TARGET="esp32ulp-elf"
-    - *gh_upload_archive
-    - PLATFORM_NAME="win32"
-    - CONF_TARGET="esp32s2ulp-elf"
     - *gh_upload_archive
     - PLATFORM_NAME="win64"
     - CONF_TARGET="esp32ulp-elf"
     - *gh_upload_archive
-    - PLATFORM_NAME="win64"
-    - CONF_TARGET="esp32s2ulp-elf"
-    - *gh_upload_archive
     - PLATFORM_NAME="macos"
     - CONF_TARGET="esp32ulp-elf"
-    - *gh_upload_archive
-    - PLATFORM_NAME="macos"
-    - CONF_TARGET="esp32s2ulp-elf"
     - *gh_upload_archive
     - PLATFORM_NAME="linux-armel"
     - CONF_TARGET="esp32ulp-elf"
     - *gh_upload_archive
-    - PLATFORM_NAME="linux-armel"
-    - CONF_TARGET="esp32s2ulp-elf"
-    - *gh_upload_archive
     - PLATFORM_NAME="linux-armhf"
     - CONF_TARGET="esp32ulp-elf"
     - *gh_upload_archive
-    - PLATFORM_NAME="linux-armhf"
-    - CONF_TARGET="esp32s2ulp-elf"
-    - *gh_upload_archive
     - PLATFORM_NAME="linux-arm64"
     - CONF_TARGET="esp32ulp-elf"
-    - *gh_upload_archive
-    - PLATFORM_NAME="linux-arm64"
-    - CONF_TARGET="esp32s2ulp-elf"
     - *gh_upload_archive
 
 Release_tag_submit:
