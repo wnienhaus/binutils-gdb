@@ -1,10 +1,10 @@
 stages:
   - build
+  - sign
   - private_deploy
   - test
-  - public_deploy
-  - release_stage1
   - release_submit
+  - update_idf_tools
 
 image: $CI_DOCKER_REGISTRY/esp32-toolchain:4
 
@@ -23,6 +23,7 @@ variables:
   GITHUB_USER: "${GH_USER}"
   GITHUB_REPO: "${GH_REPO}"
   GITHUB_TOKEN: "${GH_TOKEN}"
+  GITHUB_IMAGE_TAG: 2
 
   #
   # CI settings
@@ -33,13 +34,15 @@ variables:
   #
   # Customization of jobs
 
-  DIST_INSTALLED_DIR: "${CONF_TARGET}-binutils"
+  CONF_TARGET: "esp32ulp-elf"
+  DIST_INSTALLED_DIR: "${CONF_TARGET}"
   ARCHIVE_TOOL: "tar czf"
   UNARCHIVE_TOOL: "tar xf"
   ARCHIVE_EXT: "tar.gz"
   GH_TOOL_NAME: github-release
   GH_TOOL: "./dist/${GH_TOOL_NAME}"
   RELEASE_DESC: "New release"
+
 
 .use_ci_tools: &use_ci_tools |
   curl -sSL ${CIT_LOADER_URL} -o cit_loader.sh && sh cit_loader.sh
@@ -50,14 +53,15 @@ before_script:
 
 .get_release_name: &get_release_name |
   REL_VERSION=${CI_COMMIT_TAG:-""}
-  REL_VERSION=${REL_VERSION#"v"}
+  REL_VERSION=${REL_VERSION#"esp32ulp-elf-v"}
   REL_VERSION=${REL_VERSION:-${CI_COMMIT_SHORT_SHA}}
-  REL_NAME="binutils-${CONF_TARGET%-elf}-${PLATFORM_NAME}-${REL_VERSION}"
-  ARCHIVE_NAME=${REL_NAME}.${ARCHIVE_EXT}
+  PLATFORM_NAME=${PLATFORM_NAME:-unknown}
+  ARCHIVE_PATH=dist/${CONF_TARGET}-${REL_VERSION}-${PLATFORM_NAME}.${ARCHIVE_EXT}
+  SHA256_FILE="${CONF_TARGET}-${REL_VERSION}-checksum.sha256"
   echo "PLATFORM_NAME: $PLATFORM_NAME"
   echo "REL_VERSION: $REL_VERSION"
-  echo "REL_NAME: $REL_NAME"
-  echo "ARCHIVE_NAME: $ARCHIVE_NAME"
+  echo "ARCHIVE_PATH: $ARCHIVE_PATH"
+  echo "SHA256_FILE: $SHA256_FILE"
 
 .set_displayed_version: &set_displayed_version |
   # Use the REL_VERSION for the "--version" text
@@ -66,53 +70,52 @@ before_script:
   sed -ri 's/(.*)(bfd_version_string=)(.*)( ;\\)$/\1\2"\\"$(ESP_VERSION)\\""\4/' bfd/Makefile.in
 
 .dist_archive: &dist_archive |
-  ${ARCHIVE_TOOL} ${ARCHIVE_NAME} ${DIST_INSTALLED_DIR}
-  mkdir -p dist
-  mv ${ARCHIVE_NAME} dist/
-  echo "${ARCHIVE_NAME}" > dist/file_${PLATFORM_NAME}_${CONF_TARGET}
+  mkdir -p $(dirname ${ARCHIVE_PATH})
+  ${ARCHIVE_TOOL} ${ARCHIVE_PATH} ${DIST_INSTALLED_DIR}
 
-.add_gh_key_remote: &add_gh_key_remote |
-  cit_add_ssh_key "${GH_PUSH_KEY}"
-  git remote remove github || true
-  git remote add github ${GH_PUSH_REPO}
-
-.gh_getting_tool: &gh_getting_tool |
-  # do not download if it was installed locally
-  LOCAL_TOOL_PATH=$(command -v ${GH_TOOL_NAME}) && cp ${LOCAL_TOOL_PATH} . || wget --no-verbose -O $GH_TOOL_NAME $GH_TOOL_URL
-  chmod +x ./$GH_TOOL_NAME
-
-.gh_upload_archive: &gh_upload_archive |
-  ARCHIVE_NAME=$(cat dist/file_${PLATFORM_NAME}_${CONF_TARGET})
-  echo Release ${GH_REL_TAG}, file ${ARCHIVE_NAME}
-  ${GH_TOOL} upload -s ${GITHUB_TOKEN} --tag ${GH_REL_TAG} -f dist/${ARCHIVE_NAME} -n ${ARCHIVE_NAME}
+.dist_unarchive: &dist_unarchive |
+  ARCHIVE_PATH=$(ls dist/*.${ARCHIVE_EXT})
+  ${UNARCHIVE_TOOL} ${ARCHIVE_PATH}
 
 .release_tag_filter: &release_tag_filter
   only:
-    - /^v[0-9].*$/
+    - /^esp32ulp-elf-v.*$/
 
 .manual_action: &manual_action
   when: manual
   allow_failure: true
 
-.configure_native: &configure_native |
-  MAKEFLAGS= ./configure \
-  --target=${CONF_TARGET} \
-  --prefix="${PWD}/${DIST_INSTALLED_DIR}" \
-  ${BINUTILS_CONFIGURE_OPTS}
-
-.configure_crossbuild: &configure_crossbuild |
-  MAKEFLAGS= ./configure \
+.configure: &configure |
+  ./configure \
   --host=${CONF_HOST} \
   --target=${CONF_TARGET} \
   --prefix="${PWD}/${DIST_INSTALLED_DIR}" \
   ${BINUTILS_CONFIGURE_OPTS}
 
-.after_configure: &after_configure |
-  echo "MAKEINFO = :" >> Makefile
-
 .build_dist: &build_dist |
   make
   MAKEFLAGS= make install-strip
+
+.gen_sha256_file: &gen_sha256_file |
+  FILES_LIST=$(ls -1)
+  for n in $FILES_LIST; do
+    sz=$(stat -c%s "${n}") >> ${SHA256_FILE};
+    printf "# %s: %s bytes\n" "${n}" "${sz}" >> ${SHA256_FILE};
+    sha256sum -b "${n}" >> ${SHA256_FILE};
+  done
+
+.release_submit_action: &release_submit_action
+  image: espressif/github-hub:${GITHUB_IMAGE_TAG}
+  when: manual
+  allow_failure: true
+  before_script:
+    - set -o errexit; set -o pipefail; set -o nounset
+    - test "${DEBUG_SHELL:-''}" = "1" && set -x
+    - git remote remove github || true
+    - git remote add github ${GH_REPO_HTTPS}
+  variables:
+    GIT_STRATEGY: fetch
+    GH_REL_TAG: ${CI_COMMIT_TAG}
 
 # Builds
 
@@ -125,96 +128,113 @@ before_script:
       - config.log
     when: always
     expire_in: 6 weeks
-  after_script:
-    # Just for cleaning space, no other causes. Don't remove artifacts
-    - git add -f dist config.log
-    - git clean -ffxdq
-
-.build_template_linux: &build_template_linux
-  <<: *build_template
-  image: $CI_DOCKER_REGISTRY/esp32-toolchain:4
   script:
     - *get_release_name
     - *set_displayed_version
-    - *configure_native
-    - *after_configure
+    - *configure
     - *build_dist
     - *dist_archive
 
 linux_amd64:
-  <<: *build_template_linux
+  extends: .build_template
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:3
   variables:
     PLATFORM_NAME: "linux-amd64"
-    CONF_TARGET: "esp32ulp-elf"
-
-
-.build_template_crossbuild: &build_template_crossbuild
-  <<: *build_template
-  script:
-    - *get_release_name
-    - *set_displayed_version
-    - *configure_crossbuild
-    - *after_configure
-    - *build_dist
-    - *dist_archive
+    CONF_HOST: "x86_64-linux-gnu"
 
 win:
-  <<: *build_template_crossbuild
+  extends: .build_template
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-win-cross:4
   variables:
     PLATFORM_NAME: "win32"
+    CONF_HOST: "i686-w64-mingw32"
     ARCHIVE_TOOL: "zip -r"
     ARCHIVE_EXT: "zip"
-    CC: "i686-w64-mingw32-gcc"
-    CXX: "i686-w64-mingw32-g++"
-    CONF_HOST: "i686-w64-mingw32"
-    CONF_TARGET: "esp32ulp-elf"
 
 win64:
-  <<: *build_template_crossbuild
+  extends: .build_template
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-win64-cross:4
   variables:
     PLATFORM_NAME: "win64"
+    CONF_HOST: "x86_64-w64-mingw32"
     ARCHIVE_TOOL: "zip -r"
     ARCHIVE_EXT: "zip"
-    CC: "x86_64-w64-mingw32-gcc"
-    CXX: "x86_64-w64-mingw32-g++"
-    CONF_HOST: "x86_64-w64-mingw32"
-    CONF_TARGET: "esp32ulp-elf"
 
 macos:
-  <<: *build_template_crossbuild
+  extends: .build_template
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-macos-cross:3
   variables:
     PLATFORM_NAME: "macos"
-    CC: "x86_64-apple-darwin14-clang"
-    CXX: "x86_64-apple-darwin14-clang++"
     CONF_HOST: "x86_64-apple-darwin14"
-    CONF_TARGET: "esp32ulp-elf"
+    CC: "$CONF_HOST-clang"
+    CXX: "$CONF_HOST-clang++"
+
+macos_arm64:
+  extends: .build_template
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-macos-cross:5
+  variables:
+    PLATFORM_NAME: "macos-arm64"
+    CONF_HOST: "aarch64-apple-darwin21.1"
+    CC: "$CONF_HOST-clang"
+    CXX: "$CONF_HOST-clang++"
 
 linux_armel:
-  <<: *build_template_crossbuild
+  extends: .build_template
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:3
   variables:
     PLATFORM_NAME: "linux-armel"
     CONF_HOST: "arm-linux-gnueabi"
-    CONF_TARGET: "esp32ulp-elf"
 
 linux_arm64:
-  <<: *build_template_crossbuild
+  extends: .build_template
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:3
   variables:
     PLATFORM_NAME: "linux-arm64"
     CONF_HOST: "aarch64-linux-gnu"
-    CONF_TARGET: "esp32ulp-elf"
 
 linux_armhf:
-  <<: *build_template_crossbuild
+  extends: .build_template
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross:3
   variables:
     PLATFORM_NAME: "linux-armhf"
     CONF_HOST: "arm-linux-gnueabihf"
-    CONF_TARGET: "esp32ulp-elf"
+
+# Sign macos binaries
+
+.macos_codesign: &macos_codesign
+  stage: sign
+  tags: [ "darwin", "amd64" ]
+  resource_group: macos_codesign
+  artifacts:
+    paths:
+      - dist
+  variables:
+    BINARIES_WILDCARD: "$DIST_INSTALLED_DIR/bin/* $DIST_INSTALLED_DIR/$CONF_TARGET/bin/*"
+    KEYCHAIN_NAME: "esp32ulp.keychain"
+  script:
+    - *dist_unarchive
+    - echo $MACOS_CERTIFICATE | base64 --decode > $PWD/certificate.p12
+    - security create-keychain -p $KEYCHAIN_PWD $KEYCHAIN_NAME || true
+    - security import $PWD/certificate.p12 -k $KEYCHAIN_NAME -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
+    - security set-key-partition-list -S apple-tool:,apple:,codesign -s -k $KEYCHAIN_PWD $KEYCHAIN_NAME
+    - security list-keychains -d user -s ~/Library/Keychains/$KEYCHAIN_NAME
+    - security find-identity -v -p codesigning
+    - security unlock-keychain -p $KEYCHAIN_PWD $KEYCHAIN_NAME
+    - /usr/bin/codesign -v --force --options runtime -s $IDENTITY_ID $BINARIES_WILDCARD
+    - security delete-keychain $KEYCHAIN_NAME
+    - *dist_archive
+  after_script:
+    - security find-identity -v
+    - security delete-keychain $KEYCHAIN_NAME
+    - security find-identity -v
+
+sign_macos:
+  needs: [ macos ]
+  extends: .macos_codesign
+
+sign_macos_arm64:
+  needs: [ macos_arm64 ]
+  extends: .macos_codesign
 
 # Tests
 
@@ -229,8 +249,7 @@ linux_armhf:
     - git add -f ${TEST_CMP_DIR}
     - git clean -ffxdq
   script:
-    - ARCHIVE_NAME=$(cat dist/file_${PLATFORM_NAME}_${CONF_TARGET})
-    - ${UNARCHIVE_TOOL} dist/${ARCHIVE_NAME}
+    - *dist_unarchive
     - ${TEST_SCRIPT} ${TEST_PREFIX}
     - cd ${TEST_CMP_DIR}
     - git diff --exit-code -- . || (echo 'Differences found. Please check changes and commit new check files.'; exit 1)
@@ -238,23 +257,19 @@ linux_armhf:
 
 linux_amd64_test_esp32:
   extends: .test_template
-  needs:
-    - linux_amd64
+  needs: [ linux_amd64 ]
   variables:
     PLATFORM_NAME: "linux-amd64"
-    CONF_TARGET: "esp32ulp-elf"
-    TEST_PREFIX: "./esp32ulp-elf-binutils/bin/esp32ulp-elf-"
+    TEST_PREFIX: "./${DIST_INSTALLED_DIR}/bin/esp32ulp-elf-"
     TEST_SCRIPT: "./gas/testsuite/gas/esp32ulp/esp32/check_all.sh"
     TEST_CMP_DIR: "gas/testsuite/gas/esp32ulp/esp32/compare"
 
 linux_amd64_test_esp32s2:
   extends: .test_template
-  needs:
-    - linux_amd64
+  needs: [ linux_amd64 ]
   variables:
     PLATFORM_NAME: "linux-amd64"
-    CONF_TARGET: "esp32ulp-elf"
-    TEST_PREFIX: "./esp32ulp-elf-binutils/bin/esp32ulp-elf-"
+    TEST_PREFIX: "./${DIST_INSTALLED_DIR}/bin/esp32ulp-elf-"
     TEST_SCRIPT: "./gas/testsuite/gas/esp32ulp/esp32s2/check_all.sh"
     TEST_CMP_DIR: "gas/testsuite/gas/esp32ulp/esp32s2/compare"
 
@@ -262,12 +277,10 @@ linux_armel_test_esp32:
   extends: .test_template
   image: $CI_DOCKER_REGISTRY/rpi-esp-idf-env:1
   tags: [arm, linux]
-  needs:
-    - linux_armel
+  needs: [ linux_armel ]
   variables:
     PLATFORM_NAME: "linux-armel"
-    CONF_TARGET: "esp32ulp-elf"
-    TEST_PREFIX: "./esp32ulp-elf-binutils/bin/esp32ulp-elf-"
+    TEST_PREFIX: "./${DIST_INSTALLED_DIR}/bin/esp32ulp-elf-"
     TEST_SCRIPT: "./gas/testsuite/gas/esp32ulp/esp32/check_all.sh"
     TEST_CMP_DIR: "gas/testsuite/gas/esp32ulp/esp32/compare"
 
@@ -275,119 +288,94 @@ linux_armel_test_esp32s2:
   extends: .test_template
   image: $CI_DOCKER_REGISTRY/rpi-esp-idf-env:1
   tags: [arm, linux]
-  needs:
-    - linux_armel
+  needs: [ linux_armel ]
   variables:
     PLATFORM_NAME: "linux-armel"
-    CONF_TARGET: "esp32ulp-elf"
-    TEST_PREFIX: "./esp32ulp-elf-binutils/bin/esp32ulp-elf-"
+    TEST_PREFIX: "./${DIST_INSTALLED_DIR}/bin/esp32ulp-elf-"
     TEST_SCRIPT: "./gas/testsuite/gas/esp32ulp/esp32s2/check_all.sh"
     TEST_CMP_DIR: "gas/testsuite/gas/esp32ulp/esp32s2/compare"
 
-#
+# Simple execution tests
+
+.test_simple_template: &test_simple_template
+  stage: test
+  inherit:
+    default: false
+  script:
+    - *dist_unarchive
+    - ./${DIST_INSTALLED_DIR}/bin/${CONF_TARGET}-as --version
+
+test_simple_macos:
+  tags: [ "darwin", "amd64" ]
+  needs: [ sign_macos ]
+  extends: .test_simple_template
+
+test_simple_macos_arm64:
+  tags: [ "darwin", "aarch64" ]
+  needs: [ sign_macos_arm64 ]
+  extends: .test_simple_template
+
+test_simple_win64:
+  tags: [ windows, powershell ]
+  needs: [ win64 ]
+  extends: .test_simple_template
+  script:
+    - Expand-Archive -DestinationPath . -path .\dist\*.zip
+    - .\esp32ulp-elf\bin\esp32ulp-elf-as --version
+
+test_simple_win:
+  needs: [ win ]
+  extends: test_simple_win64
 
 upload_to_http:
-  <<: *manual_action
   stage: private_deploy
-  tags: [deploy]
-  variables:
-    GIT_STRATEGY: none
+  tags: [deploy, shiny]
+  when: manual
+  allow_failure: true
   script:
-    - cit_add_ssh_key "${HTTP_UPLOAD_KEY}"
-    # List of archives in dist/
-    - FILES=$(find dist -name file_\* -exec cat {} \+ | sort -u)
+    - *get_release_name
+    - cit_add_ssh_key "${HTTP_UPLOAD_KEY}" "$(cit_parse_url_host ${HTTP_UPLOAD_DIR})"
     - cd dist
-    - scp ${FILES} "${HTTP_UPLOAD_DIR}/ulp"
-    # Show info
-    - echo -e "\nArchives were published there:\n\n$(for n in ${FILES}; do echo "${HTTP_PUBLIC_DIR}/ulp/${n}"; done)\n"
+    - *gen_sha256_file
+    - FILES="$SHA256_FILE $(find . -type f -name "${CONF_TARGET}*")"
+    - scp ${FILES} ${HTTP_UPLOAD_DIR}/
+    - echo -e "\nArchives were published there:\n\n$(for n in ${FILES}; do echo "${HTTP_PUBLIC_DIR}/${n}"; done)\n"
 
-push_master_to_github:
-  stage: public_deploy
-  only:
-    - master
-  when: on_success
-  dependencies: []
-  script:
-    - *add_gh_key_remote
-    - git push github HEAD:master
-
-
-get_gh_tools:
-  stage: build
+release_tag:
+  stage: release_submit
+  tags: [ "amd64", "internet" ]
   <<: *release_tag_filter
+  <<: *release_submit_action
   artifacts:
-    paths:
-      - dist
+    reports:
+      dotenv: build.env
+  script:
+    - *get_release_name
+    - hub release delete ${GH_REL_TAG} || true
+    # List of archives
+    - cd dist
+    - *gen_sha256_file
+    - FILES_LIST=$(find * -type f -name "${CONF_TARGET}*")
+    - ATTACH_FILE_OPTIONS=$(printf -- "-a %s " $FILES_LIST)
+    # Create pre-release with archives attached
+    - hub release create --prerelease -m "${CI_COMMIT_TAG}" ${ATTACH_FILE_OPTIONS} ${GH_REL_TAG}
+    - echo "IDF_TOOLS_ULP_VERSION=${REL_VERSION}" >> build.env
+    - echo "SHA256_FILE=${SHA256_FILE}" >> build.env
+
+update_idf_tools:
+  stage: update_idf_tools
+  needs: [ release_tag ]
+  when: manual
+  allow_failure: true
+  <<: *release_tag_filter
   variables:
     GIT_STRATEGY: none
-  script:
-    - *gh_getting_tool
-    - mkdir -p dist
-    - mv ${GH_TOOL_NAME} dist/
+    TOOL_NAME: ${CONF_TARGET}
+    TOOL_MEMBERS: ${CONF_TARGET}
+    TOOL_VERSION: ${IDF_TOOLS_ULP_VERSION}
+    TOOL_SHA256_URL: "https://github.com/espressif/binutils-gdb/releases/download/${CI_COMMIT_TAG}/${SHA256_FILE}"
+  trigger:
+    project: idf/idf-tools-updater
+    strategy: depend
 
-release_tag_draft:
-  stage: release_stage1
-  <<: *release_tag_filter
-  <<: *manual_action
-  script:
-    - *add_gh_key_remote
-    - git push --force github ${CI_COMMIT_TAG}
-    # release draft
-    - ${GH_TOOL} delete -s ${GITHUB_TOKEN} --tag ${CI_COMMIT_TAG} || true
-    - ${GH_TOOL} release -s ${GITHUB_TOKEN} --tag ${CI_COMMIT_TAG} --description "${RELEASE_DESC}" --draft
-    - GH_REL_TAG=${CI_COMMIT_TAG}
-    # Upload archives
-    - PLATFORM_NAME="linux-amd64"
-    - CONF_TARGET="esp32ulp-elf"
-    - *gh_upload_archive
-    - PLATFORM_NAME="win32"
-    - CONF_TARGET="esp32ulp-elf"
-    - *gh_upload_archive
-    - PLATFORM_NAME="win64"
-    - CONF_TARGET="esp32ulp-elf"
-    - *gh_upload_archive
-    - PLATFORM_NAME="macos"
-    - CONF_TARGET="esp32ulp-elf"
-    - *gh_upload_archive
-    - PLATFORM_NAME="linux-armel"
-    - CONF_TARGET="esp32ulp-elf"
-    - *gh_upload_archive
-    - PLATFORM_NAME="linux-armhf"
-    - CONF_TARGET="esp32ulp-elf"
-    - *gh_upload_archive
-    - PLATFORM_NAME="linux-arm64"
-    - CONF_TARGET="esp32ulp-elf"
-    - *gh_upload_archive
 
-Release_tag_submit:
-  stage: release_submit
-  <<: *release_tag_filter
-  <<: *manual_action
-  needs:
-    - get_gh_tools
-  variables:
-    GIT_STRATEGY: none
-  script:
-    - ${GH_TOOL} edit -s ${GITHUB_TOKEN} --tag ${CI_COMMIT_TAG} --description "${RELEASE_DESC}"
-
-Pre-Release_tag_submit:
-  stage: release_submit
-  <<: *release_tag_filter
-  <<: *manual_action
-  needs:
-    - get_gh_tools
-  variables:
-    GIT_STRATEGY: none
-  script:
-    - ${GH_TOOL} edit -s ${GITHUB_TOKEN} --tag ${CI_COMMIT_TAG} --description "${RELEASE_DESC}" --pre-release
-
-Delete_tag_release:
-  stage: release_submit
-  <<: *release_tag_filter
-  <<: *manual_action
-  needs:
-    - get_gh_tools
-  variables:
-    GIT_STRATEGY: none
-  script:
-    - ${GH_TOOL} delete -s ${GITHUB_TOKEN} --tag ${CI_COMMIT_TAG} || true
