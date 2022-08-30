@@ -348,11 +348,10 @@ release_tag:
   <<: *release_submit_action
   artifacts:
     reports:
-      dotenv: build.env
+      dotenv: dist/build.env
   script:
     - *get_release_name
     - hub release delete ${GH_REL_TAG} || true
-    # List of archives
     - cd dist
     - *gen_sha256_file
     - FILES_LIST=$(find * -type f -name "${CONF_TARGET}*")
