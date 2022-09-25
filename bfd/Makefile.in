@@ -855,7 +855,10 @@ BFD32_BACKENDS = \
 	xcofflink.lo \
 	xsym.lo \
 	xtensa-isa.lo \
-	xtensa-modules.lo
+	xtensa-default-modules.lo \
+	xtensa-esp32-modules.lo \
+	xtensa-esp32s2-modules.lo \
+	xtensa-esp32s3-modules.lo
 
 BFD32_BACKENDS_CFILES = \
 	aout-cris.c \
@@ -986,7 +989,10 @@ BFD32_BACKENDS_CFILES = \
 	xcofflink.c \
 	xsym.c \
 	xtensa-isa.c \
-	xtensa-modules.c
+	xtensa-default-modules.c \
+	xtensa-esp32-modules.c \
+	xtensa-esp32s2-modules.c \
+	xtensa-esp32s3-modules.c
 
 
 # The .o files needed by all of the 64 bit vectors that are configured into
@@ -1732,7 +1738,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xcofflink.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xsym.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xtensa-isa.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xtensa-modules.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xtensa-default-modules.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xtensa-esp32-modules.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xtensa-esp32s2-modules.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xtensa-esp32s3-modules.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

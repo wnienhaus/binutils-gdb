@@ -30,6 +30,8 @@
 #include "xtensa-config.h"
 #include "elf/xtensa.h"
 
+#define streq(a, b)	      (strcmp (a, b) == 0)
+
 /* Provide default values for new configuration settings.  */
 #ifndef XTHAL_ABI_WINDOWED
 #define XTHAL_ABI_WINDOWED 0
@@ -590,6 +592,7 @@ static void build_section_rename (const char *);
 
 /* ISA imported from bfd.  */
 extern xtensa_isa xtensa_default_isa;
+extern void *xtensa_modules;
 
 extern int target_big_endian;
 
@@ -758,6 +761,8 @@ enum
 
   option_booleans,
   option_no_booleans,
+
+  option_isa_module,
 };
 
 const char *md_shortopts = "";
@@ -851,6 +856,8 @@ struct option md_longopts[] =
   { "booleans", no_argument, NULL, option_booleans },
   { "no-booleans", no_argument, NULL, option_no_booleans },
 
+  { "isa-module", required_argument, NULL, option_isa_module },
+
   { NULL, no_argument, NULL, 0 }
 };
 
@@ -860,6 +867,7 @@ size_t md_longopts_size = sizeof md_longopts;
 int
 md_parse_option (int c, const char *arg)
 {
+  const xtensa_isa_modules_t *module;
   switch (c)
     {
     case option_density:
@@ -1111,6 +1119,16 @@ md_parse_option (int c, const char *arg)
       target_have_booleans = 0;
       return 1;
 
+    case option_isa_module:
+      for (module = &xtensa_isa_modules[0]; module->name != NULL; module++)
+	  {
+	    if (streq (arg, module->name))
+	    {
+          xtensa_modules = module->isa_module;
+          return 1;
+        }
+      }
+
     default:
       return 0;
     }
@@ -1149,7 +1167,8 @@ Xtensa options:\n\
   --EB                    Generate code for a big endian machine.\n\
   --EL                    Generate code for a little endian machine.\n\
   --[no-]booleans         [Do not] use boolean registers.\n\
-  --[no-]loops            [Do not] zero-overhead loops.\n", stream);
+  --[no-]loops            [Do not] zero-overhead loops.\n\
+  --isa-module=<value>    Use chip specific ISA (default|esp32|esp32s2|esp32s3).\n", stream);
 }
 
 

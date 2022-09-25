@@ -148,6 +148,7 @@ typedef struct xtensa_info_entries_t
 {
   int abi;
   int use_absolute_literals;
+  int isa_module;
 } xtensa_info_entries;
 
 /* Flags in the property tables to specify whether blocks of memory are
@@ -239,6 +240,9 @@ xtensa_compute_fill_extra_space (property_table_entry *entry);
 
 extern int
 xtensa_abi_choice (void);
+
+extern int
+xtensa_isa_module_choice (void);
 
 extern void
 fill_xtensa_info (char **data);

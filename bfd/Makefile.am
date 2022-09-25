@@ -392,7 +392,10 @@ BFD32_BACKENDS = \
 	xcofflink.lo \
 	xsym.lo \
 	xtensa-isa.lo \
-	xtensa-modules.lo
+	xtensa-default-modules.lo \
+	xtensa-esp32-modules.lo \
+	xtensa-esp32s2-modules.lo \
+	xtensa-esp32s3-modules.lo
 
 BFD32_BACKENDS_CFILES = \
 	aout-cris.c \
@@ -523,7 +526,10 @@ BFD32_BACKENDS_CFILES = \
 	xcofflink.c \
 	xsym.c \
 	xtensa-isa.c \
-	xtensa-modules.c
+	xtensa-default-modules.c \
+	xtensa-esp32-modules.c \
+	xtensa-esp32s2-modules.c \
+	xtensa-esp32s3-modules.c
 
 # The .o files needed by all of the 64 bit vectors that are configured into
 # target_vector in targets.c if configured with --enable-targets=all

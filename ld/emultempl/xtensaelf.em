@@ -24,6 +24,7 @@
 #
 fragment <<EOF
 
+#include <xtensa-isa.h>
 #include <xtensa-config.h>
 #include "../bfd/elf-bfd.h"
 #include "elf/xtensa.h"
@@ -56,6 +57,8 @@ static bfd_vma xtensa_page_power = 12; /* 4K pages.  */
 static bool xtensa_use_literal_pages = false;
 
 #define EXTRA_VALIDATION 0
+
+extern xtensa_isa xtensa_modules;
 
 /* Xtensa ABI.
    This option is defined in BDF library.  */
@@ -331,6 +334,33 @@ check_xtensa_info (bfd *abfd, xtensa_info_entries *entries)
     {
       einfo (_("%P: %pB: warning: Xtensa incompatible use of the Extended L32R option (%d != %d)\n"),
              abfd, entries->use_absolute_literals, XSHAL_USE_ABSOLUTE_LITERALS);
+    }
+
+  /* Check ISA_MODULE */
+  if (entries->isa_module >= xtensa_isa_modules_count)
+    {
+      einfo (_("%P: %pB: warning: unknown Xtensa isa module\n"),
+             abfd);
+    }
+  if (entries->isa_module < 0)
+    {
+      /* Do not check module if not present in .xtensa.info.
+         It provides backward compatibility.  */
+    }
+  else if (xtensa_modules == NULL)
+    {
+      xtensa_modules = xtensa_isa_modules[entries->isa_module].isa_module;
+    }
+  else if (entries->isa_module != xtensa_isa_module_choice ())
+    {
+      einfo (_("%P: %pB: warning: Xtensa incompatible use of different isa modules\n"),
+             abfd);
+    }
+
+  if (xtensa_modules == NULL)
+    {
+      einfo (_("%P: %pB: warning: Xtensa isa-module info not found. Using the default Xtensa module\n"),
+             abfd);
     }
 }
 

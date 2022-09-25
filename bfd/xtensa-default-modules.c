@@ -20878,7 +20878,7 @@ length_decoder (const unsigned char *insn)
 
 /* Top-level ISA structure.  */
 
-xtensa_isa_internal xtensa_modules = {
+xtensa_isa_internal xtensa_default_modules = {
   0 /* little-endian */,
   8 /* insn_size */, 0,
   5, formats, format_decoder, length_decoder,

@@ -806,6 +806,14 @@ xtensa_funcUnit_name (xtensa_isa isa, xtensa_funcUnit fun);
 extern int
 xtensa_funcUnit_num_copies (xtensa_isa isa, xtensa_funcUnit fun);
 
+typedef struct xtensa_isa_modules
+{
+  const char *name;
+  xtensa_isa isa_module;
+} xtensa_isa_modules_t;
+
+extern const xtensa_isa_modules_t xtensa_isa_modules[];
+extern const int xtensa_isa_modules_count;
 
 #ifdef __cplusplus
 }

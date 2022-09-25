@@ -2268,6 +2268,17 @@ int xtensa_abi_choice (void)
     return elf32xtensa_abi;
 }
 
+extern void *xtensa_modules;
+int xtensa_isa_module_choice (void)
+{
+  for (int i = 0; i < xtensa_isa_modules_count; i++)
+    {
+      if (xtensa_modules == xtensa_isa_modules[i].isa_module)
+        return i;
+    }
+  return 0;
+}
+
 /* Set up an entry in the procedure linkage table.  */
 
 static bfd_vma
@@ -11506,6 +11517,10 @@ xtensa_info_set_entry (char *key, int value, xtensa_info_entries *entries)
     {
       entries->use_absolute_literals = value;
     }
+  else if (! strcmp (key, "ISA_MODULE"))
+    {
+      entries->isa_module = value;
+    }
 }
 
 static bool
@@ -11563,6 +11578,7 @@ read_xtensa_info (bfd *abfd, asection *info_sec, xtensa_info_entries *entries)
   /* initialize values  */
   entries->abi = XSHAL_ABI;
   entries->use_absolute_literals = XSHAL_USE_ABSOLUTE_LITERALS;
+  entries->isa_module = -1;
 
   if (! bfd_get_section_contents (abfd, info_sec, data, 0, info_sec->size))
     {
@@ -11598,9 +11614,11 @@ fill_xtensa_info (char **data)
 {
   sprintf (*data,
            "USE_ABSOLUTE_LITERALS=%d\n"
-           "ABI=%d\n",
+           "ABI=%d\n"
+           "ISA_MODULE=%d\n",
            XSHAL_USE_ABSOLUTE_LITERALS,
-           xtensa_abi_choice ());
+           xtensa_abi_choice (),
+           xtensa_isa_module_choice ());
 }
 
 /* The default literal sections should always be marked as "code" (i.e.,

@@ -24,6 +24,23 @@
 #include "xtensa-isa.h"
 #include "xtensa-isa-internal.h"
 
+extern xtensa_isa_internal xtensa_default_modules;
+extern xtensa_isa_internal xtensa_esp32_modules;
+extern xtensa_isa_internal xtensa_esp32s2_modules;
+extern xtensa_isa_internal xtensa_esp32s3_modules;
+
+const xtensa_isa_modules_t xtensa_isa_modules[] =
+{
+  { "default", (xtensa_isa) &xtensa_default_modules },
+  { "esp32",   (xtensa_isa) &xtensa_esp32_modules },
+  { "esp32s2", (xtensa_isa) &xtensa_esp32s2_modules },
+  { "esp32s3", (xtensa_isa) &xtensa_esp32s3_modules },
+  { NULL, NULL }
+};
+
+const int xtensa_isa_modules_count =
+  sizeof(xtensa_isa_modules)/sizeof(xtensa_isa_modules[0]);
+
 static xtensa_isa_status xtisa_errno;
 static char xtisa_error_msg[1024];
 
@@ -230,14 +247,18 @@ xtensa_insnbuf_from_chars (xtensa_isa isa,
 
 /* ISA information.  */
 
-extern xtensa_isa_internal xtensa_modules;
+xtensa_isa_internal *xtensa_modules = NULL;
 
 xtensa_isa
 xtensa_isa_init (xtensa_isa_status *errno_p, char **error_msg_p)
 {
-  xtensa_isa_internal *isa = &xtensa_modules;
+  xtensa_isa_internal *isa;
   int n, is_user;
 
+  if (xtensa_modules == NULL)
+    xtensa_modules = &xtensa_default_modules;
+
+  isa = xtensa_modules;
   /* Set up the opcode name lookup table.  */
   isa->opname_lookup_table =
     bfd_malloc (isa->num_opcodes * sizeof (xtensa_lookup_entry));
