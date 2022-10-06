@@ -66,7 +66,8 @@ static char *
 elf_xtensa_choose_target (int argc ATTRIBUTE_UNUSED,
 			  char **argv ATTRIBUTE_UNUSED)
 {
-  if (XCHAL_HAVE_BE)
+  if (command_line.endian == ENDIAN_BIG ||
+      (command_line.endian == ENDIAN_UNSET && XCHAL_HAVE_BE))
     return "${BIG_OUTPUT_FORMAT}";
   else
     return "${LITTLE_OUTPUT_FORMAT}";
@@ -343,27 +344,6 @@ elf_xtensa_before_allocation (void)
   xtensa_info_entries xtensa_info;
   asection *info_sec, *first_info_sec;
   bfd *first_bfd;
-  bool is_big_endian = XCHAL_HAVE_BE;
-
-  /* Check that the output endianness matches the Xtensa
-     configuration.  The BFD library always includes both big and
-     little endian target vectors for Xtensa, but it only supports the
-     detailed instruction encode/decode operations (such as are
-     required to process relocations) for the selected Xtensa
-     configuration.  */
-
-  if (is_big_endian
-      && link_info.output_bfd->xvec->byteorder == BFD_ENDIAN_LITTLE)
-    {
-      einfo (_("%F%P: little endian output does not match "
-	       "Xtensa configuration\n"));
-    }
-  if (!is_big_endian
-      && link_info.output_bfd->xvec->byteorder == BFD_ENDIAN_BIG)
-    {
-      einfo (_("%F%P: big endian output does not match "
-	       "Xtensa configuration\n"));
-    }
 
   /* Keep track of the first input .xtensa.info section, and as a fallback,
      the first input bfd where a .xtensa.info section could be created.
@@ -378,8 +358,7 @@ elf_xtensa_before_allocation (void)
 	 The merge_private_bfd_data hook has already reported any mismatches
 	 as errors, but those errors are not fatal.  At this point, we
 	 cannot go any further if there are any mismatches.  */
-      if ((is_big_endian && f->the_bfd->xvec->byteorder == BFD_ENDIAN_LITTLE)
-	  || (!is_big_endian && f->the_bfd->xvec->byteorder == BFD_ENDIAN_BIG))
+      if (link_info.output_bfd->xvec->byteorder != f->the_bfd->xvec->byteorder)
 	einfo (_("%F%P: cross-endian linking for %pB not supported\n"),
 	       f->the_bfd);
 
