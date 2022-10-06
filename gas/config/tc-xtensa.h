@@ -30,7 +30,7 @@ struct fix;
 #include "xtensa-isa.h"
 #include "xtensa-config.h"
 
-#define TARGET_BYTES_BIG_ENDIAN 0
+#define TARGET_BYTES_BIG_ENDIAN XCHAL_HAVE_BE
 
 
 /* Maximum number of opcode slots in a VLIW instruction.  */

@@ -102,6 +102,10 @@
 /* Imported from bfd.  */
 extern xtensa_isa xtensa_default_isa;
 
+/* Imported from tc-xtensa.  */
+extern unsigned target_have_booleans;
+extern unsigned target_have_loops;
+
 /* The opname_list is a small list of names that we use for opcode and
    operand variable names to simplify ownership of these commonly used
    strings.  Strings entered in the table can be compared by pointer
@@ -1569,7 +1573,7 @@ transition_applies (insn_pattern *initial_insn,
 	  else if (!strcmp (option_name, "Const16"))
 	    option_available = (XCHAL_HAVE_CONST16 == 1);
 	  else if (!strcmp (option_name, "Loops"))
-	    option_available = (XCHAL_HAVE_LOOPS == 1);
+	    option_available = (target_have_loops == 1);
 	  else if (!strcmp (option_name, "WideBranches"))
 	    option_available
 	      = (XCHAL_HAVE_WIDE_BRANCHES == 1 && produce_flix == FLIX_ALL);
@@ -1578,7 +1582,7 @@ transition_applies (insn_pattern *initial_insn,
 	      = (XCHAL_HAVE_PREDICTED_BRANCHES == 1
 		 && produce_flix == FLIX_ALL);
 	  else if (!strcmp (option_name, "Booleans"))
-	    option_available = (XCHAL_HAVE_BOOLEANS == 1);
+	    option_available = (target_have_booleans == 1);
 	  else
 	    as_warn (_("invalid configuration option '%s' in transition rule '%s'"),
 		     req_or_option->option_name, from_string);

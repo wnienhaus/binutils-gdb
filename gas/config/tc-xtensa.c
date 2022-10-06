@@ -89,6 +89,9 @@ static vliw_insn cur_vinsn;
 unsigned xtensa_num_pipe_stages;
 unsigned xtensa_fetch_width;
 
+unsigned target_have_booleans = XCHAL_HAVE_LOOPS;
+unsigned target_have_loops = XCHAL_HAVE_BOOLEANS;
+
 static enum debug_info_type xt_saved_debug_type = DEBUG_NONE;
 
 /* Some functions are only valid in the front end.  This variable
@@ -746,6 +749,15 @@ enum
 
   option_abi_windowed,
   option_abi_call0,
+
+  option_eb,
+  option_el,
+
+  option_loops,
+  option_no_loops,
+
+  option_booleans,
+  option_no_booleans,
 };
 
 const char *md_shortopts = "";
@@ -829,6 +841,15 @@ struct option md_longopts[] =
 
   { "abi-windowed", no_argument, NULL, option_abi_windowed },
   { "abi-call0", no_argument, NULL, option_abi_call0 },
+
+  { "EL", no_argument, NULL, option_el },
+  { "EB", no_argument, NULL, option_eb },
+
+  { "loops", no_argument, NULL, option_loops },
+  { "no-loops", no_argument, NULL, option_no_loops },
+
+  { "booleans", no_argument, NULL, option_booleans },
+  { "no-booleans", no_argument, NULL, option_no_booleans },
 
   { NULL, no_argument, NULL, 0 }
 };
@@ -1066,6 +1087,30 @@ md_parse_option (int c, const char *arg)
       elf32xtensa_abi = XTHAL_ABI_CALL0;
       return 1;
 
+    case option_eb:
+      target_big_endian = 1;
+      return 1;
+
+    case option_el:
+      target_big_endian = 0;
+      return 1;
+
+    case option_loops:
+      target_have_loops = 1;
+      return 1;
+
+    case option_no_loops:
+      target_have_loops = 0;
+      return 1;
+
+    case option_booleans:
+      target_have_booleans = 1;
+      return 1;
+
+    case option_no_booleans:
+      target_have_booleans = 0;
+      return 1;
+
     default:
       return 0;
     }
@@ -1100,7 +1145,11 @@ Xtensa options:\n\
   --[no-]separate-prop-tables\n\
                           [Do not] place Xtensa property records into\n\
                           individual property sections for each section.\n\
-                          Default is to generate single property section.\n", stream);
+                          Default is to generate single property section.\n\
+  --EB                    Generate code for a big endian machine.\n\
+  --EL                    Generate code for a little endian machine.\n\
+  --[no-]booleans         [Do not] use boolean registers.\n\
+  --[no-]loops            [Do not] zero-overhead loops.\n", stream);
 }
 
 
@@ -5268,8 +5317,6 @@ md_number_to_chars (char *buf, valueT val, int n)
 static void
 xg_init_global_config (void)
 {
-  target_big_endian = XCHAL_HAVE_BE;
-
   density_supported = XCHAL_HAVE_DENSITY;
   absolute_literals_supported = XSHAL_USE_ABSOLUTE_LITERALS;
   xtensa_fetch_width = XCHAL_INST_FETCH_WIDTH;
