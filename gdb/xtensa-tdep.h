@@ -126,7 +126,7 @@ typedef struct
   const char *store;		/* Instruction sequence to store register.  */
 } xtensa_register_t;
 
-/*  For xtensa-config.c to expand to the structure above.  */
+/*  For xtensa-config-*.c to expand to the structure above.  */
 #define XTREG(index,ofs,bsz,sz,al,tnum,flg,cp,ty,gr,name,fet,sto,mas,ct,x,y) \
        {#name, ofs, (xtensa_register_type_t) (ty), \
 	((xtensa_register_group_t) \

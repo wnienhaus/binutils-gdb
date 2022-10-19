@@ -42,6 +42,7 @@
 #include "xtensa-isa.h"
 #include "xtensa-tdep.h"
 #include "xtensa-config.h"
+#include "elf/xtensa.h"
 #include <algorithm>
 
 
@@ -930,6 +931,7 @@ typedef struct xtensa_windowed_frame_cache
 #define C0_NOSTK   -1	/* to_stk value if register has not been stored.  */
 
 extern xtensa_isa xtensa_default_isa;
+extern xtensa_isa xtensa_modules;
 
 typedef struct xtensa_c0reg
 {
@@ -3152,9 +3154,66 @@ xtensa_derive_tdep (xtensa_gdbarch_tdep *tdep)
   tdep->max_register_virtual_size = max_size;
 }
 
-/* Module "constructor" function.  */
+extern xtensa_gdbarch_tdep xtensa_tdep_default;
+extern xtensa_gdbarch_tdep xtensa_tdep_esp32;
+extern xtensa_gdbarch_tdep xtensa_tdep_esp32s2;
+extern xtensa_gdbarch_tdep xtensa_tdep_esp32s3;
 
-extern xtensa_gdbarch_tdep xtensa_tdep;
+xtensa_gdbarch_tdep *current_tdep = &xtensa_tdep_default;
+/* Keep it synced with xtensa_isa_modules.  */
+xtensa_gdbarch_tdep *xtensa_tdeps[] =
+{
+  &xtensa_tdep_default,
+  &xtensa_tdep_esp32,
+  &xtensa_tdep_esp32s2,
+  &xtensa_tdep_esp32s2
+};
+
+static void
+apply_xtensa_info_config (bfd *abfd)
+{
+  asection *info_sec;
+  xtensa_info_entries xtensa_info;
+
+  if (! abfd)
+    return;
+
+  info_sec = bfd_get_section_by_name (abfd, ".xtensa.info");
+
+  if (! info_sec)
+    return;
+
+  if (! read_xtensa_info (abfd, info_sec, &xtensa_info))
+    return;
+
+  /* Process ISA_MODULE  */
+  if (xtensa_info.isa_module < 0
+      || xtensa_info.isa_module >= xtensa_isa_modules_count)
+    {
+      warning (_("Unknown xtensa isa-module, use the default."));
+      xtensa_info.isa_module = 0;
+    }
+
+  xtensa_default_isa = NULL;
+  xtensa_modules = xtensa_isa_modules[xtensa_info.isa_module].isa_module;
+  current_tdep = xtensa_tdeps[xtensa_info.isa_module];
+
+  if (xtensa_info.isa_module > 0)
+    {
+      current_tdep->num_aregs = xtensa_regfile_num_entries(xtensa_modules, 0);
+    }
+
+  /* Process ABI  */
+  current_tdep->call_abi = (xtensa_info.abi == XTHAL_ABI_CALL0
+                          ? CallAbiCall0Only : CallAbiDefault);
+  current_tdep->isa_use_windowed_registers = xtensa_info.abi !=
+      XTHAL_ABI_CALL0;
+
+  /* Process USE_ABSOLUTE_LITERALS  */
+  current_tdep->isa_use_ext_l32r = xtensa_info.use_absolute_literals;
+}
+
+/* Module "constructor" function.  */
 
 static struct gdbarch *
 xtensa_gdbarch_init (struct gdbarch_info info, struct gdbarch_list *arches)
@@ -3163,13 +3222,12 @@ xtensa_gdbarch_init (struct gdbarch_info info, struct gdbarch_list *arches)
 
   DEBUGTRACE ("gdbarch_init()\n");
 
+  apply_xtensa_info_config(info.abfd);
+
   if (!xtensa_default_isa)
     xtensa_default_isa = xtensa_isa_init (0, 0);
 
-  /* We have to set the byte order before we call gdbarch_alloc.  */
-  info.byte_order = XCHAL_HAVE_BE ? BFD_ENDIAN_BIG : BFD_ENDIAN_LITTLE;
-
-  xtensa_gdbarch_tdep *tdep = &xtensa_tdep;
+  xtensa_gdbarch_tdep *tdep = current_tdep;
   gdbarch = gdbarch_alloc (&info, tdep);
   xtensa_derive_tdep (tdep);
 

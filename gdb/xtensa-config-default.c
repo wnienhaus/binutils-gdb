@@ -27,38 +27,38 @@
 
 
 /* Masked registers.  */
-xtensa_reg_mask_t xtensa_submask0[] = { { 42, 0, 4 } };
-const xtensa_mask_t xtensa_mask0 = { 1, xtensa_submask0 };
-xtensa_reg_mask_t xtensa_submask1[] = { { 42, 5, 1 } };
-const xtensa_mask_t xtensa_mask1 = { 1, xtensa_submask1 };
-xtensa_reg_mask_t xtensa_submask2[] = { { 42, 18, 1 } };
-const xtensa_mask_t xtensa_mask2 = { 1, xtensa_submask2 };
-xtensa_reg_mask_t xtensa_submask3[] = { { 42, 6, 2 } };
-const xtensa_mask_t xtensa_mask3 = { 1, xtensa_submask3 };
-xtensa_reg_mask_t xtensa_submask4[] = { { 42, 4, 1 } };
-const xtensa_mask_t xtensa_mask4 = { 1, xtensa_submask4 };
-xtensa_reg_mask_t xtensa_submask5[] = { { 42, 16, 2 } };
-const xtensa_mask_t xtensa_mask5 = { 1, xtensa_submask5 };
-xtensa_reg_mask_t xtensa_submask6[] = { { 42, 8, 4 } };
-const xtensa_mask_t xtensa_mask6 = { 1, xtensa_submask6 };
-xtensa_reg_mask_t xtensa_submask7[] = { { 37, 12, 20 } };
-const xtensa_mask_t xtensa_mask7 = { 1, xtensa_submask7 };
-xtensa_reg_mask_t xtensa_submask8[] = { { 37, 0, 1 } };
-const xtensa_mask_t xtensa_mask8 = { 1, xtensa_submask8 };
-xtensa_reg_mask_t xtensa_submask9[] = { { 86, 8, 4 } };
-const xtensa_mask_t xtensa_mask9 = { 1, xtensa_submask9 };
-xtensa_reg_mask_t xtensa_submask10[] = { { 47, 24, 8 } };
-const xtensa_mask_t xtensa_mask10 = { 1, xtensa_submask10 };
-xtensa_reg_mask_t xtensa_submask11[] = { { 47, 16, 8 } };
-const xtensa_mask_t xtensa_mask11 = { 1, xtensa_submask11 };
-xtensa_reg_mask_t xtensa_submask12[] = { { 47, 8, 8 } };
-const xtensa_mask_t xtensa_mask12 = { 1, xtensa_submask12 };
-xtensa_reg_mask_t xtensa_submask13[] = { { 48, 16, 2 } };
-const xtensa_mask_t xtensa_mask13 = { 1, xtensa_submask13 };
-xtensa_reg_mask_t xtensa_submask14[] = { { 49, 16, 2 } };
-const xtensa_mask_t xtensa_mask14 = { 1, xtensa_submask14 };
-xtensa_reg_mask_t xtensa_submask15[] = { { 45, 22, 10 } };
-const xtensa_mask_t xtensa_mask15 = { 1, xtensa_submask15 };
+static xtensa_reg_mask_t xtensa_submask0[] = { { 42, 0, 4 } };
+static const xtensa_mask_t xtensa_mask0 = { 1, xtensa_submask0 };
+static xtensa_reg_mask_t xtensa_submask1[] = { { 42, 5, 1 } };
+static const xtensa_mask_t xtensa_mask1 = { 1, xtensa_submask1 };
+static xtensa_reg_mask_t xtensa_submask2[] = { { 42, 18, 1 } };
+static const xtensa_mask_t xtensa_mask2 = { 1, xtensa_submask2 };
+static xtensa_reg_mask_t xtensa_submask3[] = { { 42, 6, 2 } };
+static const xtensa_mask_t xtensa_mask3 = { 1, xtensa_submask3 };
+static xtensa_reg_mask_t xtensa_submask4[] = { { 42, 4, 1 } };
+static const xtensa_mask_t xtensa_mask4 = { 1, xtensa_submask4 };
+static xtensa_reg_mask_t xtensa_submask5[] = { { 42, 16, 2 } };
+static const xtensa_mask_t xtensa_mask5 = { 1, xtensa_submask5 };
+static xtensa_reg_mask_t xtensa_submask6[] = { { 42, 8, 4 } };
+static const xtensa_mask_t xtensa_mask6 = { 1, xtensa_submask6 };
+static xtensa_reg_mask_t xtensa_submask7[] = { { 37, 12, 20 } };
+static const xtensa_mask_t xtensa_mask7 = { 1, xtensa_submask7 };
+static xtensa_reg_mask_t xtensa_submask8[] = { { 37, 0, 1 } };
+static const xtensa_mask_t xtensa_mask8 = { 1, xtensa_submask8 };
+static xtensa_reg_mask_t xtensa_submask9[] = { { 86, 8, 4 } };
+static const xtensa_mask_t xtensa_mask9 = { 1, xtensa_submask9 };
+static xtensa_reg_mask_t xtensa_submask10[] = { { 47, 24, 8 } };
+static const xtensa_mask_t xtensa_mask10 = { 1, xtensa_submask10 };
+static xtensa_reg_mask_t xtensa_submask11[] = { { 47, 16, 8 } };
+static const xtensa_mask_t xtensa_mask11 = { 1, xtensa_submask11 };
+static xtensa_reg_mask_t xtensa_submask12[] = { { 47, 8, 8 } };
+static const xtensa_mask_t xtensa_mask12 = { 1, xtensa_submask12 };
+static xtensa_reg_mask_t xtensa_submask13[] = { { 48, 16, 2 } };
+static const xtensa_mask_t xtensa_mask13 = { 1, xtensa_submask13 };
+static xtensa_reg_mask_t xtensa_submask14[] = { { 49, 16, 2 } };
+static const xtensa_mask_t xtensa_mask14 = { 1, xtensa_submask14 };
+static xtensa_reg_mask_t xtensa_submask15[] = { { 45, 22, 10 } };
+static const xtensa_mask_t xtensa_mask15 = { 1, xtensa_submask15 };
 
 
 /* Register map.  */
@@ -213,4 +213,4 @@ static xtensa_register_t rmap[] =
   XTREG_END
 };
 
-xtensa_gdbarch_tdep xtensa_tdep (rmap);
+xtensa_gdbarch_tdep xtensa_tdep_default (rmap);

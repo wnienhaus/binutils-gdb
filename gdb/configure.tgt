@@ -105,7 +105,7 @@ x86_64-*-*)
 
 xtensa*)
 	# Target: Tensilica Xtensa processors
-	cpu_obs="xtensa-tdep.o xtensa-config.o solib-svr4.o"
+	cpu_obs="xtensa-tdep.o xtensa-config-default.o xtensa-config-esp32.o xtensa-config-esp32s2.o xtensa-config-esp32s3.o solib-svr4.o"
 	;;
 
 esac

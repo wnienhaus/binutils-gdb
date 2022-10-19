@@ -867,7 +867,10 @@ ALL_TARGET_OBS = \
 	x86-tdep.o \
 	xcoffread.o \
 	xstormy16-tdep.o \
-	xtensa-config.o \
+	xtensa-config-default.o \
+	xtensa-config-esp32.o \
+	xtensa-config-esp32s2.o \
+	xtensa-config-esp32s3.o \
 	xtensa-linux-tdep.o \
 	xtensa-tdep.o \
 	z80-tdep.o
@@ -1822,7 +1825,10 @@ ALLDEPFILES = \
 	x86-tdep.c \
 	xcoffread.c \
 	xstormy16-tdep.c \
-	xtensa-config.c \
+	xtensa-config-default.c \
+	xtensa-config-esp32.c \
+	xtensa-config-esp32s2.c \
+	xtensa-config-esp32s3.c \
 	xtensa-linux-nat.c \
 	xtensa-linux-tdep.c \
 	xtensa-tdep.c \
