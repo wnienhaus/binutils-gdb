@@ -312,108 +312,25 @@ elf_xtensa_after_open (void)
 }
 
 
-static bool
-xt_config_info_unpack_and_check (char *data,
-				 bool *pmismatch,
-				 char **pmsg)
-{
-  char *d, *key;
-  int num;
-
-  *pmismatch = false;
-
-  d = data;
-  while (*d)
-    {
-      key = d;
-      d = strchr (d, '=');
-      if (! d)
-	goto error;
-
-      /* Overwrite the equal sign.  */
-      *d++ = 0;
-
-      /* Check if this is a quoted string or a number.  */
-      if (*d == '"')
-	{
-	  /* No string values are currently checked by LD;
-	     just skip over the quotes.  */
-	  d++;
-	  d = strchr (d, '"');
-	  if (! d)
-	    goto error;
-	  /* Overwrite the trailing quote.  */
-	  *d++ = 0;
-	}
-      else
-	{
-	  if (*d == 0)
-	    goto error;
-	  num = strtoul (d, &d, 0);
-
-	  if (! strcmp (key, "ABI"))
-	    {
-	      if (elf32xtensa_abi == XTHAL_ABI_UNDEFINED)
-		{
-		  elf32xtensa_abi = num;
-		}
-	      else if (num != elf32xtensa_abi)
-		{
-		  *pmismatch = true;
-		  *pmsg = "ABI does not match";
-		}
-	    }
-	  else if (! strcmp (key, "USE_ABSOLUTE_LITERALS"))
-	    {
-	      if (num != XSHAL_USE_ABSOLUTE_LITERALS)
-		{
-		  *pmismatch = true;
-		  *pmsg = "incompatible use of the Extended L32R option";
-		}
-	    }
-	}
-
-      if (*d++ != '\n')
-	goto error;
-    }
-
-  return true;
-
- error:
-  return false;
-}
-
-
-#define XTINFO_NAME "Xtensa_Info"
-#define XTINFO_NAMESZ 12
-#define XTINFO_TYPE 1
-
 static void
-check_xtensa_info (bfd *abfd, asection *info_sec)
+check_xtensa_info (bfd *abfd, xtensa_info_entries *entries)
 {
-  char *data, *errmsg = "";
-  bool mismatch;
-
-  data = xmalloc (info_sec->size);
-  if (! bfd_get_section_contents (abfd, info_sec, data, 0, info_sec->size))
-    einfo (_("%F%P: %pB: cannot read contents of section %pA\n"), abfd, info_sec);
-
-  if (info_sec->size > 24
-      && info_sec->size >= 24 + bfd_get_32 (abfd, data + 4)
-      && bfd_get_32 (abfd, data + 0) == XTINFO_NAMESZ
-      && bfd_get_32 (abfd, data + 8) == XTINFO_TYPE
-      && strcmp (data + 12, XTINFO_NAME) == 0
-      && xt_config_info_unpack_and_check (data + 12 + XTINFO_NAMESZ,
-					  &mismatch, &errmsg))
+  /* Check ABI */
+  if (elf32xtensa_abi == XTHAL_ABI_UNDEFINED)
     {
-      if (mismatch)
-	einfo (_("%P: %pB: warning: incompatible Xtensa configuration (%s)\n"),
-	       abfd, errmsg);
+      elf32xtensa_abi = entries->abi;
     }
-  else
-    einfo (_("%P: %pB: warning: cannot parse .xtensa.info section\n"), abfd);
+  else if (entries->abi != elf32xtensa_abi)
+    {
+      einfo (_("%P: %pB: warning: Xtensa ABI does not match\n"), abfd);
+    }
 
-  free (data);
+  /* Check USE_ABSOLUTE_LITERALS */
+  if (entries->use_absolute_literals != XSHAL_USE_ABSOLUTE_LITERALS)
+    {
+      einfo (_("%P: %pB: warning: Xtensa incompatible use of the Extended L32R option (%d != %d)\n"),
+             abfd, entries->use_absolute_literals, XSHAL_USE_ABSOLUTE_LITERALS);
+    }
 }
 
 
@@ -423,6 +340,7 @@ check_xtensa_info (bfd *abfd, asection *info_sec)
 static void
 elf_xtensa_before_allocation (void)
 {
+  xtensa_info_entries xtensa_info;
   asection *info_sec, *first_info_sec;
   bfd *first_bfd;
   bool is_big_endian = XCHAL_HAVE_BE;
@@ -477,7 +395,8 @@ elf_xtensa_before_allocation (void)
 
       /* Unpack the .xtensa.info section and check it against the current
 	 Xtensa configuration.  */
-      check_xtensa_info (f->the_bfd, info_sec);
+      if (read_xtensa_info (f->the_bfd, info_sec, &xtensa_info))
+	check_xtensa_info (f->the_bfd, &xtensa_info);
 
       /* Do not include this copy of .xtensa.info in the output.  */
       info_sec->size = 0;
@@ -504,8 +423,7 @@ elf_xtensa_before_allocation (void)
       info_sec->flags |= SEC_IN_MEMORY;
 
       data = xmalloc (100);
-      sprintf (data, "USE_ABSOLUTE_LITERALS=%d\nABI=%d\n",
-	       XSHAL_USE_ABSOLUTE_LITERALS, xtensa_abi_choice ());
+      fill_xtensa_info (&data);
       xtensa_info_size = strlen (data) + 1;
 
       /* Add enough null terminators to pad to a word boundary.  */

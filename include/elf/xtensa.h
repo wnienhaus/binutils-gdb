@@ -138,6 +138,18 @@ typedef struct property_table_entry_t
   flagword flags;
 } property_table_entry;
 
+/* .xtensa.info section related definitions  */
+
+#define XTINFO_NAME "Xtensa_Info"
+#define XTINFO_NAMESZ sizeof(XTINFO_NAME)
+#define XTINFO_TYPE 1
+
+typedef struct xtensa_info_entries_t
+{
+  int abi;
+  int use_absolute_literals;
+} xtensa_info_entries;
+
 /* Flags in the property tables to specify whether blocks of memory are
    literals, instructions, data, or unreachable.  For instructions,
    blocks that begin loop targets and branch targets are designated.
@@ -227,6 +239,12 @@ xtensa_compute_fill_extra_space (property_table_entry *entry);
 
 extern int
 xtensa_abi_choice (void);
+
+extern void
+fill_xtensa_info (char **data);
+
+extern bool
+read_xtensa_info (bfd *abfd, asection *info_sec, xtensa_info_entries *entries);
 
 #ifdef __cplusplus
 }

@@ -11495,6 +11495,114 @@ xtensa_callback_required_dependence (bfd *abfd,
   return ok;
 }
 
+static void
+xtensa_info_set_entry (char *key, int value, xtensa_info_entries *entries)
+{
+  if (! strcmp (key, "ABI"))
+    {
+      entries->abi = value;
+    }
+  else if (! strcmp (key, "USE_ABSOLUTE_LITERALS"))
+    {
+      entries->use_absolute_literals = value;
+    }
+}
+
+static bool
+xtensa_info_parse (char *data, xtensa_info_entries *entries)
+{
+  char *d, *key;
+
+  d = data;
+  while (*d)
+    {
+      key = d;
+      d = strchr (d, '=');
+      if (! d)
+        goto error;
+
+      /* Overwrite the equal sign.  */
+      *d++ = 0;
+
+      /* Check if this is a quoted string or a number.  */
+      if (*d == '"')
+        {
+          /* No string values are currently checked by LD;
+             just skip over the quotes.  */
+          d++;
+          d = strchr (d, '"');
+          if (! d)
+            goto error;
+          /* Skip the trailing quote.  */
+          d++;
+        }
+      else if( *d >= '0' && *d <= '9' )
+        {
+          int value = strtoul (d, &d, 0);
+          xtensa_info_set_entry (key, value, entries);
+        }
+      else
+        goto error;
+
+      if (*d++ != '\n')
+        goto error;
+    }
+
+  return true;
+
+error:
+  return false;
+}
+
+bool
+read_xtensa_info (bfd *abfd, asection *info_sec, xtensa_info_entries *entries)
+{
+  bool ret = false;
+  char *data = (char *) bfd_malloc (info_sec->size);
+
+  /* initialize values  */
+  entries->abi = XSHAL_ABI;
+  entries->use_absolute_literals = XSHAL_USE_ABSOLUTE_LITERALS;
+
+  if (! bfd_get_section_contents (abfd, info_sec, data, 0, info_sec->size))
+    {
+      fprintf (stderr, _("%pB: cannot read contents of section %pA\n"),
+               abfd, info_sec);
+      goto exit;
+    }
+
+  if (! (info_sec->size > 24
+         && info_sec->size >= 24 + bfd_get_32 (abfd, data + 4)
+         && bfd_get_32 (abfd, data + 0) == XTINFO_NAMESZ
+         && bfd_get_32 (abfd, data + 8) == XTINFO_TYPE
+         && strcmp (data + 12, XTINFO_NAME) == 0
+         && xtensa_info_parse (data + 12 + XTINFO_NAMESZ, entries)
+        )
+     )
+    {
+      fprintf (stderr,
+               _("%pB: warning: cannot parse .xtensa.info section\n"),
+               abfd);
+      goto exit;
+    }
+
+  ret = true;
+
+exit:
+  free (data);
+  return ret;
+}
+
+void
+fill_xtensa_info (char **data)
+{
+  sprintf (*data,
+           "USE_ABSOLUTE_LITERALS=%d\n"
+           "ABI=%d\n",
+           XSHAL_USE_ABSOLUTE_LITERALS,
+           xtensa_abi_choice ());
+}
+
 /* The default literal sections should always be marked as "code" (i.e.,
    SHF_EXECINSTR).  This is particularly important for the Linux kernel
    module loader so that the literals are not placed after the text.  */

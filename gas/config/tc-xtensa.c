@@ -8982,10 +8982,6 @@ is_local_forward_loop (const TInsn *insn, fragS *fragP)
   return false;
 }
 
-#define XTINFO_NAME "Xtensa_Info"
-#define XTINFO_NAMESZ 12
-#define XTINFO_TYPE 1
-
 static void
 xtensa_add_config_info (void)
 {
@@ -8997,8 +8993,7 @@ xtensa_add_config_info (void)
   bfd_set_section_flags (info_sec, SEC_HAS_CONTENTS | SEC_READONLY);
 
   data = XNEWVEC (char, 100);
-  sprintf (data, "USE_ABSOLUTE_LITERALS=%d\nABI=%d\n",
-	   XSHAL_USE_ABSOLUTE_LITERALS, xtensa_abi_choice ());
+  fill_xtensa_info (&data);
   sz = strlen (data) + 1;
 
   /* Add enough null terminators to pad to a word boundary.  */
