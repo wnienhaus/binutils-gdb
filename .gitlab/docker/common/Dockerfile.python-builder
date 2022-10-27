@@ -1,6 +1,6 @@
 ARG OPENSSL_DIR="/opt/openssl"
-ARG PYENV_VERSION="2.1.0"
-ARG PYTHON_VERSIONS="3.6.0 3.7.0 3.8.0 3.9.0 3.10.0"
+ARG PYENV_VERSION="master"
+ARG PYTHON_VERSIONS="3.6.0 3.7.0 3.8.0 3.9.0 3.10.0 3.11.0"
 
 # OpenSSL needs for python build.
 # Since we need 3.6+ versions, satisfied with only v1.1.1
@@ -33,7 +33,7 @@ ARG HOST_TRIPLET="gcc -dumpmachine"
 
 # install pyenv
 RUN rm -fr ~/.pyenv
-RUN git clone -b v${PYENV_VERSION} --single-branch --depth 1 https://github.com/pyenv/pyenv.git ~/.pyenv
+RUN git clone -b ${PYENV_VERSION} --single-branch --depth 1 https://github.com/pyenv/pyenv.git ~/.pyenv
 RUN cd ~/.pyenv && src/configure && make -C src
 
 # setup environment variables for pyenv
@@ -73,13 +73,17 @@ RUN . ~/.profile && \
         export RANLIB=$TARGET_HOST-ranlib && \
         eval "$(pyenv init -)" && \
         for PYTHON_VERSION in $PYTHON_VERSIONS; do \
+            unset PYTHON_EXTRA_OPTIONS; \
+            if [ "$(echo $PYTHON_VERSION | cut -d . -f2)" -ge "11" ]; then \
+                PYTHON_EXTRA_OPTIONS="--with-system-ffi --with-build-python=/opt/python-`${HOST_TRIPLET}`-${PYTHON_VERSION}/bin/python"; \
+            fi; \
             export PYTHON_DIST_DIR=/opt/python-$TARGET_HOST-$PYTHON_VERSION; \
             pyenv shell "$PYTHON_VERSION"; \
             wget --no-verbose https://www.python.org/ftp/python/"$PYTHON_VERSION"/Python-"$PYTHON_VERSION".tgz; \
             tar xzf Python-"$PYTHON_VERSION".tgz; \
             rm Python-"$PYTHON_VERSION".tgz; \
             cd Python-"$PYTHON_VERSION"; \
-            ./configure --prefix=$PYTHON_DIST_DIR --host=$TARGET_HOST --target=$TARGET_HOST --build=`gcc -dumpmachine` --disable-ipv6 ac_cv_file__dev_ptmx=no ac_cv_file__dev_ptc=no ac_cv_have_long_long_format=yes --enable-shared --with-openssl=${OPENSSL_CROSS_DIR} CFLAGS="-I$OPENSSL_CROSS_DIR/include" export LDFLAGS="-L$OPENSSL_CROSS_DIR/lib"; \
+            ./configure --prefix=$PYTHON_DIST_DIR --host=$TARGET_HOST --target=$TARGET_HOST --build=`gcc -dumpmachine` --disable-ipv6 ac_cv_file__dev_ptmx=no ac_cv_file__dev_ptc=no ac_cv_have_long_long_format=yes --enable-shared --with-openssl=${OPENSSL_CROSS_DIR} CFLAGS="-I$OPENSSL_CROSS_DIR/include" export LDFLAGS="-L$OPENSSL_CROSS_DIR/lib" $PYTHON_EXTRA_OPTIONS; \
             make HOSTPYTHON=$PYTHON_DIST_DIR HOSTPGEN=$PYTHON_DIST_DIR/Parser/pgen BLDSHARED="$TARGET_HOST-gcc -shared" CROSS-COMPILE=$TARGET_HOST- CROSS_COMPILE_TARGET=yes HOSTARCH=$TARGET_HOST BUILDARCH=$TARGET_HOST; \
             make install; \
             cd ..; \

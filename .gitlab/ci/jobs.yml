@@ -50,6 +50,13 @@ xtensa-x86_64-linux-gnu-3.10.0:
     PYTHON_VERSION: 3.10.0
   image: $CI_REGISTRY_IMAGE/gdb-build-linux-x86_64:$CI_COMMIT_SHA
   extends: .build_template
+xtensa-x86_64-linux-gnu-3.11.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-linux-gnu
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.11.0
+  image: $CI_REGISTRY_IMAGE/gdb-build-linux-x86_64:$CI_COMMIT_SHA
+  extends: .build_template
 
 riscv32-x86_64-linux-gnu-without_python:
   variables:
@@ -91,6 +98,13 @@ riscv32-x86_64-linux-gnu-3.10.0:
     BUILD_ARCH_TRIPLET: x86_64-linux-gnu
     ESP_CHIP_ARCH: riscv32
     PYTHON_VERSION: 3.10.0
+  image: $CI_REGISTRY_IMAGE/gdb-build-linux-x86_64:$CI_COMMIT_SHA
+  extends: .build_template
+riscv32-x86_64-linux-gnu-3.11.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-linux-gnu
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.11.0
   image: $CI_REGISTRY_IMAGE/gdb-build-linux-x86_64:$CI_COMMIT_SHA
   extends: .build_template
 
@@ -140,6 +154,13 @@ xtensa-i586-linux-gnu-3.10.0:
     PYTHON_VERSION: 3.10.0
   image: $CI_REGISTRY_IMAGE/gdb-build-linux-x86:$CI_COMMIT_SHA
   extends: .build_template
+xtensa-i586-linux-gnu-3.11.0:
+  variables:
+    BUILD_ARCH_TRIPLET: i586-linux-gnu
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.11.0
+  image: $CI_REGISTRY_IMAGE/gdb-build-linux-x86:$CI_COMMIT_SHA
+  extends: .build_template
 
 riscv32-i586-linux-gnu-without_python:
   variables:
@@ -181,6 +202,13 @@ riscv32-i586-linux-gnu-3.10.0:
     BUILD_ARCH_TRIPLET: i586-linux-gnu
     ESP_CHIP_ARCH: riscv32
     PYTHON_VERSION: 3.10.0
+  image: $CI_REGISTRY_IMAGE/gdb-build-linux-x86:$CI_COMMIT_SHA
+  extends: .build_template
+riscv32-i586-linux-gnu-3.11.0:
+  variables:
+    BUILD_ARCH_TRIPLET: i586-linux-gnu
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.11.0
   image: $CI_REGISTRY_IMAGE/gdb-build-linux-x86:$CI_COMMIT_SHA
   extends: .build_template
 
@@ -230,6 +258,13 @@ xtensa-arm-linux-gnueabi-3.10.0:
     PYTHON_VERSION: 3.10.0
   image: $CI_REGISTRY_IMAGE/gdb-build-linux-armel:$CI_COMMIT_SHA
   extends: .build_template
+xtensa-arm-linux-gnueabi-3.11.0:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabi
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.11.0
+  image: $CI_REGISTRY_IMAGE/gdb-build-linux-armel:$CI_COMMIT_SHA
+  extends: .build_template
 
 riscv32-arm-linux-gnueabi-without_python:
   variables:
@@ -271,6 +306,13 @@ riscv32-arm-linux-gnueabi-3.10.0:
     BUILD_ARCH_TRIPLET: arm-linux-gnueabi
     ESP_CHIP_ARCH: riscv32
     PYTHON_VERSION: 3.10.0
+  image: $CI_REGISTRY_IMAGE/gdb-build-linux-armel:$CI_COMMIT_SHA
+  extends: .build_template
+riscv32-arm-linux-gnueabi-3.11.0:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabi
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.11.0
   image: $CI_REGISTRY_IMAGE/gdb-build-linux-armel:$CI_COMMIT_SHA
   extends: .build_template
 
@@ -320,6 +362,13 @@ xtensa-arm-linux-gnueabihf-3.10.0:
     PYTHON_VERSION: 3.10.0
   image: $CI_REGISTRY_IMAGE/gdb-build-linux-armhf:$CI_COMMIT_SHA
   extends: .build_template
+xtensa-arm-linux-gnueabihf-3.11.0:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabihf
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.11.0
+  image: $CI_REGISTRY_IMAGE/gdb-build-linux-armhf:$CI_COMMIT_SHA
+  extends: .build_template
 
 riscv32-arm-linux-gnueabihf-without_python:
   variables:
@@ -361,6 +410,13 @@ riscv32-arm-linux-gnueabihf-3.10.0:
     BUILD_ARCH_TRIPLET: arm-linux-gnueabihf
     ESP_CHIP_ARCH: riscv32
     PYTHON_VERSION: 3.10.0
+  image: $CI_REGISTRY_IMAGE/gdb-build-linux-armhf:$CI_COMMIT_SHA
+  extends: .build_template
+riscv32-arm-linux-gnueabihf-3.11.0:
+  variables:
+    BUILD_ARCH_TRIPLET: arm-linux-gnueabihf
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.11.0
   image: $CI_REGISTRY_IMAGE/gdb-build-linux-armhf:$CI_COMMIT_SHA
   extends: .build_template
 
@@ -410,6 +466,13 @@ xtensa-aarch64-linux-gnu-3.10.0:
     PYTHON_VERSION: 3.10.0
   image: $CI_REGISTRY_IMAGE/gdb-build-linux-arm64:$CI_COMMIT_SHA
   extends: .build_template
+xtensa-aarch64-linux-gnu-3.11.0:
+  variables:
+    BUILD_ARCH_TRIPLET: aarch64-linux-gnu
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.11.0
+  image: $CI_REGISTRY_IMAGE/gdb-build-linux-arm64:$CI_COMMIT_SHA
+  extends: .build_template
 
 riscv32-aarch64-linux-gnu-without_python:
   variables:
@@ -451,6 +514,13 @@ riscv32-aarch64-linux-gnu-3.10.0:
     BUILD_ARCH_TRIPLET: aarch64-linux-gnu
     ESP_CHIP_ARCH: riscv32
     PYTHON_VERSION: 3.10.0
+  image: $CI_REGISTRY_IMAGE/gdb-build-linux-arm64:$CI_COMMIT_SHA
+  extends: .build_template
+riscv32-aarch64-linux-gnu-3.11.0:
+  variables:
+    BUILD_ARCH_TRIPLET: aarch64-linux-gnu
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.11.0
   image: $CI_REGISTRY_IMAGE/gdb-build-linux-arm64:$CI_COMMIT_SHA
   extends: .build_template
 
@@ -500,6 +570,13 @@ xtensa-i686-w64-mingw32-3.10.0:
     PYTHON_VERSION: 3.10.0
   image: $CI_REGISTRY_IMAGE/gdb-build-win-x86:$CI_COMMIT_SHA
   extends: .build_template
+xtensa-i686-w64-mingw32-3.11.0:
+  variables:
+    BUILD_ARCH_TRIPLET: i686-w64-mingw32
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.11.0
+  image: $CI_REGISTRY_IMAGE/gdb-build-win-x86:$CI_COMMIT_SHA
+  extends: .build_template
 
 riscv32-i686-w64-mingw32-without_python:
   variables:
@@ -541,6 +618,13 @@ riscv32-i686-w64-mingw32-3.10.0:
     BUILD_ARCH_TRIPLET: i686-w64-mingw32
     ESP_CHIP_ARCH: riscv32
     PYTHON_VERSION: 3.10.0
+  image: $CI_REGISTRY_IMAGE/gdb-build-win-x86:$CI_COMMIT_SHA
+  extends: .build_template
+riscv32-i686-w64-mingw32-3.11.0:
+  variables:
+    BUILD_ARCH_TRIPLET: i686-w64-mingw32
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.11.0
   image: $CI_REGISTRY_IMAGE/gdb-build-win-x86:$CI_COMMIT_SHA
   extends: .build_template
 
@@ -590,6 +674,13 @@ xtensa-x86_64-w64-mingw32-3.10.0:
     PYTHON_VERSION: 3.10.0
   image: $CI_REGISTRY_IMAGE/gdb-build-win-x86_64:$CI_COMMIT_SHA
   extends: .build_template
+xtensa-x86_64-w64-mingw32-3.11.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-w64-mingw32
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.11.0
+  image: $CI_REGISTRY_IMAGE/gdb-build-win-x86_64:$CI_COMMIT_SHA
+  extends: .build_template
 
 riscv32-x86_64-w64-mingw32-without_python:
   variables:
@@ -631,6 +722,13 @@ riscv32-x86_64-w64-mingw32-3.10.0:
     BUILD_ARCH_TRIPLET: x86_64-w64-mingw32
     ESP_CHIP_ARCH: riscv32
     PYTHON_VERSION: 3.10.0
+  image: $CI_REGISTRY_IMAGE/gdb-build-win-x86_64:$CI_COMMIT_SHA
+  extends: .build_template
+riscv32-x86_64-w64-mingw32-3.11.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-w64-mingw32
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.11.0
   image: $CI_REGISTRY_IMAGE/gdb-build-win-x86_64:$CI_COMMIT_SHA
   extends: .build_template
 
@@ -680,6 +778,13 @@ xtensa-x86_64-apple-darwin14-3.10.0:
     PYTHON_VERSION: 3.10.0
   image: $CI_REGISTRY_IMAGE/gdb-build-macos-x86_64:$CI_COMMIT_SHA
   extends: .build_template
+xtensa-x86_64-apple-darwin14-3.11.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-apple-darwin14
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.11.0
+  image: $CI_REGISTRY_IMAGE/gdb-build-macos-x86_64:$CI_COMMIT_SHA
+  extends: .build_template
 
 riscv32-x86_64-apple-darwin14-without_python:
   variables:
@@ -723,6 +828,13 @@ riscv32-x86_64-apple-darwin14-3.10.0:
     PYTHON_VERSION: 3.10.0
   image: $CI_REGISTRY_IMAGE/gdb-build-macos-x86_64:$CI_COMMIT_SHA
   extends: .build_template
+riscv32-x86_64-apple-darwin14-3.11.0:
+  variables:
+    BUILD_ARCH_TRIPLET: x86_64-apple-darwin14
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.11.0
+  image: $CI_REGISTRY_IMAGE/gdb-build-macos-x86_64:$CI_COMMIT_SHA
+  extends: .build_template
 
 
 # BUILD aarch64-apple-darwin21.1
@@ -756,6 +868,13 @@ xtensa-aarch64-apple-darwin21.1-3.10.0:
     PYTHON_VERSION: 3.10.0
   image: $CI_REGISTRY_IMAGE/gdb-build-macos-arm64:$CI_COMMIT_SHA
   extends: .build_template
+xtensa-aarch64-apple-darwin21.1-3.11.0:
+  variables:
+    BUILD_ARCH_TRIPLET: aarch64-apple-darwin21.1
+    ESP_CHIP_ARCH: xtensa
+    PYTHON_VERSION: 3.11.0
+  image: $CI_REGISTRY_IMAGE/gdb-build-macos-arm64:$CI_COMMIT_SHA
+  extends: .build_template
 
 riscv32-aarch64-apple-darwin21.1-without_python:
   variables:
@@ -783,6 +902,13 @@ riscv32-aarch64-apple-darwin21.1-3.10.0:
     BUILD_ARCH_TRIPLET: aarch64-apple-darwin21.1
     ESP_CHIP_ARCH: riscv32
     PYTHON_VERSION: 3.10.0
+  image: $CI_REGISTRY_IMAGE/gdb-build-macos-arm64:$CI_COMMIT_SHA
+  extends: .build_template
+riscv32-aarch64-apple-darwin21.1-3.11.0:
+  variables:
+    BUILD_ARCH_TRIPLET: aarch64-apple-darwin21.1
+    ESP_CHIP_ARCH: riscv32
+    PYTHON_VERSION: 3.11.0
   image: $CI_REGISTRY_IMAGE/gdb-build-macos-arm64:$CI_COMMIT_SHA
   extends: .build_template
 
@@ -1388,6 +1514,7 @@ sign-xtensa-x86_64-apple-darwin14:
     - xtensa-x86_64-apple-darwin14-3.8.0
     - xtensa-x86_64-apple-darwin14-3.9.0
     - xtensa-x86_64-apple-darwin14-3.10.0
+    - xtensa-x86_64-apple-darwin14-3.11.0
   extends: .macos_codesign
 
 sign-riscv32-x86_64-apple-darwin14:
@@ -1400,6 +1527,7 @@ sign-riscv32-x86_64-apple-darwin14:
     - riscv32-x86_64-apple-darwin14-3.8.0
     - riscv32-x86_64-apple-darwin14-3.9.0
     - riscv32-x86_64-apple-darwin14-3.10.0
+    - riscv32-x86_64-apple-darwin14-3.11.0
   extends: .macos_codesign
 
 
@@ -1413,6 +1541,7 @@ sign-xtensa-aarch64-apple-darwin21.1:
     - xtensa-aarch64-apple-darwin21.1-3.8.10
     - xtensa-aarch64-apple-darwin21.1-3.9.13
     - xtensa-aarch64-apple-darwin21.1-3.10.0
+    - xtensa-aarch64-apple-darwin21.1-3.11.0
   extends: .macos_codesign
 
 sign-riscv32-aarch64-apple-darwin21.1:
@@ -1423,6 +1552,7 @@ sign-riscv32-aarch64-apple-darwin21.1:
     - riscv32-aarch64-apple-darwin21.1-3.8.10
     - riscv32-aarch64-apple-darwin21.1-3.9.13
     - riscv32-aarch64-apple-darwin21.1-3.10.0
+    - riscv32-aarch64-apple-darwin21.1-3.11.0
   extends: .macos_codesign
 
 
@@ -1442,6 +1572,7 @@ pack-xtensa-x86_64-linux-gnu:
     - xtensa-x86_64-linux-gnu-3.8.0
     - xtensa-x86_64-linux-gnu-3.9.0
     - xtensa-x86_64-linux-gnu-3.10.0
+    - xtensa-x86_64-linux-gnu-3.11.0
   extends: .pack_template
 
 pack-riscv32-x86_64-linux-gnu:
@@ -1458,6 +1589,7 @@ pack-riscv32-x86_64-linux-gnu:
     - riscv32-x86_64-linux-gnu-3.8.0
     - riscv32-x86_64-linux-gnu-3.9.0
     - riscv32-x86_64-linux-gnu-3.10.0
+    - riscv32-x86_64-linux-gnu-3.11.0
   extends: .pack_template
 
 
@@ -1477,6 +1609,7 @@ pack-xtensa-i586-linux-gnu:
     - xtensa-i586-linux-gnu-3.8.0
     - xtensa-i586-linux-gnu-3.9.0
     - xtensa-i586-linux-gnu-3.10.0
+    - xtensa-i586-linux-gnu-3.11.0
   extends: .pack_template
 
 pack-riscv32-i586-linux-gnu:
@@ -1493,6 +1626,7 @@ pack-riscv32-i586-linux-gnu:
     - riscv32-i586-linux-gnu-3.8.0
     - riscv32-i586-linux-gnu-3.9.0
     - riscv32-i586-linux-gnu-3.10.0
+    - riscv32-i586-linux-gnu-3.11.0
   extends: .pack_template
 
 
@@ -1512,6 +1646,7 @@ pack-xtensa-arm-linux-gnueabi:
     - xtensa-arm-linux-gnueabi-3.8.0
     - xtensa-arm-linux-gnueabi-3.9.0
     - xtensa-arm-linux-gnueabi-3.10.0
+    - xtensa-arm-linux-gnueabi-3.11.0
   extends: .pack_template
 
 pack-riscv32-arm-linux-gnueabi:
@@ -1528,6 +1663,7 @@ pack-riscv32-arm-linux-gnueabi:
     - riscv32-arm-linux-gnueabi-3.8.0
     - riscv32-arm-linux-gnueabi-3.9.0
     - riscv32-arm-linux-gnueabi-3.10.0
+    - riscv32-arm-linux-gnueabi-3.11.0
   extends: .pack_template
 
 
@@ -1547,6 +1683,7 @@ pack-xtensa-arm-linux-gnueabihf:
     - xtensa-arm-linux-gnueabihf-3.8.0
     - xtensa-arm-linux-gnueabihf-3.9.0
     - xtensa-arm-linux-gnueabihf-3.10.0
+    - xtensa-arm-linux-gnueabihf-3.11.0
   extends: .pack_template
 
 pack-riscv32-arm-linux-gnueabihf:
@@ -1563,6 +1700,7 @@ pack-riscv32-arm-linux-gnueabihf:
     - riscv32-arm-linux-gnueabihf-3.8.0
     - riscv32-arm-linux-gnueabihf-3.9.0
     - riscv32-arm-linux-gnueabihf-3.10.0
+    - riscv32-arm-linux-gnueabihf-3.11.0
   extends: .pack_template
 
 
@@ -1582,6 +1720,7 @@ pack-xtensa-aarch64-linux-gnu:
     - xtensa-aarch64-linux-gnu-3.8.0
     - xtensa-aarch64-linux-gnu-3.9.0
     - xtensa-aarch64-linux-gnu-3.10.0
+    - xtensa-aarch64-linux-gnu-3.11.0
   extends: .pack_template
 
 pack-riscv32-aarch64-linux-gnu:
@@ -1598,6 +1737,7 @@ pack-riscv32-aarch64-linux-gnu:
     - riscv32-aarch64-linux-gnu-3.8.0
     - riscv32-aarch64-linux-gnu-3.9.0
     - riscv32-aarch64-linux-gnu-3.10.0
+    - riscv32-aarch64-linux-gnu-3.11.0
   extends: .pack_template
 
 
@@ -1617,6 +1757,7 @@ pack-xtensa-i686-w64-mingw32:
     - xtensa-i686-w64-mingw32-3.8.0
     - xtensa-i686-w64-mingw32-3.9.0
     - xtensa-i686-w64-mingw32-3.10.0
+    - xtensa-i686-w64-mingw32-3.11.0
   extends: .pack_template
 
 pack-riscv32-i686-w64-mingw32:
@@ -1633,6 +1774,7 @@ pack-riscv32-i686-w64-mingw32:
     - riscv32-i686-w64-mingw32-3.8.0
     - riscv32-i686-w64-mingw32-3.9.0
     - riscv32-i686-w64-mingw32-3.10.0
+    - riscv32-i686-w64-mingw32-3.11.0
   extends: .pack_template
 
 
@@ -1652,6 +1794,7 @@ pack-xtensa-x86_64-w64-mingw32:
     - xtensa-x86_64-w64-mingw32-3.8.0
     - xtensa-x86_64-w64-mingw32-3.9.0
     - xtensa-x86_64-w64-mingw32-3.10.0
+    - xtensa-x86_64-w64-mingw32-3.11.0
   extends: .pack_template
 
 pack-riscv32-x86_64-w64-mingw32:
@@ -1668,6 +1811,7 @@ pack-riscv32-x86_64-w64-mingw32:
     - riscv32-x86_64-w64-mingw32-3.8.0
     - riscv32-x86_64-w64-mingw32-3.9.0
     - riscv32-x86_64-w64-mingw32-3.10.0
+    - riscv32-x86_64-w64-mingw32-3.11.0
   extends: .pack_template
 
 
