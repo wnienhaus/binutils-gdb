@@ -93,7 +93,7 @@
 #include "xtensa-isa.h"
 #include "xtensa-relax.h"
 #include <stddef.h>
-#include "xtensa-config.h"
+#include "xtensa-dynconfig.h"
 
 #ifndef XCHAL_HAVE_WIDE_BRANCHES
 #define XCHAL_HAVE_WIDE_BRANCHES 0

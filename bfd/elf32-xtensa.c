@@ -30,7 +30,7 @@
 #include "elf/xtensa.h"
 #include "splay-tree.h"
 #include "xtensa-isa.h"
-#include "xtensa-config.h"
+#include "xtensa-dynconfig.h"
 
 /* All users of this file have bfd_octets_per_byte (abfd, sec) == 1.  */
 #define OCTETS_PER_BYTE(ABFD, SEC) 1

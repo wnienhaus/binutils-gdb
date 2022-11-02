@@ -392,6 +392,7 @@ BFD32_BACKENDS = \
 	wasm-module.lo \
 	xcofflink.lo \
 	xsym.lo \
+	xtensa-config.lo \
 	xtensa-isa.lo \
 	xtensa-modules.lo
 
@@ -524,6 +525,7 @@ BFD32_BACKENDS_CFILES = \
 	wasm-module.c \
 	xcofflink.c \
 	xsym.c \
+	xtensa-config.c \
 	xtensa-isa.c \
 	xtensa-modules.c
 

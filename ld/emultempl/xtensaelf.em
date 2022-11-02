@@ -24,7 +24,7 @@
 #
 fragment <<EOF
 
-#include <xtensa-config.h>
+#include <xtensa-dynconfig.h>
 #include "../bfd/elf-bfd.h"
 #include "elf/xtensa.h"
 #include "bfd.h"
