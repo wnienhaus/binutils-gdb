@@ -55,12 +55,13 @@ before_script:
   REL_VERSION=${CI_COMMIT_TAG:-""}
   REL_VERSION=${REL_VERSION#"esp32ulp-elf-v"}
   REL_VERSION=${REL_VERSION:-${CI_COMMIT_SHORT_SHA}}
-  PLATFORM_NAME=${PLATFORM_NAME:-unknown}
-  ARCHIVE_PATH=dist/${CONF_TARGET}-${REL_VERSION}-${PLATFORM_NAME}.${ARCHIVE_EXT}
+  REL_VERSION=${FORCE_VERSION_NAME:-${REL_VERSION}}
+  PLATFORM_NAME=${PLATFORM_NAME}
+  ARCHIVE_NAME=${CONF_TARGET}-${REL_VERSION}-${PLATFORM_NAME}.${ARCHIVE_EXT}
   SHA256_FILE="${CONF_TARGET}-${REL_VERSION}-checksum.sha256"
   echo "PLATFORM_NAME: $PLATFORM_NAME"
   echo "REL_VERSION: $REL_VERSION"
-  echo "ARCHIVE_PATH: $ARCHIVE_PATH"
+  echo "ARCHIVE_NAME: $ARCHIVE_NAME"
   echo "SHA256_FILE: $SHA256_FILE"
 
 .set_displayed_version: &set_displayed_version |
@@ -70,12 +71,15 @@ before_script:
   sed -ri 's/(.*)(bfd_version_string=)(.*)( ;\\)$/\1\2"\\"$(ESP_VERSION)\\""\4/' bfd/Makefile.in
 
 .dist_archive: &dist_archive |
-  mkdir -p $(dirname ${ARCHIVE_PATH})
-  ${ARCHIVE_TOOL} ${ARCHIVE_PATH} ${DIST_INSTALLED_DIR}
+  ${ARCHIVE_TOOL} ${ARCHIVE_NAME} ${DIST_INSTALLED_DIR}
+  mkdir -p dist
+  mv ${ARCHIVE_NAME} dist/
+  echo "${ARCHIVE_NAME}" > dist/file_${PLATFORM_NAME}_${CONF_TARGET}
+  ls -l dist/
 
 .dist_unarchive: &dist_unarchive |
-  ARCHIVE_PATH=$(ls dist/*.${ARCHIVE_EXT})
-  ${UNARCHIVE_TOOL} ${ARCHIVE_PATH}
+  ARCHIVE_NAME=$(cat dist/file_${PLATFORM_NAME}_${CONF_TARGET})
+  ${UNARCHIVE_TOOL} dist/${ARCHIVE_NAME}
 
 .release_tag_filter: &release_tag_filter
   only:
@@ -141,6 +145,13 @@ linux_amd64:
   variables:
     PLATFORM_NAME: "linux-amd64"
     CONF_HOST: "x86_64-linux-gnu"
+
+linux_i686:
+  extends: .build_template
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-x86:4
+  variables:
+    PLATFORM_NAME: "linux-i686"
+    CONF_HOST: "i586-linux-gnu"
 
 win:
   extends: .build_template
