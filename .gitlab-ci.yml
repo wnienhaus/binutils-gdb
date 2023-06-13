@@ -81,6 +81,10 @@ before_script:
   ARCHIVE_NAME=$(cat dist/file_${PLATFORM_NAME}_${CONF_TARGET})
   ${UNARCHIVE_TOOL} dist/${ARCHIVE_NAME}
 
+.dist_unarchive_win: &dist_unarchive_win |
+  $ARCHIVE_NAME=$(cat "dist\file_${PLATFORM_NAME}_${CONF_TARGET}")
+  Expand-Archive -DestinationPATH . "dist\$ARCHIVE_NAME"
+
 .release_tag_filter: &release_tag_filter
   only:
     - /^esp32ulp-elf-v.*$/
@@ -242,10 +246,14 @@ linux_armhf:
 sign_macos:
   needs: [ macos ]
   extends: .macos_codesign
+  variables:
+    PLATFORM_NAME: "macos"
 
 sign_macos_arm64:
   needs: [ macos_arm64 ]
   extends: .macos_codesign
+  variables:
+    PLATFORM_NAME: "macos-arm64"
 
 # Tests
 
@@ -320,23 +328,31 @@ test_simple_macos:
   tags: [ "darwin", "amd64" ]
   needs: [ sign_macos ]
   extends: .test_simple_template
+  variables:
+    PLATFORM_NAME: "macos"
 
 test_simple_macos_arm64:
   tags: [ "darwin", "aarch64" ]
   needs: [ sign_macos_arm64 ]
   extends: .test_simple_template
+  variables:
+    PLATFORM_NAME: "macos-arm64"
 
 test_simple_win64:
   tags: [ windows, powershell ]
   needs: [ win64 ]
   extends: .test_simple_template
+  variables:
+    PLATFORM_NAME: "win64"
   script:
-    - Expand-Archive -DestinationPath . -path .\dist\*.zip
+    - *dist_unarchive_win
     - .\esp32ulp-elf\bin\esp32ulp-elf-as --version
 
 test_simple_win:
   needs: [ win ]
   extends: test_simple_win64
+  variables:
+    PLATFORM_NAME: "win32"
 
 upload_to_http:
   stage: private_deploy
