@@ -1224,7 +1224,7 @@ INSTR_T esp32s2ulp_cmd_jump_rels(Expr_Node* step, Expr_Node* thresh, int cond)
 	int thresh_val = EXPR_VALUE(thresh);
 
 	{
-		unsigned int local_op = I_JUMP_RELS(thresh_val, cond, step_val);
+		unsigned int local_op = I_JUMP_RELS(thresh_val, cond, step_val>>2);
 
 		INSTR_T result = conscode(gencode(local_op),
 			conctcode(Expr_Node_Gen_Reloc(step, BFD_RELOC_ESP32S2ULP_JUMPR_STEP),
