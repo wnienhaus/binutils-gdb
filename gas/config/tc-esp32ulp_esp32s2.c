@@ -375,7 +375,7 @@ INSTR_T esp32ulp_wr_mem_sti_esp32s2(int dst_reg, int src_reg)
 INSTR_T esp32ulp_wr_mem_sto_esp32s2(Expr_Node* offset)
 {
     int addr_val = EXPR_VALUE(offset);
-    unsigned int local_op = WR_MEM(0, 0, addr_val >> 2, 0, 0, 0, 0x2);
+    unsigned int local_op = WR_MEM(0, 0, addr_val >> 2, 0, 0, 0, 0x3);
 
     return conscode(gencode(local_op), Expr_Node_Gen_Reloc(offset, BFD_RELOC_ESP32S2ULP_WR_MEM));
 }
