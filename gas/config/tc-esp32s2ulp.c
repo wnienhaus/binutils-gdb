@@ -1249,7 +1249,7 @@ INSTR_T esp32s2ulp_cmd_reg_rd(Expr_Node* addr, Expr_Node* high, Expr_Node* low)
 		{
 			addr_val = (addr_val - DR_REG_RTCCNTL_BASE)/4;
 		} else {
-			error("%s","Register address out of range. Must be 0..0x3ff, or in range of 0x3ff48000 .. 0x3ff49000.");
+			error("%s","Register address out of range. Must be 0..0x3ff, or in range of 0x3f408000 .. 0x3f409000.");
 		}
 	}
 	unsigned int local_op = I_RD_REG(addr_val, low_val, high_val);
@@ -1273,7 +1273,7 @@ INSTR_T esp32s2ulp_cmd_reg_wr(Expr_Node* addr, Expr_Node* high, Expr_Node* low, 
 		{
 			addr_val = (addr_val - DR_REG_RTCCNTL_BASE)/4;
 		} else {
-			error("%s","Register address out of range. Must be 0..0x3ff, or in range of 0x3ff48000 .. 0x3ff49000.");
+			error("%s","Register address out of range. Must be 0..0x3ff, or in range of 0x3f408000 .. 0x3f409000.");
 		}
 	}
 	unsigned int local_op = I_WR_REG(addr_val, low_val, high_val, data_val);
